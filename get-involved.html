@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Al Ihsan Relief & Empowerment | Get Involved</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='58' fill='%235d2e8e'/%3E%3Cpath d='M38 78c6-18 10-30 22-46 12 16 16 28 22 46' stroke='%23d4af37' stroke-width='8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M28 78h64' stroke='%23d4af37' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="get-involved">
+    <div class="page-loader" aria-hidden="true">
+      <svg class="loader-icon" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="58" fill="#5d2e8e" />
+        <path d="M38 78c6-18 10-30 22-46 12 16 16 28 22 46" stroke="#d4af37" stroke-width="8" fill="none" stroke-linecap="round" />
+        <path d="M28 78h64" stroke="#d4af37" stroke-width="6" stroke-linecap="round" />
+      </svg>
+    </div>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="container navbar">
+        <a class="logo" href="index.html">
+          <svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="58" fill="#5d2e8e" />
+            <path d="M38 78c6-18 10-30 22-46 12 16 16 28 22 46" stroke="#d4af37" stroke-width="8" fill="none" stroke-linecap="round" />
+            <path d="M28 78h64" stroke="#d4af37" stroke-width="6" stroke-linecap="round" />
+          </svg>
+          <div>
+            Al Ihsan Relief & Empowerment
+            <span>Empowering Lives with Dignity</span>
+          </div>
+        </a>
+        <nav class="nav-links" aria-label="Main navigation">
+          <a href="index.html" data-page="home">Home</a>
+          <a href="about.html" data-page="about">About</a>
+          <a href="focus.html" data-page="focus">Focus Areas</a>
+          <a href="gallery.html" data-page="gallery">Gallery</a>
+          <a href="get-involved.html" data-page="get-involved">Get Involved</a>
+          <a href="contact.html" data-page="contact">Contact</a>
+          <a href="admin.html" data-page="admin">Admin</a>
+        </nav>
+        <div class="nav-cta">
+          <a class="btn btn-outline" href="#donate">Donate</a>
+          <a class="btn btn-primary" href="#volunteer">Volunteer</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="section" id="donate">
+        <div class="container">
+          <h1 class="section-title reveal">Invest in dignified relief</h1>
+          <p class="section-subtitle reveal">
+            Your contribution powers emergency response, sustainable livelihoods, and youth development programs.
+          </p>
+          <div class="grid" style="margin-top: 30px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <div class="form-card reveal">
+              <h3>Donate securely</h3>
+              <p>Simulated payment flow. Firebase integration can be connected in production.</p>
+              <form id="donation-form">
+                <label for="amount">Donation Amount (NGN)</label>
+                <input type="number" id="amount" name="amount" min="1000" required />
+                <p class="helper">Suggested contribution: NGN 25,000 or more.</p>
+                <label for="frequency">Donation Frequency</label>
+                <select id="frequency" name="frequency" required>
+                  <option value="Monthly">Monthly</option>
+                  <option value="One-time">One-time</option>
+                </select>
+                <label for="donor-name">Full Name</label>
+                <input type="text" id="donor-name" name="donorName" required />
+                <p class="helper">Enter the full name shown on your receipt.</p>
+                <label for="donor-email">Email Address</label>
+                <input type="email" id="donor-email" name="donorEmail" required />
+                <p class="helper">We will send your acknowledgement to this address.</p>
+                <div class="form-message"></div>
+                <button class="btn btn-primary" type="submit">Process Donation</button>
+              </form>
+            </div>
+            <div class="card reveal">
+              <h3>Trusted stewardship</h3>
+              <ul style="margin-top: 14px; display: grid; gap: 12px;">
+                <li><i class="fa-solid fa-shield-heart"></i> Transparent reporting for every naira.</li>
+                <li><i class="fa-solid fa-hand-holding-heart"></i> Verified distribution with photo evidence.</li>
+                <li><i class="fa-solid fa-chart-line"></i> Impact dashboards updated monthly.</li>
+              </ul>
+              <p style="margin-top: 18px;">
+                Payment processing and donor management can be connected to Firebase using the placeholder configuration in
+                our scripts.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="volunteer" style="background: #f7f4fb;">
+        <div class="container">
+          <h2 class="section-title reveal">Volunteer with expertise</h2>
+          <p class="section-subtitle reveal">
+            Join our volunteer corps and serve communities with your skills and compassion.
+          </p>
+          <div class="form-card reveal" style="margin-top: 30px;">
+            <form data-store="volunteers">
+              <div class="form-row">
+                <div>
+                  <label for="vol-name">Full Name</label>
+                  <input type="text" id="vol-name" name="name" required />
+                  <p class="helper">Enter your full legal name.</p>
+                </div>
+                <div>
+                  <label for="vol-email">Email Address</label>
+                  <input type="email" id="vol-email" name="email" required />
+                  <p class="helper">We will confirm assignments via email.</p>
+                </div>
+              </div>
+              <div class="form-row">
+                <div>
+                  <label for="vol-skill">Primary Skill</label>
+                  <select id="vol-skill" name="skill" required>
+                    <option value="Medical Outreach">Medical Outreach</option>
+                    <option value="Education">Education</option>
+                    <option value="Finance">Finance & Accounting</option>
+                    <option value="Communications">Communications</option>
+                    <option value="Project Management">Project Management</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="vol-location">Location</label>
+                  <input type="text" id="vol-location" name="location" required />
+                  <p class="helper">City and state of residence.</p>
+                </div>
+              </div>
+              <label for="vol-message">Why do you want to volunteer?</label>
+              <textarea id="vol-message" name="message" required></textarea>
+              <p class="helper">Share your motivation and availability.</p>
+              <div class="form-message"></div>
+              <button class="btn btn-primary" type="submit">Submit Volunteer Interest</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <h2 class="section-title reveal">Partnership & collaboration</h2>
+          <p class="section-subtitle reveal">
+            We welcome strategic partners, corporate CSR teams, and foundations aligned with our mission.
+          </p>
+          <div class="form-card reveal" style="margin-top: 30px;">
+            <form data-store="partnerships">
+              <div class="form-row">
+                <div>
+                  <label for="org-name">Organization</label>
+                  <input type="text" id="org-name" name="organization" required />
+                  <p class="helper">Organization or institution name.</p>
+                </div>
+                <div>
+                  <label for="org-email">Contact Email</label>
+                  <input type="email" id="org-email" name="email" required />
+                  <p class="helper">A direct email for follow-up.</p>
+                </div>
+              </div>
+              <label for="org-focus">Preferred Collaboration Focus</label>
+              <select id="org-focus" name="focus" required>
+                <option value="Food Security">Food Security</option>
+                <option value="Health Improvement">Health Improvement</option>
+                <option value="Education">Education</option>
+                <option value="Livelihoods">Livelihoods</option>
+              </select>
+              <label for="org-message">Message</label>
+              <textarea id="org-message" name="message" required></textarea>
+              <p class="helper">Describe the partnership idea and timeline.</p>
+              <div class="form-message"></div>
+              <button class="btn btn-primary" type="submit">Send Partnership Inquiry</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-grid">
+        <div>
+          <h4>Al Ihsan Relief & Empowerment</h4>
+          <p>
+            A faith-rooted humanitarian organization committed to dignified relief, empowered futures, and transparent impact.
+          </p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="focus.html">Focus Areas</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li>15 Unity Crescent, Ikeja, Lagos</li>
+            <li>+234 (0) 812 555 0190</li>
+            <li>hello@alihsanrelief.org</li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p>© <span data-year></span> Al Ihsan Relief & Empowerment. All rights reserved.</p>
+        <p>Empowering Lives with Dignity</p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

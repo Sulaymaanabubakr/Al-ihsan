@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Al Ihsan Relief & Empowerment | Admin Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='58' fill='%235d2e8e'/%3E%3Cpath d='M38 78c6-18 10-30 22-46 12 16 16 28 22 46' stroke='%23d4af37' stroke-width='8' fill='none' stroke-linecap='round'/%3E%3Cpath d='M28 78h64' stroke='%23d4af37' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="admin" class="dashboard">
+    <div class="page-loader" aria-hidden="true">
+      <svg class="loader-icon" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="58" fill="#5d2e8e" />
+        <path d="M38 78c6-18 10-30 22-46 12 16 16 28 22 46" stroke="#d4af37" stroke-width="8" fill="none" stroke-linecap="round" />
+        <path d="M28 78h64" stroke="#d4af37" stroke-width="6" stroke-linecap="round" />
+      </svg>
+    </div>
+    <header class="site-header">
+      <div class="container navbar">
+        <a class="logo" href="index.html">
+          <svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true">
+            <circle cx="60" cy="60" r="58" fill="#5d2e8e" />
+            <path d="M38 78c6-18 10-30 22-46 12 16 16 28 22 46" stroke="#d4af37" stroke-width="8" fill="none" stroke-linecap="round" />
+            <path d="M28 78h64" stroke="#d4af37" stroke-width="6" stroke-linecap="round" />
+          </svg>
+          <div>
+            Al Ihsan Relief & Empowerment
+            <span>Admin Dashboard</span>
+          </div>
+        </a>
+        <div class="nav-cta">
+          <button class="btn btn-outline" id="logout">Log out</button>
+          <a class="btn btn-primary" href="index.html">View Website</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="dashboard-header">
+        <h1 class="section-title">Operational Command Center</h1>
+        <p class="section-subtitle">
+          Manage activities, media, and submissions with clarity and accountability. Firebase and Cloudinary configurations
+          are ready for integration.
+        </p>
+        <div class="dashboard-nav">
+          <button class="active" data-panel="panel-activities">Activities</button>
+          <button data-panel="panel-media">Media Manager</button>
+          <button data-panel="panel-cms">CMS Editor</button>
+          <button data-panel="panel-submissions">Submissions</button>
+        </div>
+      </section>
+
+      <section id="panel-activities" class="dashboard-panel active">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <div class="form-card">
+            <h3>Post new activity</h3>
+            <form id="activity-form">
+              <label for="activity-title">Title</label>
+              <input id="activity-title" name="title" type="text" required />
+              <p class="helper">Example: Northern Relief Convoy.</p>
+              <label for="activity-date">Date</label>
+              <input id="activity-date" name="date" type="date" required />
+              <label for="activity-category">Category</label>
+              <input id="activity-category" name="category" type="text" required />
+              <p class="helper">Example: Emergency Response.</p>
+              <label for="activity-summary">Summary</label>
+              <textarea id="activity-summary" name="summary" required></textarea>
+              <p class="helper">Summarize the outcome and beneficiaries.</p>
+              <button class="btn btn-primary" type="submit">Publish Update</button>
+            </form>
+          </div>
+          <div>
+            <h3>Recent activities</h3>
+            <div id="activity-list" class="grid" style="margin-top: 16px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-media" class="dashboard-panel">
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+          <div class="form-card">
+            <h3>Cloudinary uploads</h3>
+            <p>Cloudinary configuration is prepared in <code>script.js</code>.</p>
+            <form id="media-form">
+              <label for="media-file">Select image or video</label>
+              <input id="media-file" name="media" type="file" accept="image/*,video/*" required />
+              <button class="btn btn-primary" type="submit">Upload to Cloudinary</button>
+            </form>
+          </div>
+          <div id="media-preview" class="card">
+            <h3>Upload preview</h3>
+            <p>Uploaded assets will appear here with Cloudinary delivery references.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-cms" class="dashboard-panel">
+        <div class="form-card" style="max-width: 720px;">
+          <h3>Homepage messaging editor</h3>
+          <form id="cms-form">
+            <label for="cms-hero">Hero headline</label>
+            <input id="cms-hero" name="heroTitle" type="text" required />
+            <p class="helper">Update the homepage hero headline.</p>
+            <label for="cms-mission">Mission statement</label>
+            <textarea id="cms-mission" name="mission" required>
+Al Ihsan Relief and Empowerment is a Nigerian humanitarian NGO dedicated to restoring dignity through strategic relief, economic empowerment, and sustainable community development rooted in Islamic ethics.
+            </textarea>
+            <button class="btn btn-primary" type="submit">Save CMS Updates</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="panel-submissions" class="dashboard-panel">
+        <div class="card">
+          <h3>Volunteer submissions</h3>
+          <table class="table" id="volunteer-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Skill</th>
+                <th>Location</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card" style="margin-top: 24px;">
+          <h3>Contact submissions</h3>
+          <table class="table" id="contact-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div class="login-overlay">
+      <div class="login-card">
+        <h2>Admin Sign In</h2>
+        <p style="margin: 12px 0;">
+          Use the secure credentials: <strong>admin@alihsanrelief.org</strong> / <strong>Dignity2024</strong>.
+        </p>
+        <form id="login-form">
+          <label for="login-email">Email</label>
+          <input id="login-email" name="email" type="email" required />
+          <p class="helper">Use the official admin email.</p>
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" required />
+          <p class="helper">Use the secure admin password.</p>
+          <button class="btn btn-primary" type="submit">Access Dashboard</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
