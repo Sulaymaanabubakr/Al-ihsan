@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, CheckCircle, CreditCard, Wallet } from 'lucide-react';
 import SEO from '../../components/common/SEO';
+import { useAnimations } from '../../hooks/useAnimations';
 
 const Donate: React.FC = () => {
+    const { slideInLeft, slideInRight, fadeInUp, staggerContainer } = useAnimations();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
@@ -19,18 +21,24 @@ const Donate: React.FC = () => {
                 description="Make a difference today. Donate to Al-Ihsan Relief via bank transfer or Paystack to support orphans, providing food and education."
             />
             <div className="container mx-auto px-4 max-w-4xl">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-900 mb-4">Make a Difference Today</h1>
-                    <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={staggerContainer}
+                    className="text-center mb-12"
+                >
+                    <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl font-heading font-bold text-primary-900 mb-4">Make a Difference Today</motion.h1>
+                    <motion.p variants={fadeInUp} className="text-lg text-gray-600 max-w-2xl mx-auto">
                         Your Sadaqah and Zakat have the power to transform lives. Every donation is an Amanah that we deliver with excellence.
-                    </p>
-                </div>
+                    </motion.p>
+                </motion.div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                     {/* Bank Transfer Card */}
                     <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial="hidden"
+                        animate="visible"
+                        variants={slideInLeft}
                         className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100"
                     >
                         <div className="bg-primary-900 p-6 text-white text-center">
@@ -62,9 +70,9 @@ const Donate: React.FC = () => {
 
                     {/* Online Payment Card */}
                     <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 }}
+                        initial="hidden"
+                        animate="visible"
+                        variants={slideInRight}
                         className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 flex flex-col"
                     >
                         <div className="bg-gold-500 p-6 text-white text-center">

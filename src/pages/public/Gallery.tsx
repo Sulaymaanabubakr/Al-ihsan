@@ -4,6 +4,7 @@ import { X, ZoomIn, Loader } from 'lucide-react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import SEO from '../../components/common/SEO';
+import { useAnimations } from '../../hooks/useAnimations';
 
 const categories = ["All", "Food Relief", "Medical", "Education", "Orphans"];
 
@@ -15,6 +16,7 @@ interface GalleryImage {
 }
 
 const Gallery: React.FC = () => {
+    const { slideInLeft, fadeInUp, staggerContainer } = useAnimations();
     const [activeCategory, setActiveCategory] = useState("All");
     const [images, setImages] = useState<GalleryImage[]>([]);
     const [loading, setLoading] = useState(true);
@@ -46,27 +48,35 @@ const Gallery: React.FC = () => {
             />
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl md:text-5xl font-heading font-bold text-primary-900 mb-4">Our Impact in Pictures</h1>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
+                    <motion.h1 variants={slideInLeft} initial="hidden" animate="visible" className="text-4xl md:text-5xl font-heading font-bold text-primary-900 mb-4">Our Impact in Pictures</motion.h1>
+                    <motion.p variants={fadeInUp} initial="hidden" animate="visible" className="text-gray-600 max-w-2xl mx-auto">
                         Witness the joy and relief your donations bring to the community.
-                    </p>
+                    </motion.p>
                 </div>
 
                 {/* Filter Buttons */}
-                <div className="flex flex-wrap justify-center gap-4 mb-12">
+                <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="visible"
+                    className="flex flex-wrap justify-center gap-4 mb-12"
+                >
                     {categories.map((cat) => (
-                        <button
+                        <motion.button
                             key={cat}
+                            variants={fadeInUp}
                             onClick={() => setActiveCategory(cat)}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat
-                                    ? 'bg-gold-500 text-white shadow-lg scale-105'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                                ? 'bg-gold-500 text-white shadow-lg'
+                                : 'bg-white text-gray-600 hover:bg-gray-100'
                                 }`}
                         >
                             {cat}
-                        </button>
+                        </motion.button>
                     ))}
-                </div>
+                </motion.div>
 
                 {/* Loading State */}
                 {loading && (
@@ -85,16 +95,19 @@ const Gallery: React.FC = () => {
                 {/* Grid */}
                 <motion.div
                     layout
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="visible"
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                 >
                     <AnimatePresence>
                         {filteredImages.map((img) => (
                             <motion.div
                                 layout
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
+                                variants={fadeInUp}
+                                initial="hidden"
+                                animate="visible"
                                 exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ duration: 0.3 }}
                                 key={img.id}
                                 className="group relative rounded-2xl overflow-hidden shadow-md cursor-pointer aspect-[4/3] bg-gray-200"
                                 onClick={() => setSelectedImage(img)}

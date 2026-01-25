@@ -12,7 +12,7 @@ interface TypewriterTextProps {
 
 const TypewriterText: React.FC<TypewriterTextProps> = ({
     texts,
-    delay = 50,
+    delay = 150,
     baseText = "",
     className = "",
     cursorColor = "bg-gold-500",
