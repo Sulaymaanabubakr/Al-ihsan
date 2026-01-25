@@ -1,17 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Heart } from 'lucide-react';
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
+    const menuRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
+    // Close menu when clicking outside
     useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                isOpen &&
+                menuRef.current &&
+                !menuRef.current.contains(event.target as Node) &&
+                buttonRef.current &&
+                !buttonRef.current.contains(event.target as Node)
+            ) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen]);
 
     const navLinks = [
         { name: 'Home', path: '/' },
@@ -24,37 +37,33 @@ const Navbar: React.FC = () => {
     const isActive = (path: string) => location.pathname === path;
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${scrolled
-            ? 'bg-primary-900/95 backdrop-blur-md shadow-2xl py-2 border-white/10'
-            : 'bg-transparent py-6 border-transparent'
-            }`}>
-            <div className="container mx-auto px-6 flex justify-between items-center w-full">
-                <Link to="/" className="flex items-center gap-4 group">
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-primary-950 border-b border-white/10 shadow-xl h-20 transition-all duration-300">
+            <div className="container mx-auto px-6 h-full flex justify-between items-center relative">
+                {/* Logo (Left) */}
+                <Link to="/" className="flex items-center gap-3 group z-20">
                     <div className="relative">
-                        <div className="absolute inset-0 bg-gold-400 rounded-full blur-md opacity-30 group-hover:opacity-60 transition-opacity duration-500"></div>
+                        <div className="absolute inset-0 bg-gold-400 rounded-full blur-md opacity-20 group-hover:opacity-50 transition-opacity duration-500"></div>
                         <img
                             src="/logo.jpeg"
                             alt="Al-Ihsan Logo"
-                            className="h-12 w-12 relative z-10 rounded-full object-cover border-2 border-gold-500 shadow-lg"
+                            className="h-10 w-10 relative z-10 rounded-full object-cover border-2 border-gold-500 shadow-lg"
                         />
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-2xl font-heading font-bold text-white tracking-wide">
-                            Al-Ihsan<span className="text-gold-400">.</span>
-                        </span>
-                    </div>
+                    <span className="text-xl font-heading font-bold text-white tracking-wide">
+                        Al-Ihsan<span className="text-gold-400">.</span>
+                    </span>
                 </Link>
 
-                {/* Desktop Menu */}
-                <div className="hidden md:flex items-center gap-8">
-                    <ul className="flex gap-1 items-center bg-white/5 px-2 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
+                {/* Desktop Menu (Absolute Center) */}
+                <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <ul className="flex items-center gap-1 bg-white/5 px-2 py-1.5 rounded-full border border-white/5 backdrop-blur-sm">
                         {navLinks.map((link) => (
                             <li key={link.name}>
                                 <Link
                                     to={link.path}
-                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden group ${isActive(link.path)
-                                        ? 'text-primary-900 bg-gold-400 font-bold shadow-lg'
-                                        : 'text-gray-200 hover:text-white hover:bg-white/10'
+                                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${isActive(link.path)
+                                        ? 'text-primary-900 bg-gold-400 font-bold shadow-sm'
+                                        : 'text-gray-300 hover:text-white hover:bg-white/10'
                                         }`}
                                 >
                                     {link.name}
@@ -62,52 +71,54 @@ const Navbar: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-                    <div className="flex items-center gap-4 pl-4 border-l border-white/10">
-                        <Link
-                            to="/donate"
-                            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.3)] hover:shadow-[0_6px_25px_rgba(212,175,55,0.5)] transition-all transform hover:-translate-y-0.5 flex items-center gap-2 text-sm tracking-wide"
-                        >
-                            Donate <Heart size={14} fill="currentColor" />
-                        </Link>
-                    </div>
+                </div>
+
+                {/* Donate Button (Right) */}
+                <div className="hidden md:flex items-center z-20">
+                    <Link
+                        to="/donate"
+                        className="px-5 py-2 bg-gold-500 text-primary-950 font-bold rounded-full shadow-lg hover:bg-gold-400 transition-all flex items-center gap-2 text-sm"
+                    >
+                        Donate <Heart size={14} fill="currentColor" />
+                    </Link>
                 </div>
 
                 {/* Mobile Toggle */}
                 <button
-                    className="md:hidden text-white hover:text-gold-400 transition-colors bg-white/10 p-2 rounded-lg backdrop-blur-sm"
+                    ref={buttonRef}
+                    className="md:hidden text-white hover:text-gold-400 transition-colors p-2 z-20"
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {isOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
 
-                {/* Mobile Menu */}
+                {/* Mobile Menu (Small Card) */}
                 {isOpen && (
-                    <div className="absolute top-full left-0 w-full bg-primary-900/95 backdrop-blur-xl border-t border-white/10 p-6 md:hidden flex flex-col gap-4 animate-in slide-in-from-top-5 shadow-2xl h-screen">
-                        <ul className="flex flex-col gap-2">
-                            {navLinks.map((link) => (
-                                <li key={link.name}>
-                                    <Link
-                                        to={link.path}
-                                        className={`block py-4 px-6 rounded-xl transition-all ${isActive(link.path)
-                                            ? 'bg-gold-500/20 text-gold-400 font-bold border border-gold-500/30'
-                                            : 'text-gray-200 hover:bg-white/5'
-                                            }`}
-                                        onClick={() => setIsOpen(false)}
-                                    >
-                                        {link.name}
-                                    </Link>
-                                </li>
-                            ))}
-                            <div className="mt-8">
-                                <Link
-                                    to="/donate"
-                                    onClick={() => setIsOpen(false)}
-                                    className="w-full flex items-center justify-center gap-2 py-4 bg-gold-500 text-white font-bold rounded-xl shadow-lg"
-                                >
-                                    Donate Now <Heart size={18} fill="currentColor" />
-                                </Link>
-                            </div>
-                        </ul>
+                    <div
+                        ref={menuRef}
+                        className="absolute top-[85%] right-4 w-64 bg-white rounded-xl shadow-2xl border border-gray-100 p-2 flex flex-col gap-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                    >
+                        {navLinks.map((link) => (
+                            <Link
+                                key={link.name}
+                                to={link.path}
+                                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(link.path)
+                                    ? 'bg-primary-50 text-primary-900 font-bold'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-primary-900'
+                                    }`}
+                                onClick={() => setIsOpen(false)}
+                            >
+                                {link.name}
+                            </Link>
+                        ))}
+                        <div className="h-px bg-gray-100 my-1"></div>
+                        <Link
+                            to="/donate"
+                            onClick={() => setIsOpen(false)}
+                            className="w-full flex items-center justify-center gap-2 py-3 bg-primary-900 text-gold-400 font-bold rounded-lg text-sm hover:bg-primary-800 transition-colors"
+                        >
+                            Donate Now <Heart size={14} fill="currentColor" />
+                        </Link>
                     </div>
                 )}
             </div>

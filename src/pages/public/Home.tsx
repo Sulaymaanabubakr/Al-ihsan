@@ -23,7 +23,7 @@ const Home: React.FC = () => {
             />
 
             {/* 1. HERO SECTION (The Hook) */}
-            <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-primary-950 -mt-[88px]">
+            <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-primary-950">
                 {/* Visual Background Placeholder */}
                 <div className="absolute inset-0 bg-primary-900 z-0">
                     <div className="absolute inset-0 bg-gradient-to-r from-primary-950/90 to-primary-900/80 z-10"></div>
@@ -31,10 +31,10 @@ const Home: React.FC = () => {
                     <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
                 </div>
 
-                <div className="container mx-auto px-4 relative z-20 pt-20">
-                    <div className="flex flex-col md:flex-row items-center gap-12">
+                <div className="container mx-auto px-6 relative z-20 pt-20">
+                    <div className="flex flex-col md:flex-row items-center gap-12 text-center md:text-left">
                         {/* Text Content */}
-                        <div className="flex-1 text-center md:text-left">
+                        <div className="flex-1">
                             <motion.div
                                 initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -44,7 +44,7 @@ const Home: React.FC = () => {
                                     Bismillah-ir-Rahman-ir-Rahim
                                 </span>
                                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white mb-6 leading-[1.1]">
-                                    Empowering the <span className="text-gold-500">Ummah</span> through <br className="hidden md:block" />
+                                    Empowering the <span className="text-gold-500 italic">Ummah</span> through <br className="hidden md:block" />
                                     Sustainable Relief.
                                 </h1>
                                 <p className="text-xl text-primary-200 mb-8 max-w-xl mx-auto md:mx-0 font-light">
@@ -90,8 +90,8 @@ const Home: React.FC = () => {
             {/* 2. URGENT APPEALS (The "Need") - Only show if data exists */}
             {appeals.length > 0 && (
                 <section className="py-20 bg-gray-50">
-                    <div className="container mx-auto px-4">
-                        <div className="flex justify-between items-end mb-12">
+                    <div className="container mx-auto px-6">
+                        <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left mb-12 gap-6">
                             <div>
                                 <span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block animate-pulse">Emergency Response</span>
                                 <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Urgent Appeals</h2>
@@ -107,7 +107,7 @@ const Home: React.FC = () => {
                         </div>
 
                         {/* Horizontal Slider (Grid for now) */}
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {loadingAppeals ? (
                                 <div className="col-span-3 text-center py-10 text-gray-400">Loading appeals...</div>
                             ) : (
@@ -129,26 +129,26 @@ const Home: React.FC = () => {
 
             {/* 3. ZAKAT & SADAQAH QUICK LINKS */}
             <section className="py-20 bg-white">
-                <div className="container mx-auto px-4">
+                <div className="container mx-auto px-6">
                     <div className="grid lg:grid-cols-2 gap-16 items-start">
                         {/* Quick Links */}
-                        <div>
+                        <div className="text-center md:text-left">
                             <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Ways to Give</span>
                             <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-8">Fulfill Your Obligation</h2>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4">
                                 {[
                                     { title: "Pay Zakat", desc: "Purify your wealth (2.5%)", icon: Building2 },
                                     { title: "Sadaqah Jariyah", desc: "Build wells, mosques, trees", icon: Users2 },
                                     { title: "Orphan Sponsorship", desc: "Monthly support for a child", icon: Users },
                                     { title: "General Charity", desc: "Where needed most", icon: Heart }
                                 ].map((item, i) => (
-                                    <Link key={i} to="/donate" className="p-6 border border-gray-100 rounded-xl hover:shadow-lg hover:border-gold-500/30 transition-all group">
+                                    <Link key={i} to="/donate" className="p-4 md:p-6 border border-gray-100 rounded-xl hover:shadow-lg hover:border-gold-500/30 transition-all group flex flex-col items-center md:items-start text-center md:text-left">
                                         <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center text-primary-900 mb-4 group-hover:bg-gold-500 group-hover:text-white transition-colors">
                                             <item.icon size={24} />
                                         </div>
-                                        <h3 className="font-bold text-lg text-primary-900">{item.title}</h3>
-                                        <p className="text-sm text-gray-500">{item.desc}</p>
+                                        <h3 className="font-bold text-lg text-primary-900 leading-tight mb-1">{item.title}</h3>
+                                        <p className="text-xs md:text-sm text-gray-500">{item.desc}</p>
                                     </Link>
                                 ))}
                             </div>
@@ -165,8 +165,8 @@ const Home: React.FC = () => {
             {/* 4. IMPACT TRANSPARENCY (The "Proof") */}
             <section className="py-20 bg-primary-900 text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-islamic-pattern opacity-10"></div>
-                <div className="container mx-auto px-4 relative z-10">
-                    <div className="grid md:grid-cols-4 gap-8 text-center border-b border-white/10 pb-12 mb-12">
+                <div className="container mx-auto px-6 relative z-10">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center border-b border-white/10 pb-12 mb-12">
                         {[
                             { label: "Lives Impacted", value: 15000, suffix: "+" },
                             { label: "Meals Served", value: 50000, suffix: "+" },
@@ -182,18 +182,18 @@ const Home: React.FC = () => {
                         ))}
                     </div>
 
-                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                    <div className="flex flex-wrap justify-center gap-6 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
                         {/* Placeholder Trust Badges */}
-                        <div className="flex items-center gap-2"><ShieldCheck /> CAC Registered</div>
-                        <div className="flex items-center gap-2"><Building2 /> Shari'ah Compliant</div>
-                        <div className="flex items-center gap-2"><Users /> EFCC SCUML</div>
+                        <div className="flex items-center gap-2 text-sm"><ShieldCheck size={18} /> CAC Registered</div>
+                        <div className="flex items-center gap-2 text-sm"><Building2 size={18} /> Shari'ah Compliant</div>
+                        <div className="flex items-center gap-2 text-sm"><Users size={18} /> EFCC SCUML</div>
                     </div>
                 </div>
             </section>
 
             {/* 6. WHERE YOUR MONEY GOES (The "Accountability") */}
             <section className="py-20 bg-white">
-                <div className="container mx-auto px-4">
+                <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
                         <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Transparency</span>
                         <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Where Your Money Goes</h2>
