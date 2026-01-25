@@ -14,8 +14,8 @@ import Dashboard from './pages/admin/Dashboard';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
-const Contact = () => <div className="p-20 text-center">Contact Page Coming Soon</div>;
-const Focus = () => <div className="p-20 text-center">Programs Page Coming Soon</div>;
+import Contact from './pages/public/Contact';
+import Focus from './pages/public/Focus';
 
 const App: React.FC = () => {
   return (

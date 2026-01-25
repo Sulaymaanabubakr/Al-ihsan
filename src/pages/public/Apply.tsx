@@ -8,12 +8,51 @@ import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
 
 const Apply: React.FC = () => {
-    const { slideInLeft, fadeInUp, scaleIn, staggerContainer } = useAnimations();
+    const { slideInLeft, fadeInUp, scaleIn } = useAnimations();
     const { uploadImage, uploading } = useCloudinary();
     const [step, setStep] = useState(1);
-    // ... rest of state
+    const [formData, setFormData] = useState({
+        fullName: '',
+        phone: '',
+        address: '',
+        familySize: '',
+        helpType: 'food',
+        story: '',
+        evidenceUrl: ''
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    // ... handlers
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const result = await uploadImage(e.target.files[0]);
+            if (result) {
+                setFormData({ ...formData, evidenceUrl: result.url });
+            }
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(db, 'applications'), {
+                ...formData,
+                status: 'pending',
+                createdAt: new Date()
+            });
+            setIsSuccess(true);
+        } catch (error) {
+            console.error("Error submitting application:", error);
+            alert("Failed to submit. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     if (isSuccess) {
         return (

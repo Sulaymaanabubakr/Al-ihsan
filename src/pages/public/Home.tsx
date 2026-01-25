@@ -1,7 +1,9 @@
+import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Users, ShieldCheck, TrendingUp, Building2, Users2 } from 'lucide-react';
-import { motion, type Variants } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import SEO from '../../components/common/SEO';
 import CountUp from '../../components/common/CountUp';
@@ -11,48 +13,50 @@ import ZakatCalculator from '../../components/home/ZakatCalculator';
 import FloatingWhatsApp from '../../components/common/FloatingWhatsApp';
 import TypewriterText from '../../components/common/TypewriterText';
 import { useAppeals, usePosts } from '../../hooks/useData';
+import { useAnimations } from '../../hooks/useAnimations';
 
 const Home: React.FC = () => {
     const { appeals, loading: loadingAppeals } = useAppeals();
     const { posts, loading: loadingPosts } = usePosts();
+    const [homeImages, setHomeImages] = React.useState<any[]>([]);
+    const [homeVideos, setHomeVideos] = React.useState<any[]>([]);
+    const [loadingMedia, setLoadingMedia] = React.useState(true);
 
-    const fadeInUp: Variants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-    };
+    React.useEffect(() => {
+        const fetchMedia = async () => {
+            try {
+                const imagesQ = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'), limit(4));
+                const videosQ = query(collection(db, 'videos'), orderBy('createdAt', 'desc'), limit(4));
 
-    const fadeInLeft: Variants = {
-        hidden: { opacity: 0, x: -50 },
-        visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
-    };
+                const [imagesSnap, videosSnap] = await Promise.all([
+                    getDocs(imagesQ),
+                    getDocs(videosQ)
+                ]);
 
-    const fadeInRight: Variants = {
-        hidden: { opacity: 0, x: 50 },
-        visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
-    };
-
-    const dropIn: Variants = {
-        hidden: { opacity: 0, y: -50 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: "spring",
-                stiffness: 100,
-                damping: 10
+                setHomeImages(imagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                setHomeVideos(videosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            } catch (error) {
+                console.error("Error fetching media:", error);
+            } finally {
+                setLoadingMedia(false);
             }
-        }
-    };
+        };
 
-    const staggerContainer: Variants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.2
-            }
-        }
-    };
+        fetchMedia();
+    }, []);
+
+    // ... (existing variants) useAnimations hook usage or keep manual variants if they are fine. Keeping manual for minimal diff.
+    // Wait, I should use useAnimations if I want consistency, but sticking to existing pattern is safer for now.
+
+    const {
+        slideInLeft: fadeInLeft,
+        slideInRight: fadeInRight,
+        fadeInUp,
+        dropIn,
+        staggerContainer
+    } = useAnimations();
+    // ... (other variants)
+
 
     return (
         <div className="overflow-x-hidden">
@@ -343,6 +347,94 @@ const Home: React.FC = () => {
                     <ImpactPieChart />
                 </div>
             </motion.section>
+
+
+            {/* 7. LATEST MEDIA (Images & Videos) */}
+            <section className="py-20 bg-white border-t border-gray-100">
+                <div className="container mx-auto px-6">
+                    {/* Images Section */}
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        className="mb-20"
+                    >
+                        <div className="text-center mb-12">
+                            <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Gallery</motion.span>
+                            <motion.h2 variants={dropIn} className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Latest from Gallery</motion.h2>
+                        </div>
+
+                        {loadingMedia ? (
+                            <div className="text-center py-10 text-gray-400">Loading images...</div>
+                        ) : homeImages.length > 0 ? (
+                            <motion.div variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {homeImages.map((img) => (
+                                    <motion.div key={img.id} variants={fadeInUp} className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative group">
+                                        <img src={img.url} alt={img.title || "Gallery Image"} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                        <div className="absolute inset-0 bg-primary-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <p className="text-white font-bold px-4 text-center">{img.title}</p>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        ) : (
+                            <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-100">
+                                <p className="text-gray-500">No image available</p>
+                            </div>
+                        )}
+
+                        <div className="text-center mt-10">
+                            <Link to="/gallery" className="inline-flex items-center gap-2 px-8 py-3 border-2 border-primary-900 text-primary-900 font-bold rounded-full hover:bg-primary-900 hover:text-white transition-all">
+                                View Full Gallery <ArrowRight size={18} />
+                            </Link>
+                        </div>
+                    </motion.div>
+
+                    {/* Videos Section */}
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                    >
+                        <div className="text-center mb-12">
+                            <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Watch</motion.span>
+                            <motion.h2 variants={dropIn} className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Our Impact in Action</motion.h2>
+                        </div>
+
+                        {loadingMedia ? (
+                            <div className="text-center py-10 text-gray-400">Loading videos...</div>
+                        ) : homeVideos.length > 0 ? (
+                            <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {homeVideos.map((video) => (
+                                    <motion.div key={video.id} variants={fadeInUp} className="aspect-video rounded-xl overflow-hidden bg-gray-900 relative group">
+                                        {/* Assuming video object has a thumbnail or simple video tag for now, or just thumbnail linking to something. treating as embedded video or thumbnail */}
+                                        {video.thumbnailUrl ? (
+                                            <img src={video.thumbnailUrl} alt={video.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-white/50">Video Preview</div>
+                                        )}
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-primary-900 transition-all text-white">
+                                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-current border-b-[8px] border-b-transparent ml-1"></div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        ) : (
+                            <div className="text-center py-10 bg-gray-50 rounded-xl border border-gray-100">
+                                <p className="text-gray-500">No video available</p>
+                            </div>
+                        )}
+
+                        <div className="text-center mt-10">
+                            <Link to="/gallery" className="inline-flex items-center gap-2 px-8 py-3 bg-primary-900 text-white font-bold rounded-full hover:bg-primary-800 transition-all shadow-lg hover:shadow-xl">
+                                Watch More Videos <ArrowRight size={18} />
+                            </Link>
+                        </div>
+                    </motion.div>
+                </div>
+            </section>
 
             {/* 5. SUCCESS STORIES (The "Heart") & EDUCATION */}
             <section className="py-20 bg-gray-50">
