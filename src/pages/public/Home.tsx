@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Users, ShieldCheck, TrendingUp, Building2, Users2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 
 import SEO from '../../components/common/SEO';
 import CountUp from '../../components/common/CountUp';
@@ -16,22 +16,22 @@ const Home: React.FC = () => {
     const { appeals, loading: loadingAppeals } = useAppeals();
     const { posts, loading: loadingPosts } = usePosts();
 
-    const fadeInUp = {
+    const fadeInUp: Variants = {
         hidden: { opacity: 0, y: 30 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
     };
 
-    const fadeInLeft = {
+    const fadeInLeft: Variants = {
         hidden: { opacity: 0, x: -50 },
         visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
     };
 
-    const fadeInRight = {
+    const fadeInRight: Variants = {
         hidden: { opacity: 0, x: 50 },
         visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
     };
 
-    const dropIn = {
+    const dropIn: Variants = {
         hidden: { opacity: 0, y: -50 },
         visible: {
             opacity: 1,
@@ -44,7 +44,7 @@ const Home: React.FC = () => {
         }
     };
 
-    const staggerContainer = {
+    const staggerContainer: Variants = {
         hidden: { opacity: 0 },
         visible: {
             opacity: 1,
@@ -90,7 +90,10 @@ const Home: React.FC = () => {
                                 </motion.span>
                                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white mb-6 leading-[1.1]">
                                     Empowering the <br className="hidden md:block" />
-                                    <TypewriterText texts={["Ummah", "Orphans", "Widows", "Needy"]} /> <br className="hidden md:block" />
+                                    <TypewriterText
+                                        texts={["Ummah", "Orphans", "Widows", "Needy"]}
+                                        className="text-gold-500 italic"
+                                    /> <br className="hidden md:block" />
                                     through Sustainable Relief.
                                 </h1>
                                 <motion.p
