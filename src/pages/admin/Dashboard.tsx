@@ -3,7 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth, db } from '../../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { useCloudinary } from '../../hooks/useCloudinary';
-import { LogOut, Upload, Image as ImageIcon, Video, Plus } from 'lucide-react';
+import { LogOut, Upload, Image as ImageIcon, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
