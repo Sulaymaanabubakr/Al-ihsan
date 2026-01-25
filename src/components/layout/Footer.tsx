@@ -1,78 +1,97 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Instagram, Phone, Mail, MapPin } from 'lucide-react';
+import { Facebook, Instagram, Phone, Mail, MapPin, ArrowRight } from 'lucide-react';
 
 const Footer: React.FC = () => {
     return (
-        <footer className="bg-emerald-900 text-white pt-16 pb-8 mt-auto">
-            <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <img src="/logo.png" alt="Al-Ihsan Logo" className="w-10 h-10 rounded-full border border-emerald-500/50" />
-                        <h3 className="text-xl font-heading font-bold text-white">Al-Ihsan Relief</h3>
-                    </div>
-                    <p className="text-emerald-100 text-sm leading-relaxed max-w-xs">
-                        Serving humanity solely for the sake of Allah. Lifting lives with compassion, dignity, and hope.
-                    </p>
-                </div>
-
-                <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-emerald-50">Quick Links</h4>
-                    <ul className="space-y-2">
-                        {[
-                            { to: "/", label: "Home" },
-                            { to: "/about", label: "About Us" },
-                            { to: "/focus", label: "Our Focus" },
-                            { to: "/gallery", label: "Gallery" },
-                            { to: "/donate", label: "Donate" }
-                        ].map(link => (
-                            <li key={link.to}>
-                                <Link to={link.to} className="text-emerald-200 hover:text-white transition-colors text-sm">
-                                    {link.label}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-
-                <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-emerald-50">Contact Us</h4>
-                    <ul className="space-y-3 text-sm text-emerald-100">
-                        <li className="flex items-start gap-3">
-                            <MapPin size={18} className="text-emerald-400 mt-0.5" />
-                            <span>Ibadan, Nigeria</span>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <Phone size={18} className="text-emerald-400 mt-0.5" />
-                            <div className="flex flex-col">
-                                <a href="tel:08039168308" className="hover:text-white">08039168308</a>
-                                <a href="tel:08108997871" className="hover:text-white">08108997871</a>
-                            </div>
-                        </li>
-                        <li className="flex items-center gap-3">
-                            <Mail size={18} className="text-emerald-400" />
-                            <a href="mailto:mhminitiative20@gmail.com" className="hover:text-white">mhminitiative20@gmail.com</a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-emerald-50">Connect</h4>
-                    <div className="flex gap-4">
-                        <a href="https://facebook.com" target="_blank" rel="noreferrer" className="bg-emerald-800 p-2 rounded-full hover:bg-emerald-700 transition-colors text-emerald-100 hover:text-white">
-                            <Facebook size={20} />
-                        </a>
-                        <a href="https://instagram.com" target="_blank" rel="noreferrer" className="bg-emerald-800 p-2 rounded-full hover:bg-emerald-700 transition-colors text-emerald-100 hover:text-white">
-                            <Instagram size={20} />
-                        </a>
-                    </div>
-                </div>
+        <footer className="bg-primary-900 border-t-4 border-gold-500 text-white pt-20 pb-10 mt-auto relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-gold-500 rounded-full blur-[100px]"></div>
+                <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-primary-600 rounded-full blur-[100px]"></div>
             </div>
 
-            <div className="border-t border-emerald-800/50 pt-8 mt-8 text-center">
-                <p className="text-emerald-300/60 text-sm">
-                    &copy; {new Date().getFullYear()} Al-Ihsan Relief and Empowerment. All rights reserved.
-                </p>
+            <div className="container mx-auto px-6 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-3">
+                            <img src="/logo.jpeg" alt="Al-Ihsan Logo" className="w-12 h-12 rounded-full border-2 border-gold-500" />
+                            <div>
+                                <h3 className="text-2xl font-heading font-bold text-white tracking-wide">Al-Ihsan</h3>
+                                <p className="text-gold-400 text-xs font-bold tracking-widest uppercase">Relief & Empowerment</p>
+                            </div>
+                        </div>
+                        <p className="text-primary-100/80 text-sm leading-relaxed max-w-xs border-l-2 border-gold-500/30 pl-4">
+                            Serving humanity solely for the sake of Allah. Lifting lives with compassion, dignity, and hope through sustainable support systems.
+                        </p>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h4 className="text-lg font-bold text-gold-400 font-heading">Quick Links</h4>
+                        <ul className="space-y-3">
+                            {[
+                                { to: "/", label: "Home" },
+                                { to: "/about", label: "About Us" },
+                                { to: "/focus", label: "Our Programs" },
+                                { to: "/gallery", label: "Gallery" },
+                                { to: "/apply", label: "Get Help" }
+                            ].map(link => (
+                                <li key={link.to}>
+                                    <Link to={link.to} className="text-primary-200 hover:text-gold-400 transition-colors text-sm flex items-center gap-2 group">
+                                        <ArrowRight size={12} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-gold-500" />
+                                        {link.label}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h4 className="text-lg font-bold text-gold-400 font-heading">Contact Us</h4>
+                        <ul className="space-y-4 text-sm text-primary-100/80">
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-2 bg-white/5 rounded-lg text-gold-400 group-hover:bg-gold-500 group-hover:text-white transition-colors">
+                                    <MapPin size={18} />
+                                </div>
+                                <span className="mt-1 group-hover:text-white transition-colors">Ibadan, Nigeria</span>
+                            </li>
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-2 bg-white/5 rounded-lg text-gold-400 group-hover:bg-gold-500 group-hover:text-white transition-colors">
+                                    <Phone size={18} />
+                                </div>
+                                <div className="flex flex-col mt-1">
+                                    <a href="tel:+2348000000000" className="hover:text-gold-300 transition-colors">+234 800 000 0000</a>
+                                    <a href="tel:+2348000000000" className="hover:text-gold-300 transition-colors">+234 800 000 0000</a>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-2 bg-white/5 rounded-lg text-gold-400 group-hover:bg-gold-500 group-hover:text-white transition-colors">
+                                    <Mail size={18} />
+                                </div>
+                                <a href="mailto:info@alihsan.org" className="mt-1 hover:text-gold-300 transition-colors">info@alihsan.org</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="space-y-6">
+                        <h4 className="text-lg font-bold text-gold-400 font-heading">Connect</h4>
+                        <p className="text-primary-200/60 text-sm">Follow our journey and see the impact of your charity.</p>
+                        <div className="flex gap-4">
+                            <a href="https://facebook.com" target="_blank" rel="noreferrer" className="bg-white/10 p-3 rounded-full hover:bg-gold-500 transition-all hover:-translate-y-1 text-white shadow-lg group">
+                                <Facebook size={20} className="group-hover:scale-110 transition-transform" />
+                            </a>
+                            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="bg-white/10 p-3 rounded-full hover:bg-gold-500 transition-all hover:-translate-y-1 text-white shadow-lg group">
+                                <Instagram size={20} className="group-hover:scale-110 transition-transform" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-4">
+                    <p className="text-primary-300/60 text-xs text-center w-full md:w-auto">
+                        &copy; {new Date().getFullYear()} Al-Ihsan Relief and Empowerment. All rights reserved.
+                    </p>
+                </div>
             </div>
         </footer>
     );

@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Heart } from 'lucide-react';
 
 const Navbar: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
+
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const navLinks = [
         { name: 'Home', path: '/' },
@@ -17,30 +24,37 @@ const Navbar: React.FC = () => {
     const isActive = (path: string) => location.pathname === path;
 
     return (
-        <nav className="bg-white shadow-sm sticky top-0 z-50 h-[80px] flex items-center">
-            <div className="container mx-auto px-4 flex justify-between items-center w-full">
-                <Link to="/" className="flex items-center gap-3 font-bold text-emerald-900 group">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b ${scrolled
+            ? 'bg-primary-900/95 backdrop-blur-md shadow-2xl py-2 border-white/10'
+            : 'bg-transparent py-6 border-transparent'
+            }`}>
+            <div className="container mx-auto px-6 flex justify-between items-center w-full">
+                <Link to="/" className="flex items-center gap-4 group">
                     <div className="relative">
+                        <div className="absolute inset-0 bg-gold-400 rounded-full blur-md opacity-30 group-hover:opacity-60 transition-opacity duration-500"></div>
                         <img
-                            src="/logo.png"
+                            src="/logo.jpeg"
                             alt="Al-Ihsan Logo"
-                            className="h-12 w-12 rounded-full object-cover border-2 border-emerald-500 transition-transform group-hover:scale-105"
+                            className="h-12 w-12 relative z-10 rounded-full object-cover border-2 border-gold-500 shadow-lg"
                         />
                     </div>
-                    <div className="flex flex-col leading-tight">
-                        <span className="text-xl text-emerald-600 font-heading">Al-Ihsan</span>
-                        <span className="text-xs text-gray-500 font-medium tracking-wide">Relief & Empowerment</span>
+                    <div className="flex flex-col">
+                        <span className="text-2xl font-heading font-bold text-white tracking-wide">
+                            Al-Ihsan<span className="text-gold-400">.</span>
+                        </span>
                     </div>
                 </Link>
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-8">
-                    <ul className="flex gap-8 items-center">
+                    <ul className="flex gap-1 items-center bg-white/5 px-2 py-1.5 rounded-full backdrop-blur-sm border border-white/10">
                         {navLinks.map((link) => (
                             <li key={link.name}>
                                 <Link
                                     to={link.path}
-                                    className={`text-sm font-medium transition-colors hover:text-emerald-500 ${isActive(link.path) ? 'text-emerald-600 font-semibold' : 'text-gray-600'
+                                    className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 relative overflow-hidden group ${isActive(link.path)
+                                        ? 'text-primary-900 bg-gold-400 font-bold shadow-lg'
+                                        : 'text-gray-200 hover:text-white hover:bg-white/10'
                                         }`}
                                 >
                                     {link.name}
@@ -48,42 +62,35 @@ const Navbar: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-                    <div className="flex items-center gap-3">
-                        <Link
-                            to="/apply"
-                            className="inline-flex items-center justify-center px-5 py-2.5 text-emerald-600 font-semibold hover:bg-emerald-50 rounded-lg transition-colors"
-                        >
-                            Get Help
-                        </Link>
+                    <div className="flex items-center gap-4 pl-4 border-l border-white/10">
                         <Link
                             to="/donate"
-                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-colors shadow-sm hover:shadow-md"
+                            className="px-6 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 text-white font-bold rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.3)] hover:shadow-[0_6px_25px_rgba(212,175,55,0.5)] transition-all transform hover:-translate-y-0.5 flex items-center gap-2 text-sm tracking-wide"
                         >
-                            Donate Now <Heart size={16} fill="currentColor" />
+                            Donate <Heart size={14} fill="currentColor" />
                         </Link>
                     </div>
                 </div>
 
                 {/* Mobile Toggle */}
                 <button
-                    className="md:hidden text-gray-700 hover:text-emerald-600 focus:outline-none"
+                    className="md:hidden text-white hover:text-gold-400 transition-colors bg-white/10 p-2 rounded-lg backdrop-blur-sm"
                     onClick={() => setIsOpen(!isOpen)}
-                    aria-label="Toggle navigation"
                 >
-                    {isOpen ? <X size={28} /> : <Menu size={28} />}
+                    {isOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
 
                 {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-lg p-4 md:hidden flex flex-col gap-4 animate-in slide-in-from-top-2">
+                    <div className="absolute top-full left-0 w-full bg-primary-900/95 backdrop-blur-xl border-t border-white/10 p-6 md:hidden flex flex-col gap-4 animate-in slide-in-from-top-5 shadow-2xl h-screen">
                         <ul className="flex flex-col gap-2">
                             {navLinks.map((link) => (
                                 <li key={link.name}>
                                     <Link
                                         to={link.path}
-                                        className={`block py-3 px-4 rounded-md transition-colors ${isActive(link.path)
-                                            ? 'bg-emerald-50 text-emerald-700 font-semibold'
-                                            : 'text-gray-600 hover:bg-gray-50'
+                                        className={`block py-4 px-6 rounded-xl transition-all ${isActive(link.path)
+                                            ? 'bg-gold-500/20 text-gold-400 font-bold border border-gold-500/30'
+                                            : 'text-gray-200 hover:bg-white/5'
                                             }`}
                                         onClick={() => setIsOpen(false)}
                                     >
@@ -91,24 +98,15 @@ const Navbar: React.FC = () => {
                                     </Link>
                                 </li>
                             ))}
-                            <li className="pt-2">
-                                <div className="flex flex-col gap-2">
-                                    <Link
-                                        to="/apply"
-                                        className="w-full flex items-center justify-center gap-2 py-3 border border-emerald-500 text-emerald-600 font-semibold rounded-lg hover:bg-emerald-50"
-                                        onClick={() => setIsOpen(false)}
-                                    >
-                                        Get Help
-                                    </Link>
-                                    <Link
-                                        to="/donate"
-                                        className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white font-semibold rounded-lg active:bg-emerald-600"
-                                        onClick={() => setIsOpen(false)}
-                                    >
-                                        Donate Now
-                                    </Link>
-                                </div>
-                            </li>
+                            <div className="mt-8">
+                                <Link
+                                    to="/donate"
+                                    onClick={() => setIsOpen(false)}
+                                    className="w-full flex items-center justify-center gap-2 py-4 bg-gold-500 text-white font-bold rounded-xl shadow-lg"
+                                >
+                                    Donate Now <Heart size={18} fill="currentColor" />
+                                </Link>
+                            </div>
                         </ul>
                     </div>
                 )}

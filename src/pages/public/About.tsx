@@ -1,73 +1,108 @@
 import React from 'react';
-import { Target, Heart, Shield, Users, Award } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Users, Target, Heart, Shield } from 'lucide-react';
+
+import SEO from '../../components/common/SEO';
 
 const About: React.FC = () => {
     return (
-        <div className="w-full">
+        <div className="bg-gray-50 min-h-screen">
+            <SEO
+                title="About Us"
+                description="Learn about Al-Ihsan Relief's mission, vision, and team. We are driven by compassion and guided by faith to serve humanity."
+            />
             {/* Header */}
-            <section className="bg-emerald-900 py-20 text-white">
-                <div className="container mx-auto px-4 text-center">
-                    <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">About Us</h1>
-                    <p className="max-w-2xl mx-auto text-emerald-100 text-lg">
-                        Al-Ihsan Relief and Empowerment is a registered, faith-based NGO established to serve humanity solely for the sake of Allah.
-                    </p>
+            <header className="relative py-20 bg-primary-900 overflow-hidden -mt-[88px] pt-[150px]">
+                {/* Decorative CSS Background */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute -top-[50%] -left-[20%] w-[100%] h-[200%] bg-gradient-to-br from-primary-800/50 to-transparent rotate-12 rounded-[100px]"></div>
+                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl"></div>
+                </div>
+
+                <div className="container mx-auto px-4 relative z-10 text-center">
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-4xl md:text-6xl font-heading font-bold text-white mb-4"
+                    >
+                        Who We Are
+                    </motion.h1>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="w-24 h-1 bg-gold-500 mx-auto rounded-full"
+                    ></motion.div>
+                </div>
+            </header>
+
+            {/* Mission & Vision */}
+            <section className="py-20">
+                <div className="container mx-auto px-4">
+                    <div className="max-w-4xl mx-auto text-center mb-20">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                        >
+                            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-8 text-primary-900">
+                                <Heart size={40} fill="currentColor" className="text-primary-900" />
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-6">Driven by Compassion, Guided by Faith</h2>
+                            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+                                Al-Ihsan Relief & Empowerment was founded with a singular purpose: to serve humanity solely for the sake of Allah. We believe that true worship is reflected in how we treat the most vulnerable among us—the orphans, the widows, and the destitute.
+                            </p>
+                            <p className="text-lg text-gray-600 leading-relaxed">
+                                Based in Ibadan, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment. We don't just provide aid; we strive to restore dignity.
+                            </p>
+                        </motion.div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            { icon: Target, title: "Our Mission", desc: "To provide sustainable relief and empowerment to vulnerable communities through transparent, efficient, and compassionate service." },
+                            { icon: Heart, title: "Our Vision", desc: "A world where every individual, regardless of their circumstances, lives with dignity, hope, and access to basic human needs." },
+                            { icon: Shield, title: "Our Values", desc: "Ihsan (Excellence), Amanah (Trust), Compassion, and Transparency in all our dealings with beneficiaries and donors." }
+                        ].map((item, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                viewport={{ once: true }}
+                                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow text-center"
+                            >
+                                <div className="w-16 h-16 mx-auto bg-primary-50 rounded-full flex items-center justify-center text-primary-600 mb-6">
+                                    <item.icon size={32} />
+                                </div>
+                                <h3 className="text-xl font-bold text-primary-900 mb-3">{item.title}</h3>
+                                <p className="text-gray-600">{item.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
-            {/* Story & Values */}
-            <section className="py-20">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-4xl mx-auto space-y-12">
-
-                        <div className="space-y-6">
-                            <h2 className="text-3xl font-heading font-bold text-gray-900">Our Essence</h2>
-                            <p className="text-lg text-gray-700 leading-relaxed">
-                                We are dedicated to supporting orphans, widows, vulnerable families, and underserved communities through compassionate, transparent, and sustainable initiatives rooted in Islamic values. Every donation is treated as an <em>amanah</em> (trust), and every beneficiary is served with dignity.
-                            </p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-8">
-                            <div className="bg-emerald-50 p-8 rounded-2xl border border-emerald-100">
-                                <Target className="w-10 h-10 text-emerald-600 mb-4" />
-                                <h3 className="text-xl font-bold mb-2">Our Mission</h3>
-                                <p className="text-gray-700">
-                                    To alleviate suffering, restore dignity, and empower lives by providing food assistance, healthcare, and education, while upholding sincerity and accountability.
-                                </p>
+            {/* Team Section (Placeholder) */}
+            <section className="py-20 bg-primary-900 text-white">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-3xl font-heading font-bold mb-12">Our Leadership</h2>
+                    <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                        {/* Add real team members here later */}
+                        {[1, 2, 3].map((_, i) => (
+                            <div key={i} className="group">
+                                <div className="w-32 h-32 mx-auto bg-primary-800 rounded-full mb-4 border-2 border-gold-500 overflow-hidden relative">
+                                    <Users className="w-full h-full p-8 text-primary-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white">Board Member</h3>
+                                <p className="text-gold-400 text-sm">Trustee</p>
                             </div>
-                            <div className="bg-blue-50 p-8 rounded-2xl border border-blue-100">
-                                <Heart className="w-10 h-10 text-blue-600 mb-4" />
-                                <h3 className="text-xl font-bold mb-2">Our Vision</h3>
-                                <p className="text-gray-700">
-                                    A society where no one is left hungry or Hopeless, and communities are strengthened through faith-driven charity and collective responsibility.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h2 className="text-3xl font-heading font-bold text-gray-900 mb-8 text-center">Our Core Values</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                                <ValueCard icon={<Shield />} title="Sincerity" desc="(Ikhlas)" />
-                                <ValueCard icon={<Users />} title="Compassion" desc="(Rahmah)" />
-                                <ValueCard icon={<Award />} title="Excellence" desc="(Ihsan)" />
-                                <ValueCard icon={<Target />} title="Transparency" desc="(Amanah)" />
-                            </div>
-                        </div>
-
+                        ))}
                     </div>
                 </div>
             </section>
         </div>
     );
 };
-
-const ValueCard = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => (
-    <div className="flex flex-col items-center text-center p-6 bg-white shadow-sm hover:shadow-md transition-shadow rounded-xl border border-gray-100">
-        <div className="w-12 h-12 bg-gray-50 text-emerald-600 rounded-full flex items-center justify-center mb-3">
-            {React.cloneElement(icon as React.ReactElement, { size: 20 })}
-        </div>
-        <h4 className="font-bold text-gray-900">{title}</h4>
-        <span className="text-sm text-gray-500 italic">{desc}</span>
-    </div>
-);
 
 export default About;

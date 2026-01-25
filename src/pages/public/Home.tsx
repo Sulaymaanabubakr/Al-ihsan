@@ -1,159 +1,267 @@
 import React from 'react';
-import { Heart, Users, BookOpen, Utensils, Stethoscope, HandHeart, AlertCircle, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, Heart, Users, BookOpen, Utensils, Activity, ShieldCheck, TrendingUp, Building2, Users2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+import SEO from '../../components/common/SEO';
+import CountUp from '../../components/common/CountUp';
+import ImpactPieChart from '../../components/home/ImpactPieChart';
+import UrgentAppealCard from '../../components/home/UrgentAppealCard';
+import ZakatCalculator from '../../components/home/ZakatCalculator';
+import FloatingWhatsApp from '../../components/common/FloatingWhatsApp';
 
 const Home: React.FC = () => {
     return (
-        <div className="w-full">
-            {/* Hero Section */}
-            <section className="relative min-h-[85vh] flex items-center bg-gradient-to-r from-blue-50 to-emerald-50 py-20 lg:py-0 overflow-hidden">
-                {/* Abstract Background Shapes (Optional for "Premium" feel) */}
-                <div className="absolute top-0 right-0 w-1/2 h-full bg-emerald-100/30 skew-x-12 translate-x-32 -z-10"></div>
+        <div className="overflow-x-hidden">
+            <SEO
+                title="Home"
+                description="Al-Ihsan Relief & Empowerment - Dedicated to lifting the burden of the needy through sustainable food, health, and education solely for the sake of Allah."
+            />
 
-                <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                    <div className="space-y-8 max-w-2xl">
-                        <span className="inline-block bg-emerald-100 text-emerald-800 text-sm font-semibold px-4 py-1.5 rounded-full ring-1 ring-emerald-200">
-                            Welcome to Al-Ihsan Relief & Empowerment
-                        </span>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-gray-900 leading-[1.1]">
-                            Serving Humanity Solely for the Sake of <span className="text-emerald-600">Allah</span>
-                        </h1>
-                        <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                            We are dedicated to supporting orphans, widows, vulnerable families, and underserved communities through compassionate, transparent, and sustainable initiatives rooted in Islamic values.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <Link
-                                to="/donate"
-                                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-emerald-500 text-white text-lg font-semibold rounded-xl hover:bg-emerald-600 transition-all shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-1"
+            {/* 1. HERO SECTION (The Hook) */}
+            <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-primary-950 -mt-[88px]">
+                {/* Visual Background Placeholder */}
+                <div className="absolute inset-0 bg-primary-900 z-0">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-950/90 to-primary-900/80 z-10"></div>
+                    {/* Placeholder for "High-Quality Photo/Video" */}
+                    <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                </div>
+
+                <div className="container mx-auto px-4 relative z-20 pt-20">
+                    <div className="flex flex-col md:flex-row items-center gap-12">
+                        {/* Text Content */}
+                        <div className="flex-1 text-center md:text-left">
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="mb-6"
                             >
-                                Donate Now <Heart size={20} fill="currentColor" />
-                            </Link>
-                            <Link
-                                to="/about"
-                                className="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-emerald-500 text-emerald-600 text-lg font-semibold rounded-xl hover:bg-emerald-50 transition-colors"
-                            >
-                                Learn More
-                            </Link>
+                                <span className="inline-block px-4 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-sm font-bold tracking-widest uppercase mb-4">
+                                    Bismillah-ir-Rahman-ir-Rahim
+                                </span>
+                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white mb-6 leading-[1.1]">
+                                    Empowering the <span className="text-gold-500">Ummah</span> through <br className="hidden md:block" />
+                                    Sustainable Relief.
+                                </h1>
+                                <p className="text-xl text-primary-200 mb-8 max-w-xl mx-auto md:mx-0 font-light">
+                                    Join us in our mission to lift the needy out of poverty. Your Sadaqah writes stories of hope.
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                                    <Link to="/donate" className="px-8 py-4 bg-gold-500 text-primary-950 font-bold rounded-lg shadow-lg hover:bg-gold-400 transition-all flex items-center justify-center gap-2">
+                                        Donate Now <Heart fill="currentColor" size={18} />
+                                    </Link>
+                                    <Link to="/focus" className="px-8 py-4 border-2 border-white/20 text-white font-bold rounded-lg hover:bg-white/10 transition-all">
+                                        Our Projects
+                                    </Link>
+                                </div>
+                            </motion.div>
                         </div>
-                    </div>
 
-                    <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                        <div className="relative h-[400px] lg:h-[550px] w-full rounded-2xl overflow-hidden shadow-2xl">
-                            <img
-                                src="/hero-placeholder.jpg"
-                                alt="Volunteers distributing food"
-                                className="w-full h-full object-cover transform transition duration-700 hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                            <div className="absolute bottom-0 left-0 p-8 text-white">
-                                <p className="font-medium text-emerald-200 uppercase tracking-wider text-sm mb-2">Impact Story</p>
-                                <h3 className="text-2xl font-bold">Bringing Smiles to Orphans</h3>
+                        {/* Hero Visual/Card */}
+                        <div className="flex-1 w-full max-w-lg hidden md:block">
+                            <div className="relative aspect-square rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl">
+                                <div className="absolute inset-0 bg-primary-800 flex items-center justify-center text-white/20 font-bold text-3xl text-center p-8">
+                                    High-Quality Field visual would go here
+                                </div>
+                                {/* Floating Overlay Card */}
+                                <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-gold-500 rounded-full flex items-center justify-center text-primary-900 font-bold">
+                                            <TrendingUp size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-bold text-lg">Goal Reached</p>
+                                            <p className="text-gold-300 text-sm">Alhamdulillah for your support</p>
+                                        </div>
+                                        <div className="ml-auto text-2xl font-bold text-white">94%</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Mission & Vision Section */}
-            <section className="py-24 bg-gray-50">
-                <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8">
-                    <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                        <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
-                            <Heart size={32} />
+            {/* 2. URGENT APPEALS (The "Need") */}
+            <section className="py-20 bg-gray-50">
+                <div className="container mx-auto px-4">
+                    <div className="flex justify-between items-end mb-12">
+                        <div>
+                            <span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block animate-pulse">Emergency Response</span>
+                            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Urgent Appeals</h2>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
-                        <p className="text-gray-600 leading-relaxed text-lg">
-                            To alleviate suffering, restore dignity, and empower lives by providing food assistance, healthcare support, educational aid, and long-term empowerment programs, while upholding sincerity, accountability, and excellence in service.
-                        </p>
+                        <div className="hidden md:flex gap-2">
+                            <button className="w-10 h-10 border border-primary-200 rounded-full flex items-center justify-center hover:bg-primary-900 hover:text-white transition-colors">
+                                <ArrowRight className="rotate-180" size={20} />
+                            </button>
+                            <button className="w-10 h-10 border border-primary-900 bg-primary-900 text-white rounded-full flex items-center justify-center hover:bg-primary-800 transition-colors">
+                                <ArrowRight size={20} />
+                            </button>
+                        </div>
                     </div>
-                    <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                        <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
-                            <Users size={32} />
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Vision</h3>
-                        <p className="text-gray-600 leading-relaxed text-lg">
-                            A society where no one is left hungry, neglected, or hopeless, and where communities are strengthened through faith-driven charity and collective responsibility.
-                        </p>
+
+                    {/* Horizontal Slider (Grid for now) */}
+                    <div className="grid md:grid-cols-3 gap-8">
+                        <UrgentAppealCard
+                            title="Winter Relief 2026"
+                            description="Provide blankets and heaters for families in displacement camps facing freezing temperatures."
+                            raised={450000}
+                            goal={1000000}
+                        />
+                        <UrgentAppealCard
+                            title="Ramadan Food Packs"
+                            description="Ensure no family goes hungry this Ramadan. Provide a month's worth of food."
+                            raised={120000}
+                            goal={500000}
+                        />
+                        <UrgentAppealCard
+                            title="Urgent Medical Fund"
+                            description="Support life-saving surgeries for critical patients unable to afford care."
+                            raised={850000}
+                            goal={2000000}
+                        />
                     </div>
                 </div>
             </section>
 
-            {/* Who We Serve */}
-            <section className="py-24 bg-white">
+            {/* 3. ZAKAT & SADAQAH QUICK LINKS */}
+            <section className="py-20 bg-white">
                 <div className="container mx-auto px-4">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Who We Serve</h2>
-                        <p className="text-xl text-gray-500">Our efforts are focused on those most in need within our communities.</p>
-                    </div>
+                    <div className="grid lg:grid-cols-2 gap-16 items-start">
+                        {/* Quick Links */}
+                        <div>
+                            <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Ways to Give</span>
+                            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-8">Fulfill Your Obligation</h2>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                        {['Orphans in need of care', 'Widows facing hardship', 'Vulnerable families', 'Urgent medical cases', 'Crisis affected areas'].map((item, idx) => (
-                            <div key={idx} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all text-center flex flex-col items-center gap-4 h-full">
-                                <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center">
-                                    <Check size={24} />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    { title: "Pay Zakat", desc: "Purify your wealth (2.5%)", icon: Building2 },
+                                    { title: "Sadaqah Jariyah", desc: "Build wells, mosques, trees", icon: Users2 },
+                                    { title: "Orphan Sponsorship", desc: "Monthly support for a child", icon: Users },
+                                    { title: "General Charity", desc: "Where needed most", icon: Heart }
+                                ].map((item, i) => (
+                                    <Link key={i} to="/donate" className="p-6 border border-gray-100 rounded-xl hover:shadow-lg hover:border-gold-500/30 transition-all group">
+                                        <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center text-primary-900 mb-4 group-hover:bg-gold-500 group-hover:text-white transition-colors">
+                                            <item.icon size={24} />
+                                        </div>
+                                        <h3 className="font-bold text-lg text-primary-900">{item.title}</h3>
+                                        <p className="text-sm text-gray-500">{item.desc}</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Mini Calculator */}
+                        <div>
+                            <ZakatCalculator />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 4. IMPACT TRANSPARENCY (The "Proof") */}
+            <section className="py-20 bg-primary-900 text-white relative overflow-hidden">
+                <div className="absolute inset-0 bg-transparent opacity-10"></div>
+                <div className="container mx-auto px-4 relative z-10">
+                    <div className="grid md:grid-cols-4 gap-8 text-center border-b border-white/10 pb-12 mb-12">
+                        {[
+                            { label: "Lives Impacted", value: 15000, suffix: "+" },
+                            { label: "Meals Served", value: 50000, suffix: "+" },
+                            { label: "Communities", value: 45, suffix: "" },
+                            { label: "Volunteers", value: 120, suffix: "+" }
+                        ].map((stat, i) => (
+                            <div key={i}>
+                                <div className="text-4xl lg:text-5xl font-heading font-bold text-gold-500 mb-2">
+                                    <CountUp end={stat.value} suffix={stat.suffix} />
                                 </div>
-                                <span className="font-medium text-gray-800">{item}</span>
+                                <div className="text-primary-200 text-sm uppercase tracking-wider">{stat.label}</div>
                             </div>
                         ))}
                     </div>
+
+                    <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+                        {/* Placeholder Trust Badges */}
+                        <div className="flex items-center gap-2"><ShieldCheck /> CAC Registered</div>
+                        <div className="flex items-center gap-2"><Building2 /> Shari'ah Compliant</div>
+                        <div className="flex items-center gap-2"><Users /> EFCC SCUML</div>
+                    </div>
                 </div>
             </section>
 
-            {/* Core Programs */}
-            <section className="py-24 bg-emerald-900 text-white relative isolate overflow-hidden">
-                <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,theme(colors.emerald.800),theme(colors.emerald.900))] opacity-50"></div>
+            {/* 6. WHERE YOUR MONEY GOES (The "Accountability") */}
+            <section className="py-20 bg-white">
                 <div className="container mx-auto px-4">
-                    <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Our Core Programs</h2>
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <ProgramCard icon={<Utensils />} title="Food Relief" description="Ramadan feeding, food distribution, and relief packages for vulnerable households." />
-                        <ProgramCard icon={<HandHeart />} title="Orphan & Widow Support" description="Comprehensive support initiatives for orphans and widows." />
-                        <ProgramCard icon={<Stethoscope />} title="Medical Aid" description="Medical aid and health interventions for those requiring urgent assistance." />
-                        <ProgramCard icon={<BookOpen />} title="Education" description="Educational support and learning assistance for children." />
-                        <ProgramCard icon={<Users />} title="Empowerment" description="Community empowerment and livelihood programs." />
-                        <ProgramCard icon={<AlertCircle />} title="Emergency Response" description="Emergency and humanitarian response efforts." />
+                    <div className="text-center mb-16">
+                        <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Transparency</span>
+                        <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Where Your Money Goes</h2>
+                        <p className="text-gray-500 mt-4 max-w-2xl mx-auto">We categorize every donation to ensure it is used exactly as defined by Shari'ah and donor intent.</p>
+                    </div>
+
+                    <ImpactPieChart />
+                </div>
+            </section>
+
+            {/* 5. SUCCESS STORIES (The "Heart") & EDUCATION */}
+            <section className="py-20 bg-gray-50">
+                <div className="container mx-auto px-4">
+                    <div className="grid lg:grid-cols-2 gap-16">
+                        {/* Success Story */}
+                        <div>
+                            <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Success Stories</span>
+                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                                <div className="flex gap-4 mb-6">
+                                    <div className="w-1/2 aspect-square bg-gray-200 rounded-xl flex items-center justify-center text-xs text-gray-500">Before</div>
+                                    <div className="w-1/2 aspect-square bg-primary-100 rounded-xl flex items-center justify-center text-xs text-primary-800">After</div>
+                                </div>
+                                <blockquote className="text-xl text-primary-900 font-heading italic mb-6">
+                                    "Thanks to your Sadaqah, Amina’s family in Borno now has access to clean water daily. Before, they walked 5km every morning."
+                                </blockquote>
+                                <Link to="/stories" className="text-gold-600 font-bold hover:text-primary-900 flex items-center gap-2">
+                                    Read Full Story <ArrowRight size={16} />
+                                </Link>
+                            </div>
+                        </div>
+
+                        {/* Latest Education/News */}
+                        <div>
+                            <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Education & News</span>
+                            <div className="space-y-6">
+                                {[
+                                    { title: "The Virtues of Giving Charity in Secret", date: "Oct 24, 2025" },
+                                    { title: "5 Ways to Help Orphans Without Money", date: "Sep 12, 2025" },
+                                    { title: "Our 2025 Impact Report Released", date: "Aug 01, 2025" }
+                                ].map((news, i) => (
+                                    <div key={i} className="flex gap-4 group cursor-pointer">
+                                        <div className="w-24 h-24 bg-gray-200 rounded-lg flex-shrink-0"></div>
+                                        <div>
+                                            <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
+                                            <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
+                                            <a href="#" className="text-sm text-gray-500 mt-2 inline-block">Read article</a>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* Message */}
-            <section className="py-24 bg-white text-center">
-                <div className="container mx-auto px-4 max-w-4xl">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">Our Message is Simple</h2>
-
-                    <div className="bg-gray-50 rounded-3xl p-8 md:p-12 mb-12">
-                        <ul className="space-y-6 text-left inline-block max-w-2xl mx-auto">
-                            {[
-                                "We serve humanity for the sake of Allah.",
-                                "No amount is too small.",
-                                "Every act of kindness matters.",
-                                "Charity brings us closer to Allah and strengthens the Ummah."
-                            ].map((msg, i) => (
-                                <li key={i} className="flex items-start gap-4 text-xl md:text-2xl text-gray-700 font-medium">
-                                    <span className="text-emerald-500 mt-1"><Check size={28} strokeWidth={3} /></span>
-                                    {msg}
-                                </li>
-                            ))}
-                        </ul>
+            {/* Newsletter */}
+            <section className="py-20 bg-primary-950 border-t border-white/10">
+                <div className="container mx-auto px-4 text-center max-w-2xl">
+                    <h2 className="text-3xl font-heading font-bold text-white mb-4">Join Our Community</h2>
+                    <p className="text-primary-200 mb-8">Receive updates on our appeals and Islamic reminders.</p>
+                    <div className="flex gap-2">
+                        <input type="email" placeholder="Enter your email address" className="flex-1 p-4 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:border-gold-500 outline-none" />
+                        <button className="px-8 py-4 bg-gold-500 text-primary-900 font-bold rounded-lg hover:bg-gold-400">Subscribe</button>
                     </div>
-
-                    <Link to="/donate" className="inline-flex items-center justify-center px-10 py-5 bg-emerald-600 text-white text-xl font-bold rounded-full hover:bg-emerald-700 transition-colors shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                        Support Our Cause
-                    </Link>
                 </div>
             </section>
+
+            <FloatingWhatsApp />
         </div>
     );
 };
-
-const ProgramCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => (
-    <div className="bg-white/10 backdrop-blur-sm border border-white/10 p-8 rounded-2xl hover:bg-white/20 transition-colors">
-        <div className="w-12 h-12 bg-emerald-500 text-white rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-emerald-900/20">
-            {React.cloneElement(icon as React.ReactElement, { size: 24 })}
-        </div>
-        <h4 className="text-xl font-bold mb-3">{title}</h4>
-        <p className="text-emerald-100 leading-relaxed font-light">{description}</p>
-    </div>
-);
 
 export default Home;

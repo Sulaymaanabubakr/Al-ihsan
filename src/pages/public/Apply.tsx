@@ -1,204 +1,221 @@
 import React, { useState } from 'react';
-import { db } from '../../lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { useCloudinary } from '../../hooks/useCloudinary';
-import { Upload, Home, Heart, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { collection, addDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import SEO from '../../components/common/SEO';
 
 const Apply: React.FC = () => {
     const { uploadImage, uploading } = useCloudinary();
     const [step, setStep] = useState(1);
-    const [submitting, setSubmitting] = useState(false);
-    const [success, setSuccess] = useState(false);
-
-    // Form States
     const [formData, setFormData] = useState({
         fullName: '',
         phone: '',
         address: '',
         familySize: '',
-        helpType: 'Food Assistance',
+        helpType: 'food',
         story: '',
         evidenceUrl: ''
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
 
-    const [file, setFile] = useState<File | null>(null);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const result = await uploadImage(e.target.files[0]);
+            if (result) {
+                setFormData({ ...formData, evidenceUrl: result.url });
+            }
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setSubmitting(true);
-
+        setIsSubmitting(true);
         try {
-            let evidenceUrl = '';
-            if (file) {
-                const result = await uploadImage(file);
-                if (result) evidenceUrl = result.url;
-            }
-
             await addDoc(collection(db, 'applications'), {
                 ...formData,
-                evidenceUrl,
                 status: 'pending',
-                reviewed: false,
-                createdAt: serverTimestamp()
+                createdAt: new Date()
             });
-
-            setSuccess(true);
+            setIsSuccess(true);
         } catch (error) {
             console.error("Error submitting application:", error);
-            alert("Something went wrong. Please try again.");
+            alert("Failed to submit. Please try again.");
         } finally {
-            setSubmitting(false);
+            setIsSubmitting(false);
         }
     };
 
-    if (success) {
+    if (isSuccess) {
         return (
-            <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
-                <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
-                    <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle size={40} />
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <SEO title="Application Submitted" description="Your application to Al-Ihsan Relief has been received." />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-white p-10 rounded-2xl shadow-xl text-center max-w-md w-full border-t-4 border-gold-500"
+                >
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircle size={40} className="text-green-600" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Application Received</h2>
-                    <p className="text-gray-600 mb-8">
-                        JazakAllah Khair. Your request has been submitted successfully using our secure system. Our team will review your case and contact you soon.
-                    </p>
+                    <h2 className="text-3xl font-heading font-bold text-primary-900 mb-4">Alhamdulillah!</h2>
+                    <p className="text-gray-600 mb-8">Your application has been received. Our team will review your request and contact you shortly In Shaa Allah.</p>
                     <button
                         onClick={() => window.location.href = '/'}
-                        className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition"
+                        className="w-full py-3 bg-primary-900 text-white rounded-xl font-bold hover:bg-primary-800 transition-colors"
                     >
                         Return Home
                     </button>
-                </div>
+                </motion.div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 md:py-20">
-            <div className="container mx-auto px-4 max-w-3xl">
-                <div className="text-center mb-10">
-                    <h1 className="text-3xl md:text-4xl font-heading font-bold text-emerald-900 mb-4">Apply for Assistance</h1>
-                    <p className="text-gray-600 max-w-xl mx-auto">
-                        Please fill out this form truthfully. We treat all information with strict confidentiality and emanah using our secure processing system.
-                    </p>
+        <div className="min-h-screen bg-gray-50 py-20 px-4">
+            <SEO
+                title="Get Help"
+                description="Apply for assistance explicitly from Al-Ihsan Relief. We offer food, medical, and educational support."
+            />
+            <div className="max-w-3xl mx-auto">
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl font-heading font-bold text-primary-900 mb-4">Request for Assistance</h1>
+                    <p className="text-gray-600">We are here to serve. Please provide accurate details so we can assess your needs properly.</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    {/* Progress Bar */}
-                    <div className="bg-gray-50 border-b border-gray-100 p-4 flex justify-between items-center text-sm font-medium text-gray-500">
-                        <span className={step >= 1 ? "text-emerald-600" : ""}>1. Personal Details</span>
-                        <div className="flex-1 h-1 bg-gray-200 mx-4 rounded-full overflow-hidden">
-                            <div className={`h-full bg-emerald-500 transition-all duration-300 ${step === 1 ? 'w-1/3' : step === 2 ? 'w-2/3' : 'w-full'}`}></div>
+                {/* Progress Bar */}
+                <div className="flex justify-between mb-8 max-w-md mx-auto relative">
+                    <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -z-10"></div>
+                    <div
+                        className="absolute top-1/2 left-0 h-1 bg-gold-500 -z-10 transition-all duration-500"
+                        style={{ width: step === 1 ? '0%' : step === 2 ? '50%' : '100%' }}
+                    ></div>
+                    {[1, 2, 3].map((s) => (
+                        <div key={s} className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${step >= s ? 'bg-gold-500 text-white shadow-lg' : 'bg-gray-200 text-gray-500'}`}>
+                            {s}
                         </div>
-                        <span className={step >= 3 ? "text-emerald-600" : ""}>3. Evidence</span>
-                    </div>
+                    ))}
+                </div>
 
-                    <div className="p-8 space-y-6">
+                <form onSubmit={handleSubmit} className="bg-white p-8 md:p-10 rounded-2xl shadow-xl border border-gray-100">
+                    <AnimatePresence mode="wait">
                         {step === 1 && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-                                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    <Home size={20} className="text-emerald-500" /> Personal Information
-                                </h3>
-                                <div className="grid md:grid-cols-2 gap-4">
+                            <motion.div
+                                key="step1"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-6"
+                            >
+                                <h3 className="text-xl font-bold text-primary-900 border-b border-gray-100 pb-4">Personal Details</h3>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <input required name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="e.g. Ibrahim Musa" />
+                                </div>
+                                <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                        <input required name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Enter your full name" />
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                        <input required name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="080..." />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                                        <input required name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="080..." />
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                        <input required name="address" value={formData.address} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Residential Address" />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Current Address</label>
-                                    <input required name="address" value={formData.address} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Full residential address" />
+                                <div className="flex justify-end pt-4">
+                                    <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 px-8 py-3 bg-primary-900 text-white rounded-lg font-bold hover:bg-primary-800 transition-colors">
+                                        Next <ChevronRight size={18} />
+                                    </button>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Family Size (including you)</label>
-                                    <input required type="number" name="familySize" value={formData.familySize} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="e.g. 5" />
-                                </div>
-                                <button type="button" onClick={() => setStep(2)} className="w-full py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 mt-4">Next Step</button>
-                            </div>
+                            </motion.div>
                         )}
 
                         {step === 2 && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-                                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    <Heart size={20} className="text-emerald-500" /> Your Situation
-                                </h3>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Type of Assistance Needed</label>
-                                    <select name="helpType" value={formData.helpType} onChange={handleChange} className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none">
-                                        <option>Food Assistance</option>
-                                        <option>Medical Support</option>
-                                        <option>Education/School Fees</option>
-                                        <option>Rent/Housing</option>
-                                        <option>Business/Empowerment</option>
-                                        <option>Other</option>
-                                    </select>
+                            <motion.div
+                                key="step2"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-6"
+                            >
+                                <h3 className="text-xl font-bold text-primary-900 border-b border-gray-100 pb-4">Situation Details</h3>
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Category of Help Needed</label>
+                                        <select name="helpType" value={formData.helpType} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
+                                            <option value="food">Food Relief</option>
+                                            <option value="medical">Medical Assistance</option>
+                                            <option value="education">Education Support</option>
+                                            <option value="financial">Financial Aid</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Family Size</label>
+                                        <input required type="number" name="familySize" value={formData.familySize} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Number of dependents" />
+                                    </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Tell us your story</label>
-                                    <p className="text-xs text-gray-500 mb-2">Please explain your situation clearly. Why do you need help now?</p>
-                                    <textarea required name="story" value={formData.story} onChange={handleChange} rows={6} className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Describe your situation..." />
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Your Story</label>
+                                    <textarea required name="story" value={formData.story} onChange={handleInputChange} rows={5} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Please explain your situation..." />
                                 </div>
-                                <div className="flex gap-3 mt-4">
-                                    <button type="button" onClick={() => setStep(1)} className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50">Back</button>
-                                    <button type="button" onClick={() => setStep(3)} className="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700">Next Step</button>
+                                <div className="flex justify-between pt-4">
+                                    <button type="button" onClick={() => setStep(1)} className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">Back</button>
+                                    <button type="button" onClick={() => setStep(3)} className="flex items-center gap-2 px-8 py-3 bg-primary-900 text-white rounded-lg font-bold hover:bg-primary-800 transition-colors">
+                                        Next <ChevronRight size={18} />
+                                    </button>
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
 
                         {step === 3 && (
-                            <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
-                                <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    <FileText size={20} className="text-emerald-500" /> Evidence
-                                </h3>
+                            <motion.div
+                                key="step3"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-6"
+                            >
+                                <h3 className="text-xl font-bold text-primary-900 border-b border-gray-100 pb-4">Evidence & Submit</h3>
+                                <div className="bg-blue-50 p-4 rounded-lg flex gap-3 text-blue-800 border border-blue-100">
+                                    <AlertCircle className="shrink-0 mt-0.5" />
+                                    <p className="text-sm">Please upload any supporting documents (Medical report, School bills, ID card etc.) to help us process your application faster.</p>
+                                </div>
 
-                                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                                    <div className="flex gap-2">
-                                        <AlertCircle className="text-yellow-600 flex-shrink-0" size={20} />
-                                        <p className="text-sm text-yellow-800">Please upload a photo that supports your request (e.g., Medical report, School bill, ID card, or a photo of your living condition).</p>
+                                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:bg-white transition-colors cursor-pointer relative">
+                                    <input type="file" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*,.pdf" />
+                                    <div className="flex flex-col items-center">
+                                        <Upload className={`w-12 h-12 mb-3 ${formData.evidenceUrl ? 'text-green-500' : 'text-gray-400'}`} />
+                                        {formData.evidenceUrl ? (
+                                            <p className="font-semibold text-green-600">File attached successfully!</p>
+                                        ) : (
+                                            <>
+                                                <p className="font-medium text-gray-700">Click to Upload Evidence</p>
+                                                <p className="text-xs text-gray-500 mt-1">{uploading ? 'Uploading...' : 'JPG, PNG, PDF (Max 5MB)'}</p>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors relative">
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                        accept="image/*"
-                                    />
-                                    {file ? (
-                                        <div className="text-emerald-600 font-medium flex flex-col items-center">
-                                            <CheckCircle size={32} className="mb-2" />
-                                            {file.name}
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center gap-2 text-gray-500">
-                                            <Upload size={32} />
-                                            <span>Click to upload evidence (Image)</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex gap-3 mt-8">
-                                    <button type="button" onClick={() => setStep(2)} className="flex-1 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50">Back</button>
+                                <div className="flex justify-between pt-4">
+                                    <button type="button" onClick={() => setStep(2)} className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">Back</button>
                                     <button
                                         type="submit"
-                                        disabled={submitting || uploading}
-                                        className="flex-1 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        disabled={isSubmitting || uploading}
+                                        className="flex items-center gap-2 px-8 py-3 bg-gold-500 text-white rounded-lg font-bold hover:bg-gold-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                                     >
-                                        {submitting || uploading ? <Loader2 className="animate-spin" /> : 'Submit Application'}
+                                        {isSubmitting ? 'Submitting...' : 'Submit Application'}
                                     </button>
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
-                    </div>
+                    </AnimatePresence>
                 </form>
             </div>
         </div>
