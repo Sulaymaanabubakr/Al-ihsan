@@ -7,6 +7,7 @@ import Contact from './pages/public/Contact';
 import Donate from './pages/public/Donate';
 import Gallery from './pages/public/Gallery';
 import Focus from './pages/public/Focus';
+import Apply from './pages/public/Apply';
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/layout/ProtectedRoute';
@@ -24,6 +25,7 @@ const App: React.FC = () => {
           <Route path="/donate" element={<Layout><Donate /></Layout>} />
           <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
           <Route path="/focus" element={<Layout><Focus /></Layout>} />
+          <Route path="/apply" element={<Layout><Apply /></Layout>} />
 
           {/* Admin Routes */}
           <Route path="/admin/login" element={<Login />} />

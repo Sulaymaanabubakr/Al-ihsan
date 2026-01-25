@@ -48,12 +48,20 @@ const Navbar: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-                    <Link
-                        to="/donate"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-colors shadow-sm hover:shadow-md"
-                    >
-                        Donate Now <Heart size={16} fill="currentColor" />
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        <Link
+                            to="/apply"
+                            className="inline-flex items-center justify-center px-5 py-2.5 text-emerald-600 font-semibold hover:bg-emerald-50 rounded-lg transition-colors"
+                        >
+                            Get Help
+                        </Link>
+                        <Link
+                            to="/donate"
+                            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition-colors shadow-sm hover:shadow-md"
+                        >
+                            Donate Now <Heart size={16} fill="currentColor" />
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Mobile Toggle */}
@@ -84,13 +92,22 @@ const Navbar: React.FC = () => {
                                 </li>
                             ))}
                             <li className="pt-2">
-                                <Link
-                                    to="/donate"
-                                    className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white font-semibold rounded-lg active:bg-emerald-600"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    Donate Now
-                                </Link>
+                                <div className="flex flex-col gap-2">
+                                    <Link
+                                        to="/apply"
+                                        className="w-full flex items-center justify-center gap-2 py-3 border border-emerald-500 text-emerald-600 font-semibold rounded-lg hover:bg-emerald-50"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Get Help
+                                    </Link>
+                                    <Link
+                                        to="/donate"
+                                        className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 text-white font-semibold rounded-lg active:bg-emerald-600"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Donate Now
+                                    </Link>
+                                </div>
                             </li>
                         </ul>
                     </div>
