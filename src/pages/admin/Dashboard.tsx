@@ -3,7 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth, db } from '../../lib/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 import { useCloudinary } from '../../hooks/useCloudinary';
-import { LogOut, Upload, Image as ImageIcon, Plus } from 'lucide-react';
+import { LogOut, Upload, Image as ImageIcon, Video, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
@@ -21,14 +21,15 @@ const Dashboard: React.FC = () => {
         e.preventDefault();
         if (!file) return;
 
-        const url = await uploadImage(file);
-        if (url) {
+        const result = await uploadImage(file);
+        if (result) {
             await addDoc(collection(db, 'gallery'), {
-                url,
+                url: result.url,
+                type: result.type,
                 title,
                 createdAt: new Date()
             });
-            alert('Image uploaded successfully!');
+            alert(`${result.type === 'video' ? 'Video' : 'Image'} uploaded successfully!`);
             setFile(null);
             setTitle('');
         }
@@ -59,9 +60,8 @@ const Dashboard: React.FC = () => {
                     <button onClick={handleLogout} className="md:hidden text-gray-600"><LogOut /></button>
                 </header>
 
-                {/* Upload Card */}
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 max-w-2xl">
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Upload size={20} /> Upload New Image</h3>
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Upload size={20} /> Upload New Media</h3>
                     <form onSubmit={handleUpload} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Title/Caption</label>
@@ -79,14 +79,14 @@ const Dashboard: React.FC = () => {
                                 type="file"
                                 onChange={(e) => setFile(e.target.files?.[0] || null)}
                                 className="absolute inset-0 opacity-0 cursor-pointer"
-                                accept="image/*"
+                                accept="image/*,video/*"
                             />
                             {file ? (
                                 <span className="text-emerald-600 font-medium">{file.name}</span>
                             ) : (
                                 <div className="flex flex-col items-center gap-2 text-gray-500">
                                     <Plus size={32} />
-                                    <span>Click to select image</span>
+                                    <span>Click to select image or video</span>
                                 </div>
                             )}
                         </div>

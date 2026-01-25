@@ -15,14 +15,15 @@ export const useCloudinary = () => {
             const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
             if (!cloudName) throw new Error('Cloudinary cloud name is missing');
 
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            const resourceType = file.type.startsWith('video/') ? 'video' : 'image';
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
                 method: 'POST',
                 body: formData,
             });
 
             if (!response.ok) throw new Error('Upload failed');
             const data = await response.json();
-            return data.secure_url;
+            return { url: data.secure_url, type: resourceType };
         } catch (err: any) {
             setError(err.message);
             return null;
