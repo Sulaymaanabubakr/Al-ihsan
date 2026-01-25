@@ -6,22 +6,26 @@ interface UrgentAppealProps {
     description: string;
     raised: number;
     goal: number;
-    imagePlaceholder?: boolean;
+    imageUrl?: string;
 }
 
-const UrgentAppealCard: React.FC<UrgentAppealProps> = ({ title, description, raised, goal, imagePlaceholder = true }) => {
+const UrgentAppealCard: React.FC<UrgentAppealProps> = ({ title, description, raised, goal, imageUrl }) => {
     const percentage = Math.min((raised / goal) * 100, 100);
 
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
-            {imagePlaceholder ? (
-                <div className="h-48 bg-gray-200 relative flex items-center justify-center overflow-hidden">
-                    <span className="text-gray-400 font-medium">Appeal Visual</span>
-                    <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-                        URGENT
+            <div className="h-48 relative overflow-hidden group">
+                {imageUrl ? (
+                    <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-400 font-medium">No Image</span>
                     </div>
+                )}
+                <div className="absolute top-4 left-4 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full animate-pulse shadow-sm">
+                    URGENT
                 </div>
-            ) : null}
+            </div>
 
             <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-heading font-bold text-primary-900 mb-2">{title}</h3>

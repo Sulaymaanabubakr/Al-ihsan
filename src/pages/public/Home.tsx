@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Users, BookOpen, Utensils, Activity, ShieldCheck, TrendingUp, Building2, Users2 } from 'lucide-react';
+import { ArrowRight, Heart, Users, ShieldCheck, TrendingUp, Building2, Users2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import SEO from '../../components/common/SEO';
@@ -9,8 +9,12 @@ import ImpactPieChart from '../../components/home/ImpactPieChart';
 import UrgentAppealCard from '../../components/home/UrgentAppealCard';
 import ZakatCalculator from '../../components/home/ZakatCalculator';
 import FloatingWhatsApp from '../../components/common/FloatingWhatsApp';
+import { useAppeals, usePosts } from '../../hooks/useData';
 
 const Home: React.FC = () => {
+    const { appeals, loading: loadingAppeals } = useAppeals();
+    const { posts, loading: loadingPosts } = usePosts();
+
     return (
         <div className="overflow-x-hidden">
             <SEO
@@ -83,47 +87,45 @@ const Home: React.FC = () => {
                 </div>
             </section>
 
-            {/* 2. URGENT APPEALS (The "Need") */}
-            <section className="py-20 bg-gray-50">
-                <div className="container mx-auto px-4">
-                    <div className="flex justify-between items-end mb-12">
-                        <div>
-                            <span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block animate-pulse">Emergency Response</span>
-                            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Urgent Appeals</h2>
+            {/* 2. URGENT APPEALS (The "Need") - Only show if data exists */}
+            {appeals.length > 0 && (
+                <section className="py-20 bg-gray-50">
+                    <div className="container mx-auto px-4">
+                        <div className="flex justify-between items-end mb-12">
+                            <div>
+                                <span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block animate-pulse">Emergency Response</span>
+                                <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Urgent Appeals</h2>
+                            </div>
+                            <div className="hidden md:flex gap-2">
+                                <button className="w-10 h-10 border border-primary-200 rounded-full flex items-center justify-center hover:bg-primary-900 hover:text-white transition-colors">
+                                    <ArrowRight className="rotate-180" size={20} />
+                                </button>
+                                <button className="w-10 h-10 border border-primary-900 bg-primary-900 text-white rounded-full flex items-center justify-center hover:bg-primary-800 transition-colors">
+                                    <ArrowRight size={20} />
+                                </button>
+                            </div>
                         </div>
-                        <div className="hidden md:flex gap-2">
-                            <button className="w-10 h-10 border border-primary-200 rounded-full flex items-center justify-center hover:bg-primary-900 hover:text-white transition-colors">
-                                <ArrowRight className="rotate-180" size={20} />
-                            </button>
-                            <button className="w-10 h-10 border border-primary-900 bg-primary-900 text-white rounded-full flex items-center justify-center hover:bg-primary-800 transition-colors">
-                                <ArrowRight size={20} />
-                            </button>
-                        </div>
-                    </div>
 
-                    {/* Horizontal Slider (Grid for now) */}
-                    <div className="grid md:grid-cols-3 gap-8">
-                        <UrgentAppealCard
-                            title="Winter Relief 2026"
-                            description="Provide blankets and heaters for families in displacement camps facing freezing temperatures."
-                            raised={450000}
-                            goal={1000000}
-                        />
-                        <UrgentAppealCard
-                            title="Ramadan Food Packs"
-                            description="Ensure no family goes hungry this Ramadan. Provide a month's worth of food."
-                            raised={120000}
-                            goal={500000}
-                        />
-                        <UrgentAppealCard
-                            title="Urgent Medical Fund"
-                            description="Support life-saving surgeries for critical patients unable to afford care."
-                            raised={850000}
-                            goal={2000000}
-                        />
+                        {/* Horizontal Slider (Grid for now) */}
+                        <div className="grid md:grid-cols-3 gap-8">
+                            {loadingAppeals ? (
+                                <div className="col-span-3 text-center py-10 text-gray-400">Loading appeals...</div>
+                            ) : (
+                                appeals.map((appeal) => (
+                                    <UrgentAppealCard
+                                        key={appeal.id}
+                                        title={appeal.title}
+                                        description={appeal.description}
+                                        raised={appeal.raised}
+                                        goal={appeal.goal}
+                                        imageUrl={appeal.imageUrl}
+                                    />
+                                ))
+                            )}
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            )}
 
             {/* 3. ZAKAT & SADAQAH QUICK LINKS */}
             <section className="py-20 bg-white">
@@ -162,7 +164,7 @@ const Home: React.FC = () => {
 
             {/* 4. IMPACT TRANSPARENCY (The "Proof") */}
             <section className="py-20 bg-primary-900 text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-transparent opacity-10"></div>
+                <div className="absolute inset-0 bg-islamic-pattern opacity-10"></div>
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="grid md:grid-cols-4 gap-8 text-center border-b border-white/10 pb-12 mb-12">
                         {[
@@ -223,24 +225,34 @@ const Home: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Latest Education/News */}
+                        {/* Latest Education/News - Only show if data exists */}
                         <div>
                             <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Education & News</span>
                             <div className="space-y-6">
-                                {[
-                                    { title: "The Virtues of Giving Charity in Secret", date: "Oct 24, 2025" },
-                                    { title: "5 Ways to Help Orphans Without Money", date: "Sep 12, 2025" },
-                                    { title: "Our 2025 Impact Report Released", date: "Aug 01, 2025" }
-                                ].map((news, i) => (
-                                    <div key={i} className="flex gap-4 group cursor-pointer">
-                                        <div className="w-24 h-24 bg-gray-200 rounded-lg flex-shrink-0"></div>
-                                        <div>
-                                            <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
-                                            <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
-                                            <a href="#" className="text-sm text-gray-500 mt-2 inline-block">Read article</a>
+                                {loadingPosts ? (
+                                    <div className="text-center py-4 text-gray-400">Loading new updates...</div>
+                                ) : posts.length > 0 ? (
+                                    posts.map((news) => (
+                                        <div key={news.id} className="flex gap-4 group cursor-pointer">
+                                            <div className="w-24 h-24 bg-gray-200 rounded-lg flex-shrink-0 relative overflow-hidden">
+                                                {news.imageUrl ? (
+                                                    <img src={news.imageUrl} alt={news.title} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">No Img</div>
+                                                )}
+                                            </div>
+                                            <div>
+                                                <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
+                                                <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
+                                                <a href={news.link || "#"} className="text-sm text-gray-500 mt-2 inline-block">Read article</a>
+                                            </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="p-6 bg-gray-50 rounded-lg text-center text-gray-400 text-sm">
+                                        No recent news updates.
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </div>
                     </div>
