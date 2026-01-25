@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
                 <Link to="/" className="flex items-center gap-3 font-bold text-emerald-900 group">
                     <div className="relative">
                         <img
-                            src="/logo.jpeg"
+                            src="/logo.png"
                             alt="Al-Ihsan Logo"
                             className="h-12 w-12 rounded-full object-cover border-2 border-emerald-500 transition-transform group-hover:scale-105"
                         />
@@ -74,8 +74,8 @@ const Navbar: React.FC = () => {
                                     <Link
                                         to={link.path}
                                         className={`block py-3 px-4 rounded-md transition-colors ${isActive(link.path)
-                                                ? 'bg-emerald-50 text-emerald-700 font-semibold'
-                                                : 'text-gray-600 hover:bg-gray-50'
+                                            ? 'bg-emerald-50 text-emerald-700 font-semibold'
+                                            : 'text-gray-600 hover:bg-gray-50'
                                             }`}
                                         onClick={() => setIsOpen(false)}
                                     >

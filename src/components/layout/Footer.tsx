@@ -7,7 +7,10 @@ const Footer: React.FC = () => {
         <footer className="bg-emerald-900 text-white pt-16 pb-8 mt-auto">
             <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                 <div className="space-y-4">
-                    <h3 className="text-xl font-heading font-bold text-white">Al-Ihsan Relief</h3>
+                    <div className="flex items-center gap-3">
+                        <img src="/logo.png" alt="Al-Ihsan Logo" className="w-10 h-10 rounded-full border border-emerald-500/50" />
+                        <h3 className="text-xl font-heading font-bold text-white">Al-Ihsan Relief</h3>
+                    </div>
                     <p className="text-emerald-100 text-sm leading-relaxed max-w-xs">
                         Serving humanity solely for the sake of Allah. Lifting lives with compassion, dignity, and hope.
                     </p>
