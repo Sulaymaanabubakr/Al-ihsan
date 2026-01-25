@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
-import { Lock, GalleryVerticalEnd } from 'lucide-react'; // GalleryVerticalEnd as a Google-like icon placeholder if needed, or just text
+import { Lock } from 'lucide-react';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
