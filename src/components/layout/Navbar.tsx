@@ -115,7 +115,7 @@ const Navbar: React.FC = () => {
                         <Link
                             to="/donate"
                             onClick={() => setIsOpen(false)}
-                            className="w-full flex items-center justify-center gap-2 py-3 bg-primary-900 text-gold-400 font-bold rounded-lg text-sm hover:bg-primary-800 transition-colors"
+                            className="w-full flex items-center justify-center gap-2 py-3 bg-primary-900 text-gold-400 font-bold rounded-full text-sm hover:bg-primary-800 transition-colors"
                         >
                             Donate Now <Heart size={14} fill="currentColor" />
                         </Link>

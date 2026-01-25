@@ -50,7 +50,7 @@ const About: React.FC = () => {
                             </div>
                             <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-6">Driven by Compassion, Guided by Faith</h2>
                             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-                                Al-Ihsan Relief & Empowerment was founded with a singular purpose: to serve humanity solely for the sake of Allah. We believe that true worship is reflected in how we treat the most vulnerable among us—the orphans, the widows, and the destitute.
+                                Al-Ihsan Relief & Empowerment was founded with a singular purpose: to serve humanity solely for the sake of Allah. We believe that true worship is reflected in how we treat the most vulnerable among us - the orphans, the widows, and the destitute.
                             </p>
                             <p className="text-lg text-gray-600 leading-relaxed">
                                 Based in Ibadan, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment. We don't just provide aid; we strive to restore dignity.

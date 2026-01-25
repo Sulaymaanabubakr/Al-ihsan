@@ -68,7 +68,7 @@ const Apply: React.FC = () => {
                     <p className="text-gray-600 mb-8">Your application has been received. Our team will review your request and contact you shortly In Shaa Allah.</p>
                     <button
                         onClick={() => window.location.href = '/'}
-                        className="w-full py-3 bg-primary-900 text-white rounded-xl font-bold hover:bg-primary-800 transition-colors"
+                        className="w-full py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors"
                     >
                         Return Home
                     </button>
@@ -129,7 +129,7 @@ const Apply: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex justify-end pt-4">
-                                    <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 px-8 py-3 bg-primary-900 text-white rounded-lg font-bold hover:bg-primary-800 transition-colors">
+                                    <button type="button" onClick={() => setStep(2)} className="flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors">
                                         Next <ChevronRight size={18} />
                                     </button>
                                 </div>
@@ -167,7 +167,7 @@ const Apply: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between pt-4">
                                     <button type="button" onClick={() => setStep(1)} className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">Back</button>
-                                    <button type="button" onClick={() => setStep(3)} className="flex items-center gap-2 px-8 py-3 bg-primary-900 text-white rounded-lg font-bold hover:bg-primary-800 transition-colors">
+                                    <button type="button" onClick={() => setStep(3)} className="flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors">
                                         Next <ChevronRight size={18} />
                                     </button>
                                 </div>
@@ -208,7 +208,7 @@ const Apply: React.FC = () => {
                                     <button
                                         type="submit"
                                         disabled={isSubmitting || uploading}
-                                        className="flex items-center gap-2 px-8 py-3 bg-gold-500 text-white rounded-lg font-bold hover:bg-gold-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                                        className="flex items-center gap-2 px-6 py-3 bg-gold-500 text-white rounded-full font-bold hover:bg-gold-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                                     >
                                         {isSubmitting ? 'Submitting...' : 'Submit Application'}
                                     </button>

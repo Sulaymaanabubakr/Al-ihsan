@@ -46,7 +46,7 @@ const UrgentAppealCard: React.FC<UrgentAppealProps> = ({ title, description, rai
 
                 <Link
                     to="/donate"
-                    className="w-full py-3 bg-primary-900 text-white rounded-lg font-bold text-center hover:bg-primary-800 transition-colors"
+                    className="w-full py-3 bg-primary-900 text-white rounded-full font-bold text-center hover:bg-primary-800 transition-colors"
                 >
                     Donate Now
                 </Link>

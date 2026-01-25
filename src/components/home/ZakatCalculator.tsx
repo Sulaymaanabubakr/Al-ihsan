@@ -65,7 +65,7 @@ const ZakatCalculator: React.FC = () => {
                 <span className="text-2xl font-bold text-gold-400">₦{calculateZakat()}</span>
             </div>
 
-            <button className="w-full py-3 border-2 border-primary-900 text-primary-900 font-bold rounded-lg hover:bg-primary-900 hover:text-white transition-all flex items-center justify-center gap-2">
+            <button className="w-full py-3 border-2 border-primary-900 text-primary-900 font-bold rounded-full hover:bg-primary-900 hover:text-white transition-all flex items-center justify-center gap-2">
                 Full Zakat Calculation <ArrowRight size={18} />
             </button>
         </div>

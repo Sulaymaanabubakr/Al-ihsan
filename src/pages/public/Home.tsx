@@ -9,11 +9,50 @@ import ImpactPieChart from '../../components/home/ImpactPieChart';
 import UrgentAppealCard from '../../components/home/UrgentAppealCard';
 import ZakatCalculator from '../../components/home/ZakatCalculator';
 import FloatingWhatsApp from '../../components/common/FloatingWhatsApp';
+import TypewriterText from '../../components/common/TypewriterText';
 import { useAppeals, usePosts } from '../../hooks/useData';
 
 const Home: React.FC = () => {
     const { appeals, loading: loadingAppeals } = useAppeals();
     const { posts, loading: loadingPosts } = usePosts();
+
+    const fadeInUp = {
+        hidden: { opacity: 0, y: 30 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    };
+
+    const fadeInLeft = {
+        hidden: { opacity: 0, x: -50 },
+        visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
+    };
+
+    const fadeInRight = {
+        hidden: { opacity: 0, x: 50 },
+        visible: { opacity: 1, x: 0, transition: { duration: 0.6 } }
+    };
+
+    const dropIn = {
+        hidden: { opacity: 0, y: -50 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 10
+            }
+        }
+    };
+
+    const staggerContainer = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.2
+            }
+        }
+    };
 
     return (
         <div className="overflow-x-hidden">
@@ -31,45 +70,73 @@ const Home: React.FC = () => {
                     <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
                 </div>
 
-                <div className="container mx-auto px-6 relative z-20 pt-20">
+                <div className="container mx-auto px-6 relative z-20 pt-0 md:pt-20">
                     <div className="flex flex-col md:flex-row items-center gap-12 text-center md:text-left">
                         {/* Text Content */}
                         <div className="flex-1">
                             <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.8 }}
                                 className="mb-6"
                             >
-                                <span className="inline-block px-4 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-sm font-bold tracking-widest uppercase mb-4">
+                                <motion.span
+                                    variants={dropIn}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="inline-block px-4 py-1 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-sm font-bold tracking-widest uppercase mb-4"
+                                >
                                     Bismillah-ir-Rahman-ir-Rahim
-                                </span>
+                                </motion.span>
                                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-heading font-bold text-white mb-6 leading-[1.1]">
-                                    Empowering the <span className="text-gold-500 italic">Ummah</span> through <br className="hidden md:block" />
-                                    Sustainable Relief.
+                                    Empowering the <br className="hidden md:block" />
+                                    <TypewriterText texts={["Ummah", "Orphans", "Widows", "Needy"]} /> <br className="hidden md:block" />
+                                    through Sustainable Relief.
                                 </h1>
-                                <p className="text-xl text-primary-200 mb-8 max-w-xl mx-auto md:mx-0 font-light">
+                                <motion.p
+                                    variants={fadeInLeft}
+                                    initial="hidden"
+                                    animate="visible"
+                                    transition={{ delay: 0.5 }}
+                                    className="text-xl text-primary-200 mb-8 max-w-xl mx-auto md:mx-0 font-light"
+                                >
                                     Join us in our mission to lift the needy out of poverty. Your Sadaqah writes stories of hope.
-                                </p>
+                                </motion.p>
 
-                                <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                                    <Link to="/donate" className="px-8 py-4 bg-gold-500 text-primary-950 font-bold rounded-lg shadow-lg hover:bg-gold-400 transition-all flex items-center justify-center gap-2">
-                                        Donate Now <Heart fill="currentColor" size={18} />
+                                <motion.div
+                                    className="flex flex-row gap-3 justify-center md:justify-start"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.8, duration: 0.5 }}
+                                >
+                                    <Link to="/donate" className="px-6 py-3 text-sm md:text-base bg-gold-500 text-primary-950 font-bold rounded-full shadow-lg hover:bg-gold-400 transition-all flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95">
+                                        Donate Now <Heart fill="currentColor" size={16} />
                                     </Link>
-                                    <Link to="/focus" className="px-8 py-4 border-2 border-white/20 text-white font-bold rounded-lg hover:bg-white/10 transition-all">
+                                    <Link to="/focus" className="px-6 py-3 text-sm md:text-base border-2 border-white/20 text-white font-bold rounded-full hover:bg-white/10 transition-all transform hover:scale-105 active:scale-95">
                                         Our Projects
                                     </Link>
-                                </div>
+                                </motion.div>
                             </motion.div>
                         </div>
 
                         {/* Hero Visual/Card */}
-                        <div className="flex-1 w-full max-w-lg hidden md:block">
+                        <motion.div
+                            className="flex-1 w-full max-w-lg hidden md:block"
+                            initial={{ opacity: 0, x: 50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4, duration: 0.8 }}
+                        >
                             <div className="relative aspect-square rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl">
                                 <div className="absolute inset-0 bg-primary-800 flex items-center justify-center text-white/20 font-bold text-3xl text-center p-8">
                                     High-Quality Field visual would go here
                                 </div>
                                 {/* Floating Overlay Card */}
-                                <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                                <motion.div
+                                    className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20"
+                                    initial={{ y: 50, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1, type: "spring" }}
+                                >
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 bg-gold-500 rounded-full flex items-center justify-center text-primary-900 font-bold">
                                             <TrendingUp size={24} />
@@ -80,49 +147,126 @@ const Home: React.FC = () => {
                                         </div>
                                         <div className="ml-auto text-2xl font-bold text-white">94%</div>
                                     </div>
-                                </div>
+                                </motion.div>
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
+
+            {/* 1.5. BRIEF ABOUT US */}
+            <motion.section
+                className="py-20 bg-white"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-100px" }}
+            >
+                <div className="container mx-auto px-6">
+                    <div className="max-w-4xl mx-auto text-center">
+                        <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Who We Are</motion.span>
+                        <motion.h2 variants={dropIn} className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-6">
+                            Driven by Compassion, Guided by Faith
+                        </motion.h2>
+                        <motion.p variants={fadeInUp} className="text-lg text-gray-600 mb-8 leading-relaxed">
+                            Al-Ihsan Relief & Empowerment was founded with a singular purpose: to serve humanity solely for the sake of Allah.
+                            We believe that true worship is reflected in how we treat the most vulnerable among us - the orphans, the widows, and the destitute.
+                            Based in Ibadan, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment.
+                        </motion.p>
+                        <motion.div variants={fadeInUp} className="flex justify-center">
+                            <Link to="/about" className="group flex items-center gap-2 text-primary-900 font-bold hover:text-gold-600 transition-colors">
+                                Read More About Us
+                                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                            </Link>
+                        </motion.div>
+                    </div>
+                </div>
+            </motion.section>
+
+            {/* 4. IMPACT TRANSPARENCY (The "Proof") */}
+            <motion.section
+                className="py-20 bg-primary-900 text-white relative overflow-hidden"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+            >
+                <div className="absolute inset-0 bg-islamic-pattern opacity-10"></div>
+                <div className="container mx-auto px-6 relative z-10">
+                    <motion.div variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center border-b border-white/10 pb-12 mb-12">
+                        {[
+                            { label: "Lives Impacted", value: 15000, suffix: "+" },
+                            { label: "Meals Served", value: 50000, suffix: "+" },
+                            { label: "Communities", value: 45, suffix: "" },
+                            { label: "Volunteers", value: 120, suffix: "+" }
+                        ].map((stat, i) => (
+                            <motion.div key={i} variants={dropIn}>
+                                <div className="text-4xl lg:text-5xl font-heading font-bold text-gold-500 mb-2">
+                                    <CountUp end={stat.value} suffix={stat.suffix} />
+                                </div>
+                                <div className="text-primary-200 text-sm uppercase tracking-wider">{stat.label}</div>
+                            </motion.div>
+                        ))}
+                    </motion.div>
+
+                    <motion.div
+                        className="flex flex-wrap justify-center gap-6 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500"
+                        variants={fadeInUp}
+                    >
+                        {/* Placeholder Trust Badges */}
+                        <div className="flex items-center gap-2 text-sm"><ShieldCheck size={18} /> CAC Registered</div>
+                        <div className="flex items-center gap-2 text-sm"><Building2 size={18} /> Shari'ah Compliant</div>
+                        <div className="flex items-center gap-2 text-sm"><Users size={18} /> EFCC SCUML</div>
+                    </motion.div>
+                </div>
+            </motion.section>
 
             {/* 2. URGENT APPEALS (The "Need") - Only show if data exists */}
             {appeals.length > 0 && (
                 <section className="py-20 bg-gray-50">
                     <div className="container mx-auto px-6">
-                        <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left mb-12 gap-6">
-                            <div>
+                        <motion.div
+                            className="flex flex-col md:flex-row justify-between items-center text-center md:text-left mb-12 gap-6"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                        >
+                            <motion.div variants={fadeInLeft}>
                                 <span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block animate-pulse">Emergency Response</span>
                                 <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Urgent Appeals</h2>
-                            </div>
-                            <div className="hidden md:flex gap-2">
+                            </motion.div>
+                            <motion.div variants={fadeInRight} className="hidden md:flex gap-2">
                                 <button className="w-10 h-10 border border-primary-200 rounded-full flex items-center justify-center hover:bg-primary-900 hover:text-white transition-colors">
                                     <ArrowRight className="rotate-180" size={20} />
                                 </button>
                                 <button className="w-10 h-10 border border-primary-900 bg-primary-900 text-white rounded-full flex items-center justify-center hover:bg-primary-800 transition-colors">
                                     <ArrowRight size={20} />
                                 </button>
-                            </div>
-                        </div>
+                            </motion.div>
+                        </motion.div>
 
                         {/* Horizontal Slider (Grid for now) */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <motion.div
+                            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                            variants={staggerContainer}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                        >
                             {loadingAppeals ? (
                                 <div className="col-span-3 text-center py-10 text-gray-400">Loading appeals...</div>
                             ) : (
                                 appeals.map((appeal) => (
-                                    <UrgentAppealCard
-                                        key={appeal.id}
-                                        title={appeal.title}
-                                        description={appeal.description}
-                                        raised={appeal.raised}
-                                        goal={appeal.goal}
-                                        imageUrl={appeal.imageUrl}
-                                    />
+                                    <motion.div key={appeal.id} variants={fadeInUp}>
+                                        <UrgentAppealCard
+                                            title={appeal.title}
+                                            description={appeal.description}
+                                            raised={appeal.raised}
+                                            goal={appeal.goal}
+                                            imageUrl={appeal.imageUrl}
+                                        />
+                                    </motion.div>
                                 ))
                             )}
-                        </div>
+                        </motion.div>
                     </div>
                 </section>
             )}
@@ -132,9 +276,17 @@ const Home: React.FC = () => {
                 <div className="container mx-auto px-6">
                     <div className="grid lg:grid-cols-2 gap-16 items-start">
                         {/* Quick Links */}
-                        <div className="text-center md:text-left">
-                            <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Ways to Give</span>
-                            <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-8">Fulfill Your Obligation</h2>
+                        <motion.div
+                            className="text-center md:text-left"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={staggerContainer}
+                        >
+                            <motion.div variants={fadeInLeft}>
+                                <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Ways to Give</span>
+                                <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-8">Fulfill Your Obligation</h2>
+                            </motion.div>
 
                             <div className="grid grid-cols-2 gap-4">
                                 {[
@@ -143,75 +295,65 @@ const Home: React.FC = () => {
                                     { title: "Orphan Sponsorship", desc: "Monthly support for a child", icon: Users },
                                     { title: "General Charity", desc: "Where needed most", icon: Heart }
                                 ].map((item, i) => (
-                                    <Link key={i} to="/donate" className="p-4 md:p-6 border border-gray-100 rounded-xl hover:shadow-lg hover:border-gold-500/30 transition-all group flex flex-col items-center md:items-start text-center md:text-left">
-                                        <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center text-primary-900 mb-4 group-hover:bg-gold-500 group-hover:text-white transition-colors">
-                                            <item.icon size={24} />
-                                        </div>
-                                        <h3 className="font-bold text-lg text-primary-900 leading-tight mb-1">{item.title}</h3>
-                                        <p className="text-xs md:text-sm text-gray-500">{item.desc}</p>
-                                    </Link>
+                                    <motion.div key={i} variants={fadeInUp}>
+                                        <Link to="/donate" className="p-4 md:p-6 border border-gray-100 rounded-xl hover:shadow-lg hover:border-gold-500/30 transition-all group flex flex-col items-center md:items-start text-center md:text-left h-full">
+                                            <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center text-primary-900 mb-4 group-hover:bg-gold-500 group-hover:text-white transition-colors">
+                                                <item.icon size={24} />
+                                            </div>
+                                            <h3 className="font-bold text-lg text-primary-900 leading-tight mb-1">{item.title}</h3>
+                                            <p className="text-xs md:text-sm text-gray-500">{item.desc}</p>
+                                        </Link>
+                                    </motion.div>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Mini Calculator */}
-                        <div>
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeInRight}
+                        >
                             <ZakatCalculator />
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
-            {/* 4. IMPACT TRANSPARENCY (The "Proof") */}
-            <section className="py-20 bg-primary-900 text-white relative overflow-hidden">
-                <div className="absolute inset-0 bg-islamic-pattern opacity-10"></div>
-                <div className="container mx-auto px-6 relative z-10">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center border-b border-white/10 pb-12 mb-12">
-                        {[
-                            { label: "Lives Impacted", value: 15000, suffix: "+" },
-                            { label: "Meals Served", value: 50000, suffix: "+" },
-                            { label: "Communities", value: 45, suffix: "" },
-                            { label: "Volunteers", value: 120, suffix: "+" }
-                        ].map((stat, i) => (
-                            <div key={i}>
-                                <div className="text-4xl lg:text-5xl font-heading font-bold text-gold-500 mb-2">
-                                    <CountUp end={stat.value} suffix={stat.suffix} />
-                                </div>
-                                <div className="text-primary-200 text-sm uppercase tracking-wider">{stat.label}</div>
-                            </div>
-                        ))}
-                    </div>
 
-                    <div className="flex flex-wrap justify-center gap-6 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
-                        {/* Placeholder Trust Badges */}
-                        <div className="flex items-center gap-2 text-sm"><ShieldCheck size={18} /> CAC Registered</div>
-                        <div className="flex items-center gap-2 text-sm"><Building2 size={18} /> Shari'ah Compliant</div>
-                        <div className="flex items-center gap-2 text-sm"><Users size={18} /> EFCC SCUML</div>
-                    </div>
-                </div>
-            </section>
 
             {/* 6. WHERE YOUR MONEY GOES (The "Accountability") */}
-            <section className="py-20 bg-white">
+            <motion.section
+                className="py-20 bg-white"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+            >
                 <div className="container mx-auto px-6">
                     <div className="text-center mb-16">
-                        <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Transparency</span>
-                        <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Where Your Money Goes</h2>
-                        <p className="text-gray-500 mt-4 max-w-2xl mx-auto">We categorize every donation to ensure it is used exactly as defined by Shari'ah and donor intent.</p>
+                        <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Transparency</motion.span>
+                        <motion.h2 variants={dropIn} className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Where Your Money Goes</motion.h2>
+                        <motion.p variants={fadeInUp} className="text-gray-500 mt-4 max-w-2xl mx-auto">We categorize every donation to ensure it is used exactly as defined by Shari'ah and donor intent.</motion.p>
                     </div>
 
                     <ImpactPieChart />
                 </div>
-            </section>
+            </motion.section>
 
             {/* 5. SUCCESS STORIES (The "Heart") & EDUCATION */}
             <section className="py-20 bg-gray-50">
                 <div className="container mx-auto px-4">
                     <div className="grid lg:grid-cols-2 gap-16">
                         {/* Success Story */}
-                        <div>
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeInLeft}
+                        >
                             <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Success Stories</span>
-                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
+                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
                                 <div className="flex gap-4 mb-6">
                                     <div className="w-1/2 aspect-square bg-gray-200 rounded-xl flex items-center justify-center text-xs text-gray-500">Before</div>
                                     <div className="w-1/2 aspect-square bg-primary-100 rounded-xl flex items-center justify-center text-xs text-primary-800">After</div>
@@ -223,30 +365,37 @@ const Home: React.FC = () => {
                                     Read Full Story <ArrowRight size={16} />
                                 </Link>
                             </div>
-                        </div>
+                        </motion.div>
 
                         {/* Latest Education/News - Only show if data exists */}
-                        <div>
-                            <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Education & News</span>
+                        <motion.div
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={staggerContainer}
+                        >
+                            <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Education & News</motion.span>
                             <div className="space-y-6">
                                 {loadingPosts ? (
                                     <div className="text-center py-4 text-gray-400">Loading new updates...</div>
                                 ) : posts.length > 0 ? (
                                     posts.map((news) => (
-                                        <div key={news.id} className="flex gap-4 group cursor-pointer">
-                                            <div className="w-24 h-24 bg-gray-200 rounded-lg flex-shrink-0 relative overflow-hidden">
-                                                {news.imageUrl ? (
-                                                    <img src={news.imageUrl} alt={news.title} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">No Img</div>
-                                                )}
+                                        <motion.div key={news.id} variants={fadeInRight}>
+                                            <div className="flex gap-4 group cursor-pointer">
+                                                <div className="w-24 h-24 bg-gray-200 rounded-lg flex-shrink-0 relative overflow-hidden">
+                                                    {news.imageUrl ? (
+                                                        <img src={news.imageUrl} alt={news.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">No Img</div>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
+                                                    <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
+                                                    <a href={news.link || "#"} className="text-sm text-gray-500 mt-2 inline-block">Read article</a>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
-                                                <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
-                                                <a href={news.link || "#"} className="text-sm text-gray-500 mt-2 inline-block">Read article</a>
-                                            </div>
-                                        </div>
+                                        </motion.div>
                                     ))
                                 ) : (
                                     <div className="p-6 bg-gray-50 rounded-lg text-center text-gray-400 text-sm">
@@ -254,21 +403,27 @@ const Home: React.FC = () => {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* Newsletter */}
             <section className="py-20 bg-primary-950 border-t border-white/10">
-                <div className="container mx-auto px-4 text-center max-w-2xl">
+                <motion.div
+                    className="container mx-auto px-4 text-center max-w-2xl"
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={dropIn}
+                >
                     <h2 className="text-3xl font-heading font-bold text-white mb-4">Join Our Community</h2>
                     <p className="text-primary-200 mb-8">Receive updates on our appeals and Islamic reminders.</p>
                     <div className="flex gap-2">
-                        <input type="email" placeholder="Enter your email address" className="flex-1 p-4 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:border-gold-500 outline-none" />
-                        <button className="px-8 py-4 bg-gold-500 text-primary-900 font-bold rounded-lg hover:bg-gold-400">Subscribe</button>
+                        <input type="email" placeholder="Enter your email address" className="flex-1 p-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:border-gold-500 outline-none" />
+                        <button className="px-6 py-3 bg-gold-500 text-primary-900 font-bold rounded-full hover:bg-gold-400 transition-colors">Subscribe</button>
                     </div>
-                </div>
+                </motion.div>
             </section>
 
             <FloatingWhatsApp />

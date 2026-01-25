@@ -81,7 +81,7 @@ const Donate: React.FC = () => {
                                 <label className="block text-sm font-medium text-gray-700">Select Amount (NGN)</label>
                                 <div className="grid grid-cols-3 gap-3">
                                     {['1000', '5000', '10000'].map((amt) => (
-                                        <button key={amt} className="py-2 border border-primary-200 rounded-lg text-primary-700 hover:bg-primary-50 font-medium transition-colors">
+                                        <button key={amt} className="py-2 border border-primary-200 rounded-full text-primary-700 hover:bg-primary-50 font-medium transition-colors">
                                             ₦{amt}
                                         </button>
                                     ))}
@@ -93,7 +93,7 @@ const Donate: React.FC = () => {
                                 />
                             </div>
 
-                            <button className="w-full py-4 bg-primary-900 text-white font-bold rounded-xl shadow-lg hover:bg-primary-800 transition-all transform hover:-translate-y-0.5">
+                            <button className="w-full py-3 bg-primary-900 text-white font-bold rounded-full shadow-lg hover:bg-primary-800 transition-all transform hover:-translate-y-0.5">
                                 Donate via Paystack
                             </button>
                         </div>
