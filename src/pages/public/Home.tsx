@@ -446,17 +446,18 @@ const Home: React.FC = () => {
                             whileInView="visible"
                             viewport={{ once: true }}
                             variants={fadeInLeft}
+                            className="text-center md:text-left"
                         >
                             <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Success Stories</span>
                             <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                                <div className="flex gap-4 mb-6">
+                                <div className="flex gap-4 mb-6 justify-center md:justify-start">
                                     <div className="w-1/2 aspect-square bg-gray-200 rounded-xl flex items-center justify-center text-xs text-gray-500">Before</div>
                                     <div className="w-1/2 aspect-square bg-primary-100 rounded-xl flex items-center justify-center text-xs text-primary-800">After</div>
                                 </div>
-                                <blockquote className="text-xl text-primary-900 font-heading italic mb-6">
+                                <blockquote className="text-xl text-primary-900 font-heading italic mb-6 text-center md:text-left">
                                     "Thanks to your Sadaqah, Amina’s family in Borno now has access to clean water daily. Before, they walked 5km every morning."
                                 </blockquote>
-                                <Link to="/stories" className="text-gold-600 font-bold hover:text-primary-900 flex items-center gap-2">
+                                <Link to="/stories" className="text-gold-600 font-bold hover:text-primary-900 flex items-center justify-center md:justify-start gap-2">
                                     Read Full Story <ArrowRight size={16} />
                                 </Link>
                             </div>
@@ -468,6 +469,7 @@ const Home: React.FC = () => {
                             whileInView="visible"
                             viewport={{ once: true }}
                             variants={staggerContainer}
+                            className="text-center md:text-left"
                         >
                             <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Education & News</motion.span>
                             <div className="space-y-6">

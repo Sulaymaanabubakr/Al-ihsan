@@ -113,8 +113,8 @@ const Focus: React.FC = () => {
                     className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
                     {pillars.map((pillar) => (
-                        <motion.div key={pillar.id} variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                            <div className={`w-14 h-14 ${pillar.color} rounded-xl flex items-center justify-center mb-6`}>
+                        <motion.div key={pillar.id} variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 text-center md:text-left">
+                            <div className={`w-14 h-14 ${pillar.color} rounded-xl flex items-center justify-center mb-6 mx-auto md:mx-0`}>
                                 <pillar.icon size={28} />
                             </div>
                             <h3 className="text-2xl font-bold text-primary-900 mb-3">{pillar.title}</h3>
@@ -132,7 +132,7 @@ const Focus: React.FC = () => {
                     viewport={{ once: true }}
                     className="mb-12"
                 >
-                    <h2 className="text-3xl font-heading font-bold text-primary-900 border-l-4 border-gold-500 pl-4">Recent Projects & Campaigns</h2>
+                    <h2 className="text-3xl font-heading font-bold text-primary-900 border-b-4 md:border-b-0 md:border-l-4 border-gold-500 pb-4 md:pb-0 md:pl-4 text-center md:text-left w-fit mx-auto md:mx-0 md:w-full">Recent Projects & Campaigns</h2>
                 </motion.div>
 
                 {loading ? (
@@ -157,10 +157,10 @@ const Focus: React.FC = () => {
                                         {project.category || 'General'}
                                     </div>
                                 </div>
-                                <div className="p-6">
+                                <div className="p-6 text-center md:text-left">
                                     <h3 className="text-xl font-bold text-primary-900 mb-3 group-hover:text-gold-600 transition-colors">{project.title}</h3>
                                     <p className="text-gray-600 text-sm line-clamp-3 mb-4">{project.description}</p>
-                                    <button className="text-gold-600 font-bold text-sm uppercase tracking-wider hover:text-primary-900 transition-colors">See Details</button>
+                                    <button className="text-gold-600 font-bold text-sm uppercase tracking-wider hover:text-primary-900 transition-colors mx-auto md:mx-0 block">See Details</button>
                                 </div>
                             </motion.div>
                         ))}

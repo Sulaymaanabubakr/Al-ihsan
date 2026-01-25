@@ -86,7 +86,7 @@ const Donate: React.FC = () => {
                             </p>
 
                             <div className="space-y-4">
-                                <label className="block text-sm font-medium text-gray-700">Select Amount (NGN)</label>
+                                <label className="block text-sm font-medium text-gray-700 text-center">Select Amount (NGN)</label>
                                 <div className="grid grid-cols-3 gap-3">
                                     {['1000', '5000', '10000'].map((amt) => (
                                         <button key={amt} className="py-2 border border-primary-200 rounded-full text-primary-700 hover:bg-primary-50 font-medium transition-colors">

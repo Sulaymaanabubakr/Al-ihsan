@@ -79,7 +79,7 @@ const Contact: React.FC = () => {
                         className="space-y-8"
                     >
                         {/* Info Cards */}
-                        <motion.div variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg flex items-start gap-4">
+                        <motion.div variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg flex flex-col items-center md:flex-row md:items-start gap-4 text-center md:text-left">
                             <div className="w-12 h-12 bg-gold-100 text-gold-600 rounded-full flex items-center justify-center shrink-0">
                                 <MapPin size={24} />
                             </div>
@@ -89,7 +89,7 @@ const Contact: React.FC = () => {
                             </div>
                         </motion.div>
 
-                        <motion.div variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg flex items-start gap-4">
+                        <motion.div variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg flex flex-col items-center md:flex-row md:items-start gap-4 text-center md:text-left">
                             <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center shrink-0">
                                 <Phone size={24} />
                             </div>
@@ -100,7 +100,7 @@ const Contact: React.FC = () => {
                             </div>
                         </motion.div>
 
-                        <motion.div variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg flex items-start gap-4">
+                        <motion.div variants={fadeInUp} className="bg-white p-8 rounded-2xl shadow-lg flex flex-col items-center md:flex-row md:items-start gap-4 text-center md:text-left">
                             <div className="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center shrink-0">
                                 <Mail size={24} />
                             </div>

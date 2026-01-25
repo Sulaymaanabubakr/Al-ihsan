@@ -102,7 +102,7 @@ const Navbar: React.FC = () => {
                             <Link
                                 key={link.name}
                                 to={link.path}
-                                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(link.path)
+                                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors text-center ${isActive(link.path)
                                     ? 'bg-primary-50 text-primary-900 font-bold'
                                     : 'text-gray-600 hover:bg-gray-50 hover:text-primary-900'
                                     }`}
