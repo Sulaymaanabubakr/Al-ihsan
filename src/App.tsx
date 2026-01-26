@@ -16,6 +16,8 @@ import { AuthProvider } from './context/AuthContext';
 
 import Contact from './pages/public/Contact';
 import Focus from './pages/public/Focus';
+// ... existing imports
+import ZakatPage from './pages/public/ZakatPage';
 
 const App: React.FC = () => {
   return (
@@ -31,6 +33,7 @@ const App: React.FC = () => {
             <Route path="/gallery" element={<Layout><Gallery /></Layout>} />
             <Route path="/focus" element={<Layout><Focus /></Layout>} />
             <Route path="/apply" element={<Layout><Apply /></Layout>} />
+            <Route path="/zakat" element={<Layout><ZakatPage /></Layout>} />
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<Login />} />

@@ -95,7 +95,8 @@ const Contact: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary-900 mb-1">Phone & WhatsApp</h3>
-                                <p className="text-gray-600">+234 800 123 4567</p>
+                                <p className="text-gray-600">+44 7466 677026</p>
+                                <p className="text-gray-600">+44 7440 448657</p>
                                 <p className="text-gray-500 text-sm mt-1">Available Mon-Sat, 9am - 5pm</p>
                             </div>
                         </motion.div>
