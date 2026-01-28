@@ -18,6 +18,7 @@ import Contact from './pages/public/Contact';
 import Focus from './pages/public/Focus';
 // ... existing imports
 import ZakatPage from './pages/public/ZakatPage';
+import RamadanTeensPage from './pages/public/RamadanTeensPage';
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const App: React.FC = () => {
             <Route path="/focus" element={<Layout><Focus /></Layout>} />
             <Route path="/apply" element={<Layout><Apply /></Layout>} />
             <Route path="/zakat" element={<Layout><ZakatPage /></Layout>} />
+            <Route path="/ramadan-teens" element={<Layout><RamadanTeensPage /></Layout>} />
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<Login />} />

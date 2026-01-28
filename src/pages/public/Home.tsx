@@ -2,7 +2,7 @@ import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Users, ShieldCheck, TrendingUp, Building2, Users2 } from 'lucide-react';
+import { ArrowRight, Heart, Users, ShieldCheck, Building2, Users2, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import SEO from '../../components/common/SEO';
@@ -133,10 +133,14 @@ const Home: React.FC = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4, duration: 0.8 }}
                         >
-                            <div className="relative aspect-square rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl">
-                                <div className="absolute inset-0 bg-primary-800 flex items-center justify-center text-white/20 font-bold text-3xl text-center p-8">
-                                    High-Quality Field visual would go here
-                                </div>
+                            <div className="relative aspect-square rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl group">
+                                <img
+                                    src="/ramadan-teens-flyer.png"
+                                    alt="Ramadan Teens Program 2026"
+                                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-primary-950/80 to-transparent"></div>
+
                                 {/* Floating Overlay Card */}
                                 <motion.div
                                     className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20"
@@ -145,14 +149,16 @@ const Home: React.FC = () => {
                                     transition={{ delay: 1, type: "spring" }}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-gold-500 rounded-full flex items-center justify-center text-primary-900 font-bold">
-                                            <TrendingUp size={24} />
+                                        <div className="w-12 h-12 bg-gold-500 rounded-full flex items-center justify-center text-primary-900 font-bold shadow-lg shadow-gold-500/20">
+                                            <Calendar size={24} />
                                         </div>
                                         <div>
-                                            <p className="text-white font-bold text-lg">Goal Reached</p>
-                                            <p className="text-gold-300 text-sm">Alhamdulillah for your support</p>
+                                            <p className="text-white font-bold text-lg">Upcoming Program</p>
+                                            <p className="text-gold-300 text-sm">Ramadan Teens 2026</p>
                                         </div>
-                                        <div className="ml-auto text-2xl font-bold text-white">94%</div>
+                                        <Link to="/ramadan-teens" className="ml-auto px-4 py-2 bg-white text-primary-900 text-sm font-bold rounded-lg hover:bg-gray-100 transition shadow-md">
+                                            Register
+                                        </Link>
                                     </div>
                                 </motion.div>
                             </div>
@@ -162,16 +168,18 @@ const Home: React.FC = () => {
             </section>
 
             {/* 1.5. BRIEF ABOUT US */}
-            <motion.section
-                className="py-20 bg-white"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-100px" }}
-            >
+            {/* 1.5. BRIEF ABOUT US */}
+            <section className="py-20 bg-white">
                 <div className="container mx-auto px-6">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Who We Are</motion.span>
-                        <motion.h2 variants={dropIn} className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-6">
+                    <motion.div
+                        className="max-w-4xl mx-auto text-center"
+                        variants={staggerContainer}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true, margin: "-100px" }}
+                    >
+                        <motion.span variants={fadeInUp} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-2 block">Who We Are</motion.span>
+                        <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-heading font-bold text-primary-900 mb-6">
                             Driven by Compassion, Guided by Faith
                         </motion.h2>
                         <motion.p variants={fadeInUp} className="text-lg text-gray-600 mb-8 leading-relaxed">
@@ -185,9 +193,9 @@ const Home: React.FC = () => {
                                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                             </Link>
                         </motion.div>
-                    </div>
+                    </motion.div>
                 </div>
-            </motion.section>
+            </section>
 
             {/* 4. IMPACT TRANSPARENCY (The "Proof") */}
             <motion.section

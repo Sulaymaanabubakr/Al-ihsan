@@ -135,6 +135,46 @@ const Focus: React.FC = () => {
                     <h2 className="text-3xl font-heading font-bold text-primary-900 border-b-4 md:border-b-0 md:border-l-4 border-gold-500 pb-4 md:pb-0 md:pl-4 text-center md:text-left w-fit mx-auto md:mx-0 md:w-full">Recent Projects & Campaigns</h2>
                 </motion.div>
 
+                {/* Featured Program: Ramadan Teens */}
+                <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeInUp}
+                    className="mb-16 bg-gradient-to-br from-primary-950 to-primary-900 rounded-3xl overflow-hidden shadow-2xl text-white relative"
+                >
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="grid md:grid-cols-2 gap-8 items-center p-8 md:p-12 relative z-10">
+                        <div>
+                            <span className="inline-block px-4 py-1 rounded-full bg-gold-500/20 text-gold-300 text-sm font-bold tracking-widest uppercase mb-4 border border-gold-500/30">
+                                Open for Registration
+                            </span>
+                            <h2 className="text-3xl md:text-5xl font-heading font-bold mb-4 text-white">
+                                Ramadan Teens Program 2026
+                            </h2>
+                            <p className="text-primary-100 text-lg mb-8 leading-relaxed">
+                                Empowering the next generation with Islamic knowledge, discipline, and brotherhood.
+                                Join us for a transformative experience this Ramadan featuring Qur'an competitions, quizzes, and tafsir sessions.
+                            </p>
+                            <div className="flex flex-wrap gap-4">
+                                <a href="/ramadan-teens" className="px-8 py-3 bg-gold-500 text-primary-900 font-bold rounded-xl hover:bg-gold-400 transition shadow-lg hover:translate-y-[-2px]">
+                                    Register Now
+                                </a>
+                                <span className="flex items-center gap-2 px-6 py-3 border border-white/20 rounded-xl text-primary-100">
+                                    <BookOpen size={20} /> Limited Slots Available
+                                </span>
+                            </div>
+                        </div>
+                        <div className="relative aspect-video md:aspect-square rounded-2xl overflow-hidden shadow-2xl border-4 border-white/10 rotate-3 hover:rotate-0 transition-transform duration-500">
+                            <img
+                                src="/ramadan-teens-flyer.png"
+                                alt="Ramadan Teens Program"
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    </div>
+                </motion.div>
+
                 {loading ? (
                     <div className="text-center py-20 text-gray-400">Loading projects...</div>
                 ) : projects.length > 0 ? (
