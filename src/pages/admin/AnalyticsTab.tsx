@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getDonationTrends, getTopDonors, getCampaignPerformance, getCaseSuccessRate, type DonationTrend, type TopDonor, type CampaignPerformance } from '../../lib/analyticsService';
 import { formatNaira } from '../../components/admin/CurrencyDisplay';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from 'recharts';
-import { TrendingUp, Trophy, Target, CheckCircle, Download } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { TrendingUp, Trophy, Target, CheckCircle } from 'lucide-react';
 
 const COLORS = ['#7a5299', '#d4af37', '#059669', '#3b82f6', '#ef4444', '#8b5cf6'];
 
@@ -63,7 +63,7 @@ const AnalyticsTab: React.FC = () => {
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,116,139,0.15)" />
                                 <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={v => v.slice(5)} />
                                 <YAxis tick={{ fontSize: 10, fill: '#94a3b8' }} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
-                                <Tooltip formatter={(v: number) => [formatNaira(v), 'Amount']} labelFormatter={v => `Date: ${v}`} contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }} />
+                                <Tooltip formatter={(v: any) => [formatNaira(Number(v)), 'Amount']} labelFormatter={v => `Date: ${v}`} contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }} />
                                 <Bar dataKey="amount" fill="#7a5299" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>

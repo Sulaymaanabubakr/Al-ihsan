@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getDonations, createDonation, verifyDonation, type DonationRecord, type DonationInput, type PaymentMethod } from '../../lib/donationService';
 import { getDonors, type DonorRecord } from '../../lib/donorService';
 import { getCampaigns, type CampaignRecord } from '../../lib/campaignService';
-import StatusBadge from '../../components/admin/StatusBadge';
+
 import EmptyState from '../../components/admin/EmptyState';
 import { formatNaira } from '../../components/admin/CurrencyDisplay';
 import FormField from '../../components/admin/FormField';
@@ -19,7 +19,7 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
 
 const DonationsTab: React.FC = () => {
     const [donations, setDonations] = useState<DonationRecord[]>([]);
-    const [donors, setDonors] = useState<DonorRecord[]>([]);
+    const [, setDonors] = useState<DonorRecord[]>([]);
     const [campaigns, setCampaigns] = useState<CampaignRecord[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');

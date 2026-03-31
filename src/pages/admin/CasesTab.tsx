@@ -4,7 +4,7 @@ import { getAidApplications, type AidApplicationRecord } from '../../lib/aidAppl
 import StatusBadge from '../../components/admin/StatusBadge';
 import EmptyState from '../../components/admin/EmptyState';
 import { formatNaira } from '../../components/admin/CurrencyDisplay';
-import { ChevronLeft, Search, FolderOpen, ArrowUpRight, Clock, UserCheck, FileText, AlertTriangle, Plus, CheckCircle } from 'lucide-react';
+import { ChevronLeft, Search, FolderOpen, ArrowUpRight, Clock, FileText, AlertTriangle, CheckCircle } from 'lucide-react';
 
 const formatDate = (v: string) => new Date(v).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 

@@ -75,14 +75,16 @@ export const createDonation = async (input: DonationInput): Promise<void> => {
 
     // Update donor total if linked
     if (input.donorId) {
-        await supabase.rpc('increment_donor_total', { d_id: input.donorId, d_amount: input.amount }).catch(() => {
+        try {
+            const { error: rpcError } = await supabase.rpc('increment_donor_total', { d_id: input.donorId, d_amount: input.amount });
+            if (rpcError) throw rpcError;
+        } catch {
             // Fallback: manually update
-            supabase.from('donors').select('total_donated').eq('id', input.donorId).single().then(({ data }) => {
-                if (data) {
-                    supabase.from('donors').update({ total_donated: Number(data.total_donated) + input.amount, updated_at: new Date().toISOString() }).eq('id', input.donorId!);
-                }
-            });
-        });
+            const { data } = await supabase.from('donors').select('total_donated').eq('id', input.donorId).single();
+            if (data) {
+                await supabase.from('donors').update({ total_donated: Number(data.total_donated) + input.amount, updated_at: new Date().toISOString() }).eq('id', input.donorId);
+            }
+        }
     }
 
     // Update campaign amount_raised if linked

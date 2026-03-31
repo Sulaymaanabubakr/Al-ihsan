@@ -3,7 +3,7 @@ import { useCloudinary } from '../../hooks/useCloudinary';
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import {
     Upload, Plus, LogOut, LayoutDashboard, Image as ImageIcon,
-    Users, HandHeart, Settings, ShieldCheck, Camera,
+    Users, HandHeart, Settings, ShieldCheck,
     ChevronRight, Sun, Moon, Menu, X, Activity, ArrowUpRight,
     Banknote, UserCircle, Target, Wallet, FileText, Bell,
     BarChart3, Shield, ScrollText, TrendingUp
@@ -280,7 +280,7 @@ const Dashboard: React.FC = () => {
                                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,116,139,0.1)" />
                                                     <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
                                                     <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
-                                                    <Tooltip formatter={(v: number) => [formatNaira(v), 'Amount']} contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }} />
+                                                    <Tooltip formatter={(v: any) => [formatNaira(Number(v)), 'Amount']} contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }} />
                                                     <Bar dataKey="amount" fill="#7a5299" radius={[4, 4, 0, 0]} />
                                                 </BarChart>
                                             </ResponsiveContainer>
