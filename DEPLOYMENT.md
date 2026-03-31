@@ -14,7 +14,7 @@ This is the easiest method and enables automatic updates whenever you push to Gi
     *   **Output Directory**: `dist` (default)
 6.  **Environment Variables**:
     *   Expand the "Environment Variables" section.
-    *   Copy the values from your local `.env` file and add them here matching the keys (e.g., `VITE_FIREBASE_API_KEY`, etc.).
+    *   Copy the values from your local `.env` file and add them here matching the keys (e.g., `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_PROJECT_ID`, `VITE_CLOUDINARY_CLOUD_NAME`).
 7.  Click **Deploy**.
 
 ## Option 2: Deployment via Vercel CLI (Manual)

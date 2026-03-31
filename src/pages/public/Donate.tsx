@@ -3,13 +3,15 @@ import { motion } from 'framer-motion';
 import { Copy, CheckCircle, CreditCard, Wallet } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 
 const Donate: React.FC = () => {
     const { slideInLeft, slideInRight, fadeInUp, staggerContainer } = useAnimations();
+    const { settings } = useSiteSettings();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
-        navigator.clipboard.writeText("0123456789"); // Replace with actual account
+        navigator.clipboard.writeText(settings.accountNumber);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -49,16 +51,16 @@ const Donate: React.FC = () => {
                         <div className="p-8 space-y-6">
                             <div className="text-center p-4 bg-gray-50 rounded-xl border border-gray-100">
                                 <p className="text-sm text-gray-500 mb-1">Bank Name</p>
-                                <p className="text-xl font-bold text-gray-900">Jaiz Bank</p>
+                                <p className="text-xl font-bold text-gray-900">{settings.bankName}</p>
                             </div>
                             <div className="text-center p-4 bg-gray-50 rounded-xl border border-gray-100">
                                 <p className="text-sm text-gray-500 mb-1">Account Name</p>
-                                <p className="text-lg font-bold text-gray-900">Al-Ihsan Relief & Empowerment</p>
+                                <p className="text-lg font-bold text-gray-900">{settings.accountName}</p>
                             </div>
                             <div className="text-center p-4 bg-gold-50 rounded-xl border border-gold-100 relative group cursor-pointer" onClick={handleCopy}>
                                 <p className="text-sm text-gold-700 mb-1">Account Number</p>
                                 <div className="flex items-center justify-center gap-3">
-                                    <p className="text-3xl font-bold text-primary-900 tracking-wider">0003734080</p>
+                                    <p className="text-3xl font-bold text-primary-900 tracking-wider">{settings.accountNumber}</p>
                                     <button className="text-gold-600 hover:text-gold-700 transition-colors">
                                         {copied ? <CheckCircle size={20} /> : <Copy size={20} />}
                                     </button>

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ZoomIn, Loader } from 'lucide-react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
 import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
+import { supabase } from '../../lib/supabase';
 
 const categories = ["All", "Food Relief", "Medical", "Education", "Orphans"];
 
@@ -23,17 +22,43 @@ const Gallery: React.FC = () => {
     const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 
     useEffect(() => {
-        const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const fetchedImages = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as GalleryImage));
-            setImages(fetchedImages);
-            setLoading(false);
-        });
+        const loadImages = async () => {
+            const { data, error } = await supabase
+                .from('gallery')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-        return () => unsubscribe();
+            if (!error && data) {
+                setImages(
+                    data.map((row) => ({
+                        id: row.id,
+                        url: row.url,
+                        category: row.category,
+                        title: row.title,
+                    }))
+                );
+            }
+            setLoading(false);
+        };
+
+        loadImages();
+
+        // Realtime subscription
+        const channel = supabase
+            .channel('gallery_realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'gallery' },
+                () => {
+                    // Refetch on any change
+                    loadImages();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, []);
 
     const filteredImages = activeCategory === "All"

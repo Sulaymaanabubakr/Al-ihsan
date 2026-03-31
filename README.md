@@ -21,7 +21,9 @@ Al-Ihsan Relief is a faith-based humanitarian organization committed to:
 - **Lucide React** - Beautiful icons
 
 ### Backend & Services
-- **Firebase** - Authentication, Firestore database, hosting
+- **Firebase Authentication** - Admin sign-in
+- **Cloud Firestore** - App content, submissions, and admin data
+- **Cloudinary** - Media uploads and hosted image delivery
 - **React Router DOM** - Client-side routing
 - **React Helmet Async** - SEO optimization
 
@@ -68,17 +70,15 @@ src/
    ```
 
 3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Fill in your Firebase configuration values in `.env`:
+   Fill in your Firebase and Cloudinary configuration values in `.env`:
    ```env
-   VITE_FIREBASE_API_KEY=your_api_key
-   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_API_KEY=your_firebase_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_firebase_sender_id
+   VITE_FIREBASE_APP_ID=your_firebase_app_id
+   VITE_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+   VITE_CLOUDINARY_UPLOAD_PRESET=your_cloudinary_unsigned_upload_preset
    ```
 
 4. **Start development server**
@@ -89,6 +89,9 @@ src/
 5. **Open your browser**
    Navigate to `http://localhost:5173`
 
+6. **Configure the backend project**
+   Copy `.firebaserc.example` to `.firebaserc` and replace the placeholder with your Firebase project id.
+
 ## 🌐 Available Scripts
 
 - `npm run dev` - Start development server
@@ -98,17 +101,64 @@ src/
 
 ## 🔧 Firebase Configuration
 
-### Setup Firebase Project
+1. Create a Firebase project and choose a Europe West location for Firestore when prompted.
+2. Enable Email/Password sign-in in Firebase Authentication.
+3. Create a Firestore database and deploy the rules in [firestore.rules](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/firestore.rules).
+4. Create the collections used by the app as data is added:
+   `admin_users`, `gallery`, `videos`, `projects`, `appeals`, `posts`, `contacts`, `applications`, `volunteer_applications`, `program_settings`, `teens_registrations`.
+5. Add your Firebase web app config to `.env`.
+6. Configure a Cloudinary unsigned upload preset and add the cloud name and preset values to `.env`.
 
-1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable Authentication (Email/Password)
-3. Set up Firestore Database
-4. Configure Security Rules
-5. Get your Firebase configuration keys
+To grant dashboard access, create a Firestore document in `admin_users` whose document ID matches the Firebase Auth user UID.
 
-### Security Rules
+## 🧱 Backend Deployment
 
-The project includes Firebase security rules in `firestore.rules`. Make sure to deploy these rules to your Firebase project.
+This app uses Firebase as its backend, so there is no separate Express or Node API to deploy.
+
+1. Install the Firebase CLI:
+   ```bash
+   npm i -g firebase-tools
+   ```
+2. Log in and select your project:
+   ```bash
+   firebase login
+   cp .firebaserc.example .firebaserc
+   ```
+3. Set the project id in `.firebaserc`.
+4. Deploy the Firestore backend pieces:
+   ```bash
+   npm run firebase:deploy:firestore
+   ```
+5. For local backend testing, run:
+   ```bash
+   npm run firebase:emulators
+   ```
+
+Backend files in this repo:
+- [firebase.json](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/firebase.json)
+- [firestore.rules](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/firestore.rules)
+- [firestore.indexes.json](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/firestore.indexes.json)
+- [.firebaserc.example](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/.firebaserc.example)
+
+## ☁️ Functions Backend
+
+Firebase Cloud Functions are configured in [functions/src/index.ts](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/functions/src/index.ts) and run in `europe-west1`.
+
+Included admin functions:
+- `bootstrapProgramSettings`
+- `createAdminUser`
+- `updateVolunteerApplicationStatus`
+- `updateTeensRegistrationStatus`
+
+Functions workspace files:
+- [functions/package.json](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/functions/package.json)
+- [functions/tsconfig.json](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/functions/tsconfig.json)
+
+Useful commands:
+```bash
+npm run functions:build
+npm run firebase:deploy:functions
+```
 
 ## 🚀 Deployment
 
@@ -129,7 +179,13 @@ The project includes Firebase security rules in `firestore.rules`. Make sure to 
 
 ### Environment Variables for Production
 Set these in your deployment platform:
-- All `VITE_FIREBASE_*` variables from your `.env` file
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- `VITE_CLOUDINARY_CLOUD_NAME`
+- `VITE_CLOUDINARY_UPLOAD_PRESET`
 
 ## 📱 Features
 
@@ -166,7 +222,7 @@ Set these in your deployment platform:
 
 ## 🔒 Security Considerations
 
-- Firebase security rules implemented
+- Firestore access rules live in [firestore.rules](/Users/sulaymaanabubakr/Desktop/Al-Ihsan/firestore.rules)
 - Environment variables for sensitive data
 - Input validation and sanitization
 - Secure authentication flows
@@ -219,7 +275,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
-- Firebase for backend services
+- Firebase for auth and database services
+- Cloudinary for media hosting
 - Vercel for hosting
 - Open source community
 - Our generous donors and volunteers

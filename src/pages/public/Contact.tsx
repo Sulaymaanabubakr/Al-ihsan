@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Phone, Mail, Send, CheckCircle } from 'lucide-react';
-import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
 import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
+import { supabase } from '../../lib/supabase';
+import { callEdgeFunction } from '../../lib/edgeFunctions';
+import { useSiteSettings } from '../../context/SiteSettingsContext';
 
 const Contact: React.FC = () => {
     const { slideInLeft, slideInRight, fadeInUp, scaleIn, staggerContainer } = useAnimations();
+    const { settings } = useSiteSettings();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -25,11 +27,27 @@ const Contact: React.FC = () => {
         setStatus('submitting');
 
         try {
-            await addDoc(collection(db, 'contacts'), {
-                ...formData,
-                createdAt: new Date(),
-                read: false
+            const { error } = await supabase.from('contacts').insert({
+                name: formData.name,
+                email: formData.email,
+                subject: formData.subject,
+                message: formData.message,
+                read: false,
             });
+
+            if (error) throw error;
+
+            // Fire-and-forget email notification to admin
+            callEdgeFunction('notify-application', {
+                type: 'contact',
+                record: {
+                    name: formData.name,
+                    email: formData.email,
+                    subject: formData.subject,
+                    message: formData.message,
+                },
+            });
+
             setStatus('success');
             setFormData({ name: '', email: '', subject: '', message: '' });
         } catch (error) {
@@ -85,7 +103,7 @@ const Contact: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary-900 mb-1">Our Headquarters</h3>
-                                <p className="text-gray-600">No. 23, Iwo Road, Opposite Arisekola Mosque,<br />Ibadan, Oyo State, Nigeria.</p>
+                                <p className="text-gray-600 whitespace-pre-line">{settings.address}</p>
                             </div>
                         </motion.div>
 
@@ -95,8 +113,8 @@ const Contact: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary-900 mb-1">Phone & WhatsApp</h3>
-                                <p className="text-gray-600">+44 7466 677026</p>
-                                <p className="text-gray-600">+44 7440 448657</p>
+                                <p className="text-gray-600">{settings.phonePrimary}</p>
+                                {settings.phoneSecondary && <p className="text-gray-600">{settings.phoneSecondary}</p>}
                                 <p className="text-gray-500 text-sm mt-1">Available Mon-Sat, 9am - 5pm</p>
                             </div>
                         </motion.div>
@@ -107,8 +125,8 @@ const Contact: React.FC = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-lg text-primary-900 mb-1">Email Us</h3>
-                                <p className="text-gray-600">info@alihsanrelief.ng</p>
-                                <p className="text-gray-600">support@alihsanrelief.ng</p>
+                                <p className="text-gray-600">{settings.emailInfo}</p>
+                                {settings.emailSupport && <p className="text-gray-600">{settings.emailSupport}</p>}
                             </div>
                         </motion.div>
 

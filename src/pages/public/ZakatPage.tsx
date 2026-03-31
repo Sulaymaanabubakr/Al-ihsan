@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import SEO from '../../components/common/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,59 +6,42 @@ import { ArrowLeft, Calculator, AlertTriangle, TrendingUp, Coins, Wallet, Scale 
 import { useGoldPrice } from '../../hooks/useGoldPrice';
 import CurrencyInput from '../../components/common/CurrencyInput';
 
+interface ZakatLocationState {
+    cash?: number;
+    gold?: number;
+    silver?: number;
+    liabilities?: number;
+}
+
 const ZakatPage: React.FC = () => {
     const location = useLocation();
-    const initialState = location.state || {}; // { cash, gold, silver, liabilities } from Mini Calc
+    const initialState = (location.state as ZakatLocationState | null) ?? null;
 
     const { goldPrice, silverPrice, goldNisabValue, lastUpdated, loading } = useGoldPrice();
-    // Intentionally keeping loading and lastUpdated if used in template.
-    // Build error didn't complain about ZakatPage this time, but checking usage:
-    // "Rates: Gold {formatCurrency(goldPrice || 0)}/g..." - used loading/lastupdated in previous version footer?
-    // Let's check footer: "Calculations based on Gold Nisab... as of {loading ? '...' : lastUpdated}"
-    // Ah, previous ZakatPage had it. My previous overwrite logic MIGHT have kept it or lost it.
-    // To be safe, I'm writing the FULL correct content now with them used.
 
-    // State for all asset classes
-    const [assets, setAssets] = useState({
+    const [assets, setAssets] = useState(() => ({
         cashInHand: '',
-        cashInBank: '',
-        goldInput: '', // Can be weight or value depending on mode
-        silverInput: '',
+        cashInBank: initialState?.cash ? initialState.cash.toString() : '',
+        goldInput: initialState?.gold ? initialState.gold.toString() : '',
+        silverInput: initialState?.silver ? initialState.silver.toString() : '',
         investments: '',
         businessGoods: '',
         moneyOwedToYou: '',
-    });
+    }));
 
-    const [goldMode, setGoldMode] = useState<'grams' | 'value'>('grams');
-    const [silverMode, setSilverMode] = useState<'grams' | 'value'>('grams');
+    const [goldMode, setGoldMode] = useState<'grams' | 'value'>(
+        initialState?.gold ? 'value' : 'grams'
+    );
+    const [silverMode, setSilverMode] = useState<'grams' | 'value'>(
+        initialState?.silver ? 'value' : 'grams'
+    );
 
-    const [liabilities, setLiabilities] = useState({
-        debtsOwed: '',
+    const [liabilities, setLiabilities] = useState(() => ({
+        debtsOwed: initialState?.liabilities ? initialState.liabilities.toString() : '',
         expenses: '',
-    });
+    }));
 
     const [activeTab, setActiveTab] = useState<'a' | 'b' | 'c'>('a');
-
-    // Load initial state if available
-    useEffect(() => {
-        if (initialState.cash || initialState.gold || initialState.silver || initialState.liabilities) {
-            setAssets(prev => ({
-                ...prev,
-                cashInBank: initialState.cash ? initialState.cash.toString() : '',
-                // Note: Mini Calc passes calculated VALUE. So we should set mode to 'value' or reverse calc grams
-                // For simplicity, let's default to Value mode if coming from Mini Calc with data
-                goldInput: initialState.gold ? initialState.gold.toString() : '',
-                silverInput: initialState.silver ? initialState.silver.toString() : '',
-            }));
-            if (initialState.gold) setGoldMode('value');
-            if (initialState.silver) setSilverMode('value');
-
-            setLiabilities(prev => ({
-                ...prev,
-                debtsOwed: initialState.liabilities ? initialState.liabilities.toString() : '',
-            }));
-        }
-    }, [initialState]);
 
     const handleAssetChange = (field: keyof typeof assets, value: string) => {
         if (value === '' || /^\d*\.?\d*$/.test(value)) {

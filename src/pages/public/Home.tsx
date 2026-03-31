@@ -1,8 +1,6 @@
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Users, ShieldCheck, Building2, Users2, Calendar } from 'lucide-react';
+import { ArrowRight, Heart, Users, ShieldCheck, Building2, Users2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import SEO from '../../components/common/SEO';
@@ -14,27 +12,79 @@ import FloatingWhatsApp from '../../components/common/FloatingWhatsApp';
 import TypewriterText from '../../components/common/TypewriterText';
 import { useAppeals, usePosts } from '../../hooks/useData';
 import { useAnimations } from '../../hooks/useAnimations';
+import { supabase } from '../../lib/supabase';
+
+interface HomeImage {
+    id: string;
+    title: string | null;
+    url: string;
+}
+
+interface HomeVideo {
+    id: string;
+    title: string | null;
+    url: string;
+}
+
+const getVideoEmbedUrl = (url: string) => {
+    try {
+        const parsedUrl = new URL(url);
+
+        if (
+            parsedUrl.hostname.includes('youtube.com') ||
+            parsedUrl.hostname.includes('youtu.be')
+        ) {
+            const videoId =
+                parsedUrl.hostname.includes('youtu.be')
+                    ? parsedUrl.pathname.slice(1)
+                    : parsedUrl.searchParams.get('v');
+
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+        }
+
+        if (parsedUrl.hostname.includes('vimeo.com')) {
+            const videoId = parsedUrl.pathname.split('/').filter(Boolean).pop();
+            return videoId ? `https://player.vimeo.com/video/${videoId}` : null;
+        }
+    } catch {
+        return null;
+    }
+
+    return null;
+};
 
 const Home: React.FC = () => {
     const { appeals, loading: loadingAppeals } = useAppeals();
     const { posts, loading: loadingPosts } = usePosts();
-    const [homeImages, setHomeImages] = React.useState<any[]>([]);
-    const [homeVideos, setHomeVideos] = React.useState<any[]>([]);
+    const [homeImages, setHomeImages] = React.useState<HomeImage[]>([]);
+    const [homeVideos, setHomeVideos] = React.useState<HomeVideo[]>([]);
     const [loadingMedia, setLoadingMedia] = React.useState(true);
 
     React.useEffect(() => {
         const fetchMedia = async () => {
             try {
-                const imagesQ = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'), limit(4));
-                const videosQ = query(collection(db, 'videos'), orderBy('createdAt', 'desc'), limit(4));
-
-                const [imagesSnap, videosSnap] = await Promise.all([
-                    getDocs(imagesQ),
-                    getDocs(videosQ)
+                const [imagesResult, videosResult] = await Promise.all([
+                    supabase
+                        .from('gallery')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(4),
+                    supabase
+                        .from('videos')
+                        .select('*')
+                        .order('created_at', { ascending: false })
+                        .limit(4),
                 ]);
-
-                setHomeImages(imagesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-                setHomeVideos(videosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                setHomeImages(
+                    (imagesResult.data ?? []).map(
+                        (row) => ({ id: row.id, title: row.title, url: row.url } as HomeImage)
+                    )
+                );
+                setHomeVideos(
+                    (videosResult.data ?? []).map(
+                        (row) => ({ id: row.id, title: row.title, url: row.url } as HomeVideo)
+                    )
+                );
             } catch (error) {
                 console.error("Error fetching media:", error);
             } finally {
@@ -135,8 +185,8 @@ const Home: React.FC = () => {
                         >
                             <div className="relative aspect-square rounded-3xl overflow-hidden border-4 border-white/10 shadow-2xl group">
                                 <img
-                                    src="/ramadan-teens-flyer.png"
-                                    alt="Ramadan Teens Program 2026"
+                                    src="/logo.jpeg"
+                                    alt="Al-Ihsan Relief & Empowerment"
                                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-primary-950/80 to-transparent"></div>
@@ -150,14 +200,14 @@ const Home: React.FC = () => {
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 bg-gold-500 rounded-full flex items-center justify-center text-primary-900 font-bold shadow-lg shadow-gold-500/20">
-                                            <Calendar size={24} />
+                                            <Heart size={24} />
                                         </div>
                                         <div>
-                                            <p className="text-white font-bold text-lg">Upcoming Program</p>
-                                            <p className="text-gold-300 text-sm">Ramadan Teens 2026</p>
+                                            <p className="text-white font-bold text-lg">Make a Difference</p>
+                                            <p className="text-gold-300 text-sm">Your Sadaqah changes lives</p>
                                         </div>
-                                        <Link to="/ramadan-teens" className="ml-auto px-4 py-2 bg-white text-primary-900 text-sm font-bold rounded-lg hover:bg-gray-100 transition shadow-md">
-                                            Register
+                                        <Link to="/donate" className="ml-auto px-4 py-2 bg-white text-primary-900 text-sm font-bold rounded-lg hover:bg-gray-100 transition shadow-md">
+                                            Donate
                                         </Link>
                                     </div>
                                 </motion.div>
@@ -415,17 +465,44 @@ const Home: React.FC = () => {
                             <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {homeVideos.map((video) => (
                                     <motion.div key={video.id} variants={fadeInUp} className="aspect-video rounded-xl overflow-hidden bg-gray-900 relative group">
-                                        {/* Assuming video object has a thumbnail or simple video tag for now, or just thumbnail linking to something. treating as embedded video or thumbnail */}
-                                        {video.thumbnailUrl ? (
-                                            <img src={video.thumbnailUrl} alt={video.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                        {getVideoEmbedUrl(video.url) ? (
+                                            <iframe
+                                                src={getVideoEmbedUrl(video.url) || undefined}
+                                                title={video.title || 'Video'}
+                                                className="w-full h-full"
+                                                loading="lazy"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        ) : video.url.match(/\.(mp4|webm|ogg)(\?.*)?$/i) ? (
+                                            <video
+                                                src={video.url}
+                                                title={video.title || 'Video'}
+                                                className="w-full h-full object-cover"
+                                                controls
+                                                preload="metadata"
+                                            />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-white/50">Video Preview</div>
+                                            <a
+                                                href={video.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="w-full h-full flex flex-col items-center justify-center text-white/80 p-6 text-center bg-primary-950"
+                                            >
+                                                <div className="text-sm uppercase tracking-widest text-gold-400 mb-2">Video</div>
+                                                <div className="font-bold">{video.title || 'Watch Video'}</div>
+                                            </a>
                                         )}
-                                        <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-primary-900 transition-all text-white">
                                                 <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-current border-b-[8px] border-b-transparent ml-1"></div>
                                             </div>
                                         </div>
+                                        {video.title && (
+                                            <div className="absolute left-0 right-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white text-sm font-medium pointer-events-none">
+                                                {video.title}
+                                            </div>
+                                        )}
                                     </motion.div>
                                 ))}
                             </motion.div>
@@ -497,7 +574,12 @@ const Home: React.FC = () => {
                                                 <div>
                                                     <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
                                                     <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
-                                                    <a href={news.link || "#"} className="text-sm text-gray-500 mt-2 inline-block">Read article</a>
+                                                    <p className="text-sm text-gray-500 mt-2">{news.excerpt}</p>
+                                                    {news.link && (
+                                                        <a href={news.link} className="text-sm text-primary-900 mt-2 inline-block font-medium">
+                                                            Read article
+                                                        </a>
+                                                    )}
                                                 </div>
                                             </div>
                                         </motion.div>

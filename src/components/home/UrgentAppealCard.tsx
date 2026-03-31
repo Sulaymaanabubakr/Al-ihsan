@@ -10,7 +10,7 @@ interface UrgentAppealProps {
 }
 
 const UrgentAppealCard: React.FC<UrgentAppealProps> = ({ title, description, raised, goal, imageUrl }) => {
-    const percentage = Math.min((raised / goal) * 100, 100);
+    const percentage = goal > 0 ? Math.min((raised / goal) * 100, 100) : 0;
 
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col h-full hover:shadow-xl transition-shadow duration-300">
@@ -34,7 +34,9 @@ const UrgentAppealCard: React.FC<UrgentAppealProps> = ({ title, description, rai
                 <div className="mb-4">
                     <div className="flex justify-between text-sm font-bold mb-2">
                         <span className="text-gold-600">₦{raised.toLocaleString()} Raised</span>
-                        <span className="text-gray-400">of ₦{goal.toLocaleString()}</span>
+                        <span className="text-gray-400">
+                            {goal > 0 ? `of ₦${goal.toLocaleString()}` : 'Goal pending'}
+                        </span>
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                         <div
