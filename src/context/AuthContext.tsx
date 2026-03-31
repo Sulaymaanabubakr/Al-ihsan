@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { AuthContext } from './auth-context';
+import { AuthContext, type UserRole } from './auth-context';
 import { supabase } from '../lib/supabase';
 
-const fetchIsAdmin = async (uid: string): Promise<boolean> => {
+const fetchAdminInfo = async (uid: string): Promise<{ isAdmin: boolean; role: UserRole }> => {
   const { data, error } = await supabase
     .from('admin_users')
-    .select('id')
+    .select('id, role')
     .eq('id', uid)
     .maybeSingle();
 
   if (error) {
     console.error('Admin check failed:', error);
-    return false;
+    return { isAdmin: false, role: 'FIELD_AGENT' };
   }
 
-  return !!data;
+  if (!data) return { isAdmin: false, role: 'FIELD_AGENT' };
+  return { isAdmin: true, role: (data.role as UserRole) || 'SUPER_ADMIN' };
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -23,6 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>('FIELD_AGENT');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (!user) {
         setCurrentUser(null);
         setIsAdmin(false);
+        setUserRole('FIELD_AGENT');
         setLoading(false);
         return;
       }
@@ -42,11 +45,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setCurrentUser(user);
 
       try {
-        const adminStatus = await fetchIsAdmin(user.id);
-        if (mounted) setIsAdmin(adminStatus);
+        const { isAdmin: admin, role } = await fetchAdminInfo(user.id);
+        if (mounted) {
+          setIsAdmin(admin);
+          setUserRole(role);
+        }
       } catch (error) {
         console.error('Failed to verify admin status:', error);
-        if (mounted) setIsAdmin(false);
+        if (mounted) {
+          setIsAdmin(false);
+          setUserRole('FIELD_AGENT');
+        }
       } finally {
         if (mounted) setLoading(false);
       }
@@ -61,9 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      // Do NOT force setLoading(true) on every auth state change here 
-      // otherwise consecutive logins will glitch the UI.
-      // The session transition is synchronous enough.
       syncAuthState(session?.user ?? null);
     });
 
@@ -74,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ currentUser, isAdmin, loading }}>
+    <AuthContext.Provider value={{ currentUser, isAdmin, userRole, loading }}>
       {children}
     </AuthContext.Provider>
   );

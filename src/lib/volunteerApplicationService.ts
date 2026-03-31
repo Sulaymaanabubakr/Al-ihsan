@@ -9,6 +9,7 @@ export type VolunteerApplicationStatus =
 
 export interface VolunteerApplicationInput {
   fullName: string;
+  dateOfBirth: string;
   age: number;
   gender: string;
   phone: string;
@@ -23,6 +24,7 @@ export interface VolunteerApplicationInput {
   mosqueCommunity: string;
   emergencyContactName: string;
   emergencyContactPhone: string;
+  emergencyContactRelationship: string;
   experience: string;
   motivation: string;
   idDocumentUrl?: string;
@@ -30,6 +32,7 @@ export interface VolunteerApplicationInput {
   qConfidentiality: string;
   qAdab: string;
   scenarioResponse: string;
+  availableForOutreach: boolean;
   quizScore: number;
   acceptedTerms: boolean;
   acceptedPrivacy: boolean;
@@ -47,6 +50,7 @@ export const submitVolunteerApplication = async (
 ) => {
   const { error } = await supabase.from('volunteer_applications').insert({
     full_name: application.fullName,
+    date_of_birth: application.dateOfBirth,
     age: application.age,
     gender: application.gender,
     phone: application.phone,
@@ -61,6 +65,7 @@ export const submitVolunteerApplication = async (
     mosque_community: application.mosqueCommunity,
     emergency_contact_name: application.emergencyContactName,
     emergency_contact_phone: application.emergencyContactPhone,
+    emergency_contact_relationship: application.emergencyContactRelationship,
     experience: application.experience,
     motivation: application.motivation,
     id_document_url: application.idDocumentUrl || null,
@@ -68,6 +73,7 @@ export const submitVolunteerApplication = async (
     q_confidentiality: application.qConfidentiality,
     q_adab: application.qAdab,
     scenario_response: application.scenarioResponse,
+    available_for_outreach: application.availableForOutreach,
     quiz_score: application.quizScore,
     accepted_terms: application.acceptedTerms,
     accepted_privacy: application.acceptedPrivacy,
@@ -107,6 +113,7 @@ export const getVolunteerApplications = async (): Promise<
   return (data ?? []).map((row) => ({
     id: row.id,
     fullName: row.full_name,
+    dateOfBirth: row.date_of_birth,
     age: row.age,
     gender: row.gender,
     phone: row.phone,
@@ -121,6 +128,7 @@ export const getVolunteerApplications = async (): Promise<
     mosqueCommunity: row.mosque_community,
     emergencyContactName: row.emergency_contact_name,
     emergencyContactPhone: row.emergency_contact_phone,
+    emergencyContactRelationship: row.emergency_contact_relationship,
     experience: row.experience,
     motivation: row.motivation,
     idDocumentUrl: row.id_document_url ?? undefined,
@@ -128,6 +136,7 @@ export const getVolunteerApplications = async (): Promise<
     qConfidentiality: row.q_confidentiality,
     qAdab: row.q_adab,
     scenarioResponse: row.scenario_response,
+    availableForOutreach: row.available_for_outreach,
     quizScore: row.quiz_score,
     acceptedTerms: row.accepted_terms,
     acceptedPrivacy: row.accepted_privacy,

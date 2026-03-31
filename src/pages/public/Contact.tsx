@@ -60,7 +60,7 @@ const Contact: React.FC = () => {
         <div className="min-h-screen bg-gray-50">
             <SEO
                 title="Contact Us"
-                description="Get in touch with Al-Ihsan Relief. Visit us in Ibadan, call, or send a message."
+                description="Get in touch with Al-Ihsan Relief. Visit us in Lagos, call, or send a message."
             />
 
             {/* Hero Header */}
@@ -134,7 +134,7 @@ const Contact: React.FC = () => {
                         <motion.div variants={scaleIn} className="w-full h-64 bg-gray-200 rounded-2xl overflow-hidden shadow-inner relative">
                             <iframe
                                 title="Map Location"
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126647.7853683884!2d3.8267499!3d7.3775355!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x10398d77eeff0877%3A0x3b3a6a97b2718c39!2sIbadan!5e0!3m2!1sen!2sng!4v1645524671408!5m2!1sen!2sng"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d253682.45932650057!2d3.1438722!3d6.5481154!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8b2ae68280c1%3A0xdc9e87a36715d!2sLagos!5e0!3m2!1sen!2sng!4v1680000000000!5m2!1sen!2sng"
                                 width="100%"
                                 height="100%"
                                 style={{ border: 0 }}

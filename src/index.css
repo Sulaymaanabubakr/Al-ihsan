@@ -39,9 +39,12 @@
   --animate-blob: blob 7s infinite;
 }
 
+@custom-variant dark (&:is(.dark *));
+
 @layer base {
   body {
-    @apply font-sans text-gray-800 antialiased bg-gray-50;
+    @apply font-sans text-gray-800 antialiased bg-gray-50 transition-colors duration-200;
+    @apply dark:bg-slate-900 dark:text-gray-100;
   }
 
   h1,
@@ -50,7 +53,32 @@
   h4,
   h5,
   h6 {
-    @apply font-heading text-primary-900;
+    @apply text-primary-900;
+  }
+
+  /* Apply serif headings only on public pages (outside admin dashboard) */
+  :not(.admin-dashboard) > h1,
+  :not(.admin-dashboard) > h2,
+  :not(.admin-dashboard) > h3,
+  :not(.admin-dashboard) > h4,
+  :not(.admin-dashboard) > h5,
+  :not(.admin-dashboard) > h6,
+  :not(.admin-dashboard) h1,
+  :not(.admin-dashboard) h2,
+  :not(.admin-dashboard) h3,
+  :not(.admin-dashboard) h4,
+  :not(.admin-dashboard) h5,
+  :not(.admin-dashboard) h6 {
+    font-family: var(--font-heading);
+  }
+
+  .admin-dashboard h1,
+  .admin-dashboard h2,
+  .admin-dashboard h3,
+  .admin-dashboard h4,
+  .admin-dashboard h5,
+  .admin-dashboard h6 {
+    font-family: var(--font-sans);
   }
 }
 
@@ -115,6 +143,21 @@
   100% {
     transform: translate(0px, 0px) scale(1);
   }
+}
+
+@keyframes scaleInCenter {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.scale-in-center {
+  animation: scaleInCenter 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
 .animation-delay-2000 {

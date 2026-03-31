@@ -66,12 +66,19 @@ const privacyHighlights = [
     'False declarations, misuse of charity resources, or breach of adab/confidentiality may lead to removal from service.',
 ];
 
+const RequiredLabel: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+        {children} <span className="text-red-500">*</span>
+    </label>
+);
+
 const Apply: React.FC = () => {
     const { slideInLeft, fadeInUp, scaleIn } = useAnimations();
     const { uploadImage, uploading } = useCloudinary();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         fullName: '',
+        dateOfBirth: '',
         age: '',
         gender: '',
         phone: '',
@@ -85,11 +92,13 @@ const Apply: React.FC = () => {
         availability: 'Weekends',
         mosqueCommunity: '',
         emergencyContactName: '',
+        emergencyContactRelationship: '',
         emergencyContactPhone: '',
         experience: '',
         motivation: '',
         scenarioResponse: '',
         documentUrl: '',
+        availableForOutreach: false,
         qAmanah: '',
         qConfidentiality: '',
         qAdab: '',
@@ -140,6 +149,36 @@ const Apply: React.FC = () => {
         return Math.round((amanahScore + confidentialityScore + adabScore) / 3);
     }, [formData.qAdab, formData.qAmanah, formData.qConfidentiality]);
 
+    // Step validation
+    const isStep1Valid =
+        formData.fullName.trim() !== '' &&
+        formData.dateOfBirth.trim() !== '' &&
+        isEligibleAge &&
+        formData.gender !== '' &&
+        formData.phone.trim() !== '' &&
+        formData.email.trim() !== '' &&
+        formData.address.trim() !== '' &&
+        formData.city.trim() !== '' &&
+        formData.state.trim() !== '';
+
+    const isStep2Valid =
+        formData.occupation.trim() !== '' &&
+        formData.mosqueCommunity.trim() !== '' &&
+        formData.emergencyContactName.trim() !== '' &&
+        formData.emergencyContactRelationship.trim() !== '' &&
+        formData.emergencyContactPhone.trim() !== '' &&
+        formData.experience.trim() !== '' &&
+        formData.motivation.trim() !== '';
+
+    const isStep3Valid =
+        formData.qAmanah !== '' &&
+        formData.qConfidentiality !== '' &&
+        formData.qAdab !== '' &&
+        formData.scenarioResponse.trim() !== '' &&
+        formData.acceptedTerms &&
+        formData.acceptedPrivacy &&
+        formData.acceptedConfidentiality;
+
     const goToNextStep = () => {
         if (step === 1 && !isEligibleAge) {
             setError(
@@ -174,6 +213,7 @@ const Apply: React.FC = () => {
         try {
             await submitVolunteerApplication({
                 fullName: formData.fullName,
+                dateOfBirth: formData.dateOfBirth,
                 age,
                 gender: formData.gender,
                 phone: formData.phone,
@@ -187,6 +227,7 @@ const Apply: React.FC = () => {
                 availability: formData.availability,
                 mosqueCommunity: formData.mosqueCommunity,
                 emergencyContactName: formData.emergencyContactName,
+                emergencyContactRelationship: formData.emergencyContactRelationship,
                 emergencyContactPhone: formData.emergencyContactPhone,
                 experience: formData.experience,
                 motivation: formData.motivation,
@@ -195,6 +236,7 @@ const Apply: React.FC = () => {
                 qConfidentiality: formData.qConfidentiality,
                 qAdab: formData.qAdab,
                 scenarioResponse: formData.scenarioResponse,
+                availableForOutreach: formData.availableForOutreach,
                 quizScore,
                 acceptedTerms: formData.acceptedTerms,
                 acceptedPrivacy: formData.acceptedPrivacy,
@@ -288,16 +330,20 @@ const Apply: React.FC = () => {
                             >
                                 <h3 className="text-xl font-bold text-primary-900 border-b border-gray-100 pb-4">Eligibility & Personal Details</h3>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                    <RequiredLabel>Full Name</RequiredLabel>
                                     <input required name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="e.g. Ibrahim Musa" />
                                 </div>
-                                <div className="grid md:grid-cols-3 gap-6">
+                                <div className="grid md:grid-cols-4 gap-6">
+                                    <div className="md:col-span-2">
+                                        <RequiredLabel>Date of Birth</RequiredLabel>
+                                        <input required type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white" />
+                                    </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Age</label>
+                                        <RequiredLabel>Age</RequiredLabel>
                                         <input required type="number" min={18} name="age" value={formData.age} onChange={handleInputChange} className={`w-full px-4 py-3 rounded-lg border outline-none ${isAgeBlocked ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-2 focus:ring-gold-500'}`} placeholder="22 - 40" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                        <RequiredLabel>Gender</RequiredLabel>
                                         <select required name="gender" value={formData.gender} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
                                             <option value="">Select gender</option>
                                             <option value="Male">Male</option>
@@ -305,27 +351,27 @@ const Apply: React.FC = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                        <RequiredLabel>Phone Number</RequiredLabel>
                                         <input required name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="080..." />
                                     </div>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                        <RequiredLabel>Email Address</RequiredLabel>
                                         <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="you@example.com" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                        <RequiredLabel>Address</RequiredLabel>
                                         <input required name="address" value={formData.address} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Residential Address" />
                                     </div>
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                                        <input required name="city" value={formData.city} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Ibadan" />
+                                        <RequiredLabel>City</RequiredLabel>
+                                        <input required name="city" value={formData.city} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Lagos" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
+                                        <RequiredLabel>State</RequiredLabel>
                                         <input required name="state" value={formData.state} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Oyo State" />
                                     </div>
                                 </div>
@@ -340,7 +386,7 @@ const Apply: React.FC = () => {
                                 )}
 
                                 <div className="flex justify-end pt-4">
-                                    <button type="button" onClick={goToNextStep} disabled={isAgeBlocked} className="flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <button type="button" onClick={goToNextStep} disabled={!isStep1Valid} className="flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                         Next <ChevronRight size={18} />
                                     </button>
                                 </div>
@@ -357,17 +403,19 @@ const Apply: React.FC = () => {
                                 <h3 className="text-xl font-bold text-primary-900 border-b border-gray-100 pb-4">Volunteer Background</h3>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Volunteer Role</label>
+                                        <RequiredLabel>Preferred Volunteer Role</RequiredLabel>
                                         <select name="preferredRole" value={formData.preferredRole} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
+                                            <option value="Outreach / Distribution">Outreach / Distribution</option>
+                                            <option value="Admin / Coordination">Admin / Coordination</option>
+                                            <option value="Media / Content">Media / Content</option>
+                                            <option value="Fundraising">Fundraising</option>
                                             <option value="Field Support">Field Support</option>
                                             <option value="Beneficiary Intake">Beneficiary Intake</option>
-                                            <option value="Logistics & Distribution">Logistics & Distribution</option>
-                                            <option value="Admin & Data Support">Admin & Data Support</option>
-                                            <option value="Media & Communications">Media & Communications</option>
+                                            <option value="Other">Other</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Availability</label>
+                                        <RequiredLabel>Availability</RequiredLabel>
                                         <select name="availability" value={formData.availability} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
                                             <option value="Weekends">Weekends</option>
                                             <option value="Weekdays">Weekdays</option>
@@ -378,7 +426,7 @@ const Apply: React.FC = () => {
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
+                                        <RequiredLabel>Occupation</RequiredLabel>
                                         <input required name="occupation" value={formData.occupation} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Teacher, business owner, student..." />
                                     </div>
                                     <div>
@@ -393,29 +441,41 @@ const Apply: React.FC = () => {
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Mosque / Community Reference</label>
+                                        <RequiredLabel>Mosque / Community Reference</RequiredLabel>
                                         <input required name="mosqueCommunity" value={formData.mosqueCommunity} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Masjid name or community leader" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Name</label>
-                                        <input required name="emergencyContactName" value={formData.emergencyContactName} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Emergency contact" />
+                                        <RequiredLabel>Next of Kin (Emergency Contact)</RequiredLabel>
+                                        <input required name="emergencyContactName" value={formData.emergencyContactName} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Emergency contact name" />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Emergency Contact Phone</label>
-                                    <input required name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="+234..." />
+                                <div className="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <RequiredLabel>Relationship to Next of Kin</RequiredLabel>
+                                        <input required name="emergencyContactRelationship" value={formData.emergencyContactRelationship} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Mother, Spouse, Brother..." />
+                                    </div>
+                                    <div>
+                                        <RequiredLabel>Emergency Contact Phone</RequiredLabel>
+                                        <input required name="emergencyContactPhone" value={formData.emergencyContactPhone} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="+234..." />
+                                    </div>
+                                </div>
+                                <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
+                                    <label className="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" name="availableForOutreach" checked={formData.availableForOutreach} onChange={handleInputChange} className="w-5 h-5 text-gold-500 focus:ring-gold-500 border-gray-300 rounded" />
+                                        <span className="font-medium text-gray-900">Are you available for physical outreach? (Yes)</span>
+                                    </label>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Previous Volunteer / Community Experience</label>
+                                    <RequiredLabel>Previous Volunteer / Community Experience</RequiredLabel>
                                     <textarea required name="experience" value={formData.experience} onChange={handleInputChange} rows={4} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Describe your past volunteering, dawah, relief, teaching, admin, or community service experience." />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Why do you want to volunteer with Al-Ihsan?</label>
+                                    <RequiredLabel>Why do you want to volunteer with Al-Ihsan?</RequiredLabel>
                                     <textarea required name="motivation" value={formData.motivation} onChange={handleInputChange} rows={4} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Tell us about your intention, sense of service, and what kind of responsibility you are ready for." />
                                 </div>
                                 <div className="flex justify-between pt-4">
                                     <button type="button" onClick={() => setStep(1)} className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">Back</button>
-                                    <button type="button" onClick={goToNextStep} className="flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors">
+                                    <button type="button" onClick={goToNextStep} disabled={!isStep2Valid} className="flex items-center gap-2 px-6 py-3 bg-primary-900 text-white rounded-full font-bold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                         Next <ChevronRight size={18} />
                                     </button>
                                 </div>
@@ -440,7 +500,7 @@ const Apply: React.FC = () => {
 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">1. A Muslim volunteer in a charity should primarily...</label>
+                                        <RequiredLabel>1. A Muslim volunteer in a charity should primarily...</RequiredLabel>
                                         <select required name="qAmanah" value={formData.qAmanah} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
                                             <option value="">Select your answer</option>
                                             {quizOptions.amanah.map((option) => (
@@ -451,7 +511,7 @@ const Apply: React.FC = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">2. If you receive sensitive beneficiary information, you should...</label>
+                                        <RequiredLabel>2. If you receive sensitive beneficiary information, you should...</RequiredLabel>
                                         <select required name="qConfidentiality" value={formData.qConfidentiality} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
                                             <option value="">Select your answer</option>
                                             {quizOptions.confidentiality.map((option) => (
@@ -462,7 +522,7 @@ const Apply: React.FC = () => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">3. Good adab while serving means you should...</label>
+                                        <RequiredLabel>3. Good adab while serving means you should...</RequiredLabel>
                                         <select required name="qAdab" value={formData.qAdab} onChange={handleInputChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none bg-white">
                                             <option value="">Select your answer</option>
                                             {quizOptions.adab.map((option) => (
@@ -481,7 +541,7 @@ const Apply: React.FC = () => {
                                         </p>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">Scenario Response</label>
+                                        <RequiredLabel>Scenario Response</RequiredLabel>
                                         <textarea required name="scenarioResponse" value={formData.scenarioResponse} onChange={handleInputChange} rows={4} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none" placeholder="A beneficiary becomes upset in public and asks you to reveal details of another family's case. What do you do, and why?" />
                                     </div>
                                 </div>
@@ -507,7 +567,7 @@ const Apply: React.FC = () => {
                                 <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
                                     <div className="flex items-center gap-3">
                                         <ShieldCheck className="text-primary-700" />
-                                        <h4 className="text-lg font-bold text-primary-900">Volunteer Terms, Privacy & Confidentiality</h4>
+                                        <h4 className="text-lg font-bold text-primary-900">Declaration & Agreement</h4>
                                     </div>
                                     <div className="space-y-3 text-sm text-gray-700">
                                         {privacyHighlights.map((item) => (
@@ -515,11 +575,24 @@ const Apply: React.FC = () => {
                                                 {item}
                                             </p>
                                         ))}
-                                        <p className="leading-relaxed">
+                                        <p className="leading-relaxed border-b border-gray-100 pb-4">
                                             By applying, you confirm that you will obey lawful instructions, safeguard charity property, avoid exploiting beneficiaries, maintain Islamic character, and report concerns through official channels only.
                                         </p>
+                                        <div className="pt-2" />
+                                        <p className="font-semibold text-gray-900">I hereby agree to serve as a volunteer with Al-Ihsan Relief and Empowerment with honesty, sincerity, and dedication.</p>
+                                        <p>I understand that I represent the values of the organization and will conduct myself with respect, integrity, and professionalism at all times.</p>
+                                        
+                                        <p className="font-semibold text-gray-900 pt-2">I agree to:</p>
+                                        <ul className="list-disc pl-5 space-y-1">
+                                            <li>Respect the dignity and privacy of all beneficiaries.</li>
+                                            <li>Not exploit, misuse, or misrepresent the organization or its resources.</li>
+                                            <li>Follow all guidelines and instructions given by the leadership team.</li>
+                                            <li>Maintain confidentiality of sensitive information.</li>
+                                            <li>Avoid any form of misconduct, discrimination, or harassment.</li>
+                                        </ul>
+                                        <p className="pt-2">I understand that failure to comply with these values may result in termination of my role as a volunteer.</p>
                                     </div>
-                                    <div className="space-y-3 pt-2">
+                                    <div className="space-y-3 pt-2 border-t border-gray-100">
                                         <label className="flex items-start gap-3 text-sm text-gray-700">
                                             <input type="checkbox" name="acceptedTerms" checked={formData.acceptedTerms} onChange={handleInputChange} className="mt-1" />
                                             <span>I have read and accept the volunteer terms, code of conduct, and safeguarding expectations.</span>
@@ -545,7 +618,7 @@ const Apply: React.FC = () => {
                                     <button type="button" onClick={() => setStep(2)} className="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">Back</button>
                                     <button
                                         type="submit"
-                                        disabled={isSubmitting || uploading}
+                                        disabled={isSubmitting || uploading || !isStep3Valid}
                                         className="flex items-center gap-2 px-6 py-3 bg-gold-500 text-white rounded-full font-bold hover:bg-gold-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                                     >
                                         {isSubmitting ? 'Submitting...' : 'Submit Volunteer Application'}

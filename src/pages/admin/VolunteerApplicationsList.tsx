@@ -11,8 +11,10 @@ import {
     Phone,
     Search,
     ShieldCheck,
-    UserCheck
+    UserCheck,
+    ChevronLeft
 } from 'lucide-react';
+import ActionModal, { type ActionModalState } from '../../components/admin/ActionModal';
 
 const STATUS_OPTIONS = ['ALL', 'PENDING', 'REVIEWED', 'SHORTLISTED', 'DECLINED'] as const;
 
@@ -36,6 +38,16 @@ const VolunteerApplicationsList: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] =
         useState<(typeof STATUS_OPTIONS)[number]>('ALL');
+    const [selectedApplication, setSelectedApplication] = useState<VolunteerApplicationRecord | null>(null);
+
+    // Modal State
+    const [modalState, setModalState] = useState<ActionModalState>('HIDDEN');
+    const [modalConfig, setModalConfig] = useState({
+        title: '',
+        message: '',
+        isDanger: false,
+    });
+    const [pendingAction, setPendingAction] = useState<{ id: string; status: VolunteerApplicationStatus } | null>(null);
 
     useEffect(() => {
         void fetchApplications();
@@ -53,30 +65,48 @@ const VolunteerApplicationsList: React.FC = () => {
         }
     };
 
-    const handleStatusUpdate = async (
-        id: string,
-        status: VolunteerApplicationStatus
-    ) => {
+    const confirmStatusUpdate = (id: string, status: VolunteerApplicationStatus) => {
+        setPendingAction({ id, status });
+        
+        const isDanger = status === 'DECLINED';
+        const actionName = status === 'SHORTLISTED' ? 'Shortlist' : status === 'REVIEWED' ? 'Mark as Reviewed' : 'Decline';
+        
+        setModalConfig({
+            title: `Confirm Action: ${actionName}`,
+            message: `Are you sure you want to change the applicant's status to ${status}? This will notify the applicant via email.`,
+            isDanger,
+        });
+        setModalState('CONFIRMATION');
+    };
+
+    const executeStatusUpdate = async () => {
+        if (!pendingAction) return;
+        const { id, status } = pendingAction;
+        
+        setModalState('LOADING');
         try {
             await updateVolunteerApplicationStatus(id, status);
             setApplications((prev) =>
-                prev.map((application) =>
-                    application.id === id ? { ...application, status } : application
+                prev.map((app) =>
+                    app.id === id ? { ...app, status } : app
                 )
             );
+            if (selectedApplication && selectedApplication.id === id) {
+                setSelectedApplication(prev => prev ? { ...prev, status } : null);
+            }
+            setModalState('SUCCESS');
         } catch (error) {
             console.error('Failed to update volunteer application status:', error);
-            alert('Failed to update status. Please try again.');
+            setModalState('ERROR');
         }
     };
 
     const filteredApplications = applications.filter((application) => {
-        const search = searchTerm.toLowerCase();
         const matchesSearch =
-            application.fullName.toLowerCase().includes(search) ||
-            application.email.toLowerCase().includes(search) ||
-            application.phone.toLowerCase().includes(search) ||
-            application.preferredRole.toLowerCase().includes(search);
+            application.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            application.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            application.phone.includes(searchTerm) ||
+            application.preferredRole.toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesStatus =
             statusFilter === 'ALL' || application.status === statusFilter;
@@ -89,6 +119,7 @@ const VolunteerApplicationsList: React.FC = () => {
             'Submitted At',
             'Status',
             'Full Name',
+            'Date of Birth',
             'Age',
             'Gender',
             'Phone',
@@ -101,7 +132,9 @@ const VolunteerApplicationsList: React.FC = () => {
             'Preferred Role',
             'Availability',
             'Mosque/Community',
+            'Available for Outreach',
             'Emergency Contact Name',
+            'Emergency Contact Relationship',
             'Emergency Contact Phone',
             'Experience',
             'Motivation',
@@ -120,6 +153,7 @@ const VolunteerApplicationsList: React.FC = () => {
             formatDate(application.createdAt),
             application.status,
             application.fullName,
+            application.dateOfBirth,
             application.age,
             application.gender,
             application.phone,
@@ -132,7 +166,9 @@ const VolunteerApplicationsList: React.FC = () => {
             application.preferredRole,
             application.availability,
             application.mosqueCommunity,
+            application.availableForOutreach ? 'Yes' : 'No',
             application.emergencyContactName,
+            application.emergencyContactRelationship,
             application.emergencyContactPhone,
             application.experience,
             application.motivation,
@@ -168,27 +204,203 @@ const VolunteerApplicationsList: React.FC = () => {
     }, {});
 
     if (loading) {
-        return <div className="p-8 text-center text-gray-500">Loading volunteer applications...</div>;
+        return <div className="p-8 text-center text-slate-500 dark:text-slate-400">Loading volunteer applications...</div>;
     }
 
     return (
+        <>
+            {selectedApplication ? (
+                <div className="space-y-6">
+                    <button
+                        onClick={() => setSelectedApplication(null)}
+                        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition font-medium"
+                    >
+                        <ChevronLeft size={20} /> Back to List
+                    </button>
+                
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 dark:border-white/10">
+                        <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
+                            <div className="space-y-4 flex-1">
+                                <div className="flex flex-col md:flex-row md:items-center gap-3">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-slate-900 dark:text-white">
+                                            {selectedApplication.fullName}
+                                        </h3>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            Submitted {formatDate(selectedApplication.createdAt)}
+                                        </p>
+                                    </div>
+                                    <span
+                                        className={`inline-flex items-center w-fit px-3 py-1 rounded-full text-xs font-bold ${
+                                            selectedApplication.status === 'SHORTLISTED'
+                                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                : selectedApplication.status === 'DECLINED'
+                                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+                                                    : selectedApplication.status === 'REVIEWED'
+                                                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+                                                        : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
+                                        }`}
+                                    >
+                                        {selectedApplication.status}
+                                    </span>
+                                </div>
+
+                                <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm mt-4">
+                                    <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl p-4 border border-transparent dark:border-white/5">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-1">DOB / Age / Gender</p>
+                                        <p className="font-semibold text-slate-900 dark:text-white">
+                                            {selectedApplication.dateOfBirth ? formatDate(selectedApplication.dateOfBirth).split(',')[0] : 'N/A'} / {selectedApplication.age} / {selectedApplication.gender}
+                                        </p>
+                                    </div>
+                                    <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl p-4 border border-transparent dark:border-white/5">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-1">Preferred Role</p>
+                                        <p className="font-semibold text-slate-900 dark:text-white">
+                                            {selectedApplication.preferredRole}
+                                        </p>
+                                    </div>
+                                    <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl p-4 border border-transparent dark:border-white/5">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-1">Availability</p>
+                                        <p className="font-semibold text-slate-900 dark:text-white">
+                                            {selectedApplication.availability}
+                                        </p>
+                                        {selectedApplication.availableForOutreach !== undefined && (
+                                            <p className="text-xs text-primary-700 dark:text-primary-400 mt-1 font-medium bg-primary-50 dark:bg-primary-900/30 inline-block px-2 py-0.5 rounded">
+                                                Outreach: {selectedApplication.availableForOutreach ? 'Yes' : 'No'}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <div className="bg-slate-50 dark:bg-[#1F2937] rounded-xl p-4 border border-transparent dark:border-white/5">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-1">Quiz Score</p>
+                                        <p className="font-semibold text-slate-900 dark:text-white">
+                                            {selectedApplication.quizScore}%
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid lg:grid-cols-2 gap-4 text-sm">
+                                    <div className="bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-white/10 rounded-xl p-4 shadow-sm">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                                            <Phone size={14} /> Contact
+                                        </p>
+                                        <p className="font-medium text-slate-900 dark:text-white">{selectedApplication.phone}</p>
+                                        <p className="text-slate-600 dark:text-slate-300 mt-1 flex items-center gap-2">
+                                            <Mail size={14} /> {selectedApplication.email}
+                                        </p>
+                                        <p className="text-slate-600 dark:text-slate-300 mt-2">
+                                            {selectedApplication.address}, {selectedApplication.city}, {selectedApplication.state}
+                                        </p>
+                                    </div>
+                                    <div className="bg-white dark:bg-[#1F2937] border border-slate-100 dark:border-white/10 rounded-xl p-4 shadow-sm">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-2">
+                                            <UserCheck size={14} /> Background
+                                        </p>
+                                        <p><span className="font-semibold text-slate-900 dark:text-white">Occupation:</span> <span className="text-slate-700 dark:text-slate-300">{selectedApplication.occupation}</span></p>
+                                        <p className="mt-1"><span className="font-semibold text-slate-900 dark:text-white">Marital Status:</span> <span className="text-slate-700 dark:text-slate-300">{selectedApplication.maritalStatus}</span></p>
+                                        <p className="mt-1"><span className="font-semibold text-slate-900 dark:text-white">Community:</span> <span className="text-slate-700 dark:text-slate-300">{selectedApplication.mosqueCommunity}</span></p>
+                                        <p className="mt-1"><span className="font-semibold text-slate-900 dark:text-white">Emergency:</span> <span className="text-slate-700 dark:text-slate-300">{selectedApplication.emergencyContactName} ({selectedApplication.emergencyContactRelationship ? `${selectedApplication.emergencyContactRelationship}, ` : ''}{selectedApplication.emergencyContactPhone})</span></p>
+                                    </div>
+                                </div>
+
+                                <div className="grid lg:grid-cols-2 gap-4 text-sm">
+                                    <div className="bg-slate-50 dark:bg-[rgba(255,255,255,0.02)] rounded-xl p-4 border border-transparent dark:border-white/5">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-2 font-semibold">Experience</p>
+                                        <p className="text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed">
+                                            {selectedApplication.experience}
+                                        </p>
+                                    </div>
+                                    <div className="bg-slate-50 dark:bg-[rgba(255,255,255,0.02)] rounded-xl p-4 border border-transparent dark:border-white/5">
+                                        <p className="text-slate-500 dark:text-slate-400 mb-2 font-semibold">Motivation</p>
+                                        <p className="text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed">
+                                            {selectedApplication.motivation}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="grid lg:grid-cols-2 gap-4 text-sm">
+                                    <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800/50 rounded-xl p-4">
+                                        <p className="text-primary-800 dark:text-primary-300 font-semibold mb-3">
+                                            Islamic Volunteer Readiness
+                                        </p>
+                                        <p><span className="font-semibold text-primary-900 dark:text-primary-100 block">Amanah:</span> <span className="text-primary-800 dark:text-primary-300">{selectedApplication.qAmanah}</span></p>
+                                        <p className="mt-3"><span className="font-semibold text-primary-900 dark:text-primary-100 block">Confidentiality:</span> <span className="text-primary-800 dark:text-primary-300">{selectedApplication.qConfidentiality}</span></p>
+                                        <p className="mt-3"><span className="font-semibold text-primary-900 dark:text-primary-100 block">Adab:</span> <span className="text-primary-800 dark:text-primary-300">{selectedApplication.qAdab}</span></p>
+                                    </div>
+                                    <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800/50 rounded-xl p-4">
+                                        <p className="text-primary-800 dark:text-primary-300 font-semibold mb-3">
+                                            Scenario Response
+                                        </p>
+                                        <p className="text-primary-800 dark:text-primary-300 whitespace-pre-line leading-relaxed italic border-l-2 border-primary-300 dark:border-primary-700 pl-3">
+                                            "{selectedApplication.scenarioResponse}"
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-700/30 rounded-xl p-5 text-sm">
+                                    <p className="font-semibold text-amber-800 dark:text-amber-500 mb-3 flex items-center gap-2">
+                                        <ShieldCheck size={16} /> Compliance Declarations
+                                    </p>
+                                    <div className="grid md:grid-cols-3 gap-3 text-amber-900 dark:text-amber-200 font-medium">
+                                        <p className="flex items-center gap-2"><span className={`w-2 h-2 rounded-full ${selectedApplication.acceptedTerms ? 'bg-amber-500' : 'bg-red-400'}`}></span> Terms: {selectedApplication.acceptedTerms ? 'Accepted' : 'Missing'}</p>
+                                        <p className="flex items-center gap-2"><span className={`w-2 h-2 rounded-full ${selectedApplication.acceptedPrivacy ? 'bg-amber-500' : 'bg-red-400'}`}></span> Privacy: {selectedApplication.acceptedPrivacy ? 'Accepted' : 'Missing'}</p>
+                                        <p className="flex items-center gap-2"><span className={`w-2 h-2 rounded-full ${selectedApplication.acceptedConfidentiality ? 'bg-amber-500' : 'bg-red-400'}`}></span> Confidentiality: {selectedApplication.acceptedConfidentiality ? 'Accepted' : 'Missing'}</p>
+                                    </div>
+                                    {selectedApplication.idDocumentUrl && (
+                                        <a
+                                            href={selectedApplication.idDocumentUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-block mt-4 px-4 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+                                        >
+                                            View Uploaded Document
+                                        </a>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="xl:w-64 space-y-3 bg-slate-50 dark:bg-[#1F2937] p-4 rounded-xl border border-slate-100 dark:border-white/5">
+                                <h4 className="font-bold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-white/10">Admin Actions</h4>
+                                <button
+                                    onClick={() => confirmStatusUpdate(selectedApplication.id, 'REVIEWED')}
+                                    className="w-full px-4 py-2.5 rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 font-bold hover:bg-blue-200 dark:hover:bg-blue-900/60 transition"
+                                >
+                                    Mark as Reviewed
+                                </button>
+                                <button
+                                    onClick={() => confirmStatusUpdate(selectedApplication.id, 'SHORTLISTED')}
+                                    className="w-full px-4 py-2.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition"
+                                >
+                                    Shortlist Applicant
+                                </button>
+                                <button
+                                    onClick={() => confirmStatusUpdate(selectedApplication.id, 'DECLINED')}
+                                    className="w-full px-4 py-2.5 rounded-lg bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 font-bold hover:bg-red-200 dark:hover:bg-red-900/60 transition"
+                                >
+                                    Decline Application
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            ) : (
         <div className="space-y-6">
             <div className="grid md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <p className="text-sm text-gray-500">Total Applicants</p>
-                    <p className="text-3xl font-bold text-primary-900 mt-2">{applications.length}</p>
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Total Applicants</p>
+                    <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{applications.length}</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <p className="text-sm text-gray-500">Pending Review</p>
-                    <p className="text-3xl font-bold text-amber-600 mt-2">{statusCounts.PENDING || 0}</p>
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Pending Review</p>
+                    <p className="text-3xl font-bold text-amber-600 dark:text-amber-500 mt-2">{statusCounts.PENDING || 0}</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <p className="text-sm text-gray-500">Shortlisted</p>
-                    <p className="text-3xl font-bold text-emerald-600 mt-2">{statusCounts.SHORTLISTED || 0}</p>
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Shortlisted</p>
+                    <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-500 mt-2">{statusCounts.SHORTLISTED || 0}</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
-                    <p className="text-sm text-gray-500">Avg. Quiz Score</p>
-                    <p className="text-3xl font-bold text-primary-900 mt-2">
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 p-5 shadow-sm">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Avg. Quiz Score</p>
+                    <p className="text-3xl font-bold text-primary-600 dark:text-primary-400 mt-2">
                         {applications.length
                             ? Math.round(
                                 applications.reduce((sum, item) => sum + item.quizScore, 0) /
@@ -200,39 +412,39 @@ const VolunteerApplicationsList: React.FC = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
+            <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden flex flex-col">
+                <div className="p-6 border-b border-slate-100 dark:border-white/10 flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
                     <div>
-                        <h2 className="text-xl font-bold text-primary-900">Volunteer Applications</h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Review applicants, assess readiness, and export the full register.
+                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Volunteer Applications</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Click on any applicant below to view their full detailed application profile.
                         </p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
                         <button
                             onClick={exportToCsv}
-                            className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg font-medium hover:bg-emerald-100 transition"
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50 rounded-lg font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition text-sm"
                         >
                             <Download size={16} /> Export CSV
                         </button>
                         <button
                             onClick={() => void fetchApplications()}
-                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition"
+                            className="px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition text-sm"
                         >
-                            Refresh
+                            Refresh List
                         </button>
                     </div>
                 </div>
 
-                <div className="p-6 bg-gray-50 border-b border-gray-100 flex flex-col lg:flex-row gap-4">
+                <div className="p-4 bg-slate-50/50 dark:bg-[rgba(255,255,255,0.02)] border-b border-slate-100 dark:border-white/5 flex flex-col lg:flex-row gap-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search by applicant, email, phone, or role..."
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1F2937] focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
                         />
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -242,177 +454,57 @@ const VolunteerApplicationsList: React.FC = () => {
                                 onClick={() => setStatusFilter(status)}
                                 className={`px-4 py-2 rounded-lg text-xs font-bold transition ${
                                     statusFilter === status
-                                        ? 'bg-primary-900 text-white'
-                                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-100'
+                                        ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-transparent'
+                                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                                 }`}
                             >
-                                {status}
+                                {status.charAt(0) + status.slice(1).toLowerCase()}
                             </button>
                         ))}
                     </div>
                 </div>
 
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-slate-100 dark:divide-white/5 bg-white dark:bg-[#111827]">
                     {filteredApplications.length === 0 ? (
-                        <div className="p-10 text-center text-gray-500">
+                        <div className="p-10 text-center text-slate-500 dark:text-slate-400">
                             No volunteer applications match the current filters.
                         </div>
                     ) : (
                         filteredApplications.map((application) => (
-                            <div key={application.id} className="p-6">
-                                <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
-                                    <div className="space-y-4 flex-1">
-                                        <div className="flex flex-col md:flex-row md:items-center gap-3">
-                                            <div>
-                                                <h3 className="text-xl font-bold text-primary-900">
-                                                    {application.fullName}
-                                                </h3>
-                                                <p className="text-sm text-gray-500">
-                                                    Submitted {formatDate(application.createdAt)}
-                                                </p>
-                                            </div>
-                                            <span
-                                                className={`inline-flex items-center w-fit px-3 py-1 rounded-full text-xs font-bold ${
-                                                    application.status === 'SHORTLISTED'
-                                                        ? 'bg-emerald-100 text-emerald-700'
-                                                        : application.status === 'DECLINED'
-                                                            ? 'bg-red-100 text-red-700'
-                                                            : application.status === 'REVIEWED'
-                                                                ? 'bg-blue-100 text-blue-700'
-                                                                : 'bg-amber-100 text-amber-700'
-                                                }`}
-                                            >
-                                                {application.status}
-                                            </span>
-                                        </div>
-
-                                        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 text-sm">
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-1">Age / Gender</p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {application.age} / {application.gender}
-                                                </p>
-                                            </div>
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-1">Preferred Role</p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {application.preferredRole}
-                                                </p>
-                                            </div>
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-1">Availability</p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {application.availability}
-                                                </p>
-                                            </div>
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-1">Quiz Score</p>
-                                                <p className="font-semibold text-gray-900">
-                                                    {application.quizScore}%
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid lg:grid-cols-2 gap-4 text-sm">
-                                            <div className="bg-white border border-gray-100 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-2 flex items-center gap-2">
-                                                    <Phone size={14} /> Contact
-                                                </p>
-                                                <p className="font-medium text-gray-900">{application.phone}</p>
-                                                <p className="text-gray-600 mt-1 flex items-center gap-2">
-                                                    <Mail size={14} /> {application.email}
-                                                </p>
-                                                <p className="text-gray-600 mt-2">
-                                                    {application.address}, {application.city}, {application.state}
-                                                </p>
-                                            </div>
-                                            <div className="bg-white border border-gray-100 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-2 flex items-center gap-2">
-                                                    <UserCheck size={14} /> Background
-                                                </p>
-                                                <p><span className="font-semibold text-gray-900">Occupation:</span> {application.occupation}</p>
-                                                <p className="mt-1"><span className="font-semibold text-gray-900">Marital Status:</span> {application.maritalStatus}</p>
-                                                <p className="mt-1"><span className="font-semibold text-gray-900">Mosque/Community:</span> {application.mosqueCommunity}</p>
-                                                <p className="mt-1"><span className="font-semibold text-gray-900">Emergency:</span> {application.emergencyContactName} ({application.emergencyContactPhone})</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid lg:grid-cols-2 gap-4 text-sm">
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-2">Experience</p>
-                                                <p className="text-gray-800 whitespace-pre-line">
-                                                    {application.experience}
-                                                </p>
-                                            </div>
-                                            <div className="bg-gray-50 rounded-xl p-4">
-                                                <p className="text-gray-500 mb-2">Motivation</p>
-                                                <p className="text-gray-800 whitespace-pre-line">
-                                                    {application.motivation}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid lg:grid-cols-2 gap-4 text-sm">
-                                            <div className="bg-primary-50 border border-primary-100 rounded-xl p-4">
-                                                <p className="text-primary-700 font-semibold mb-2">
-                                                    Islamic Volunteer Readiness
-                                                </p>
-                                                <p><span className="font-semibold">Amanah:</span> {application.qAmanah}</p>
-                                                <p className="mt-2"><span className="font-semibold">Confidentiality:</span> {application.qConfidentiality}</p>
-                                                <p className="mt-2"><span className="font-semibold">Adab:</span> {application.qAdab}</p>
-                                            </div>
-                                            <div className="bg-primary-50 border border-primary-100 rounded-xl p-4">
-                                                <p className="text-primary-700 font-semibold mb-2">
-                                                    Scenario Response
-                                                </p>
-                                                <p className="text-gray-800 whitespace-pre-line">
-                                                    {application.scenarioResponse}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-sm">
-                                            <p className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
-                                                <ShieldCheck size={14} /> Compliance Declarations
-                                            </p>
-                                            <div className="grid md:grid-cols-3 gap-2 text-amber-900">
-                                                <p>Terms: {application.acceptedTerms ? 'Accepted' : 'Missing'}</p>
-                                                <p>Privacy: {application.acceptedPrivacy ? 'Accepted' : 'Missing'}</p>
-                                                <p>Confidentiality: {application.acceptedConfidentiality ? 'Accepted' : 'Missing'}</p>
-                                            </div>
-                                            {application.idDocumentUrl && (
-                                                <a
-                                                    href={application.idDocumentUrl}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="inline-block mt-3 text-primary-900 font-semibold hover:underline"
-                                                >
-                                                    View uploaded document
-                                                </a>
-                                            )}
-                                        </div>
+                            <div 
+                                key={application.id} 
+                                onClick={() => setSelectedApplication(application)}
+                                className="p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer transition-colors group"
+                            >
+                                <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8">
+                                    <div className="min-w-[150px]">
+                                        <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">{application.fullName}</h3>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{application.city}, {application.state}</p>
                                     </div>
-
-                                    <div className="xl:w-56 space-y-2">
-                                        <button
-                                            onClick={() => void handleStatusUpdate(application.id, 'REVIEWED')}
-                                            className="w-full px-4 py-2 rounded-lg bg-blue-50 text-blue-700 font-medium hover:bg-blue-100 transition"
-                                        >
-                                            Mark Reviewed
-                                        </button>
-                                        <button
-                                            onClick={() => void handleStatusUpdate(application.id, 'SHORTLISTED')}
-                                            className="w-full px-4 py-2 rounded-lg bg-emerald-50 text-emerald-700 font-medium hover:bg-emerald-100 transition"
-                                        >
-                                            Shortlist
-                                        </button>
-                                        <button
-                                            onClick={() => void handleStatusUpdate(application.id, 'DECLINED')}
-                                            className="w-full px-4 py-2 rounded-lg bg-red-50 text-red-700 font-medium hover:bg-red-100 transition"
-                                        >
-                                            Decline
-                                        </button>
+                                    <div className="flex-1 hidden md:block">
+                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2 border-l-2 border-slate-200 dark:border-white/10 pl-4">
+                                            {application.preferredRole}
+                                        </p>
                                     </div>
+                                </div>
+                                <div className="flex items-center justify-between sm:justify-end gap-6 min-w-[200px]">
+                                    <div className="flex flex-col items-start sm:items-end">
+                                        <span
+                                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                                application.status === 'SHORTLISTED'
+                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+                                                    : application.status === 'DECLINED'
+                                                        ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+                                                        : application.status === 'REVIEWED'
+                                                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+                                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
+                                            }`}
+                                        >
+                                            {application.status}
+                                        </span>
+                                        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 whitespace-nowrap">{formatDate(application.createdAt)}</p>
+                                    </div>
+                                    <ChevronLeft size={16} className="text-slate-300 dark:text-slate-600 group-hover:text-primary-500 dark:group-hover:text-primary-400 rotate-180 transition-transform group-hover:translate-x-1" />
                                 </div>
                             </div>
                         ))
@@ -420,6 +512,17 @@ const VolunteerApplicationsList: React.FC = () => {
                 </div>
             </div>
         </div>
+        )}
+        <ActionModal
+                isOpen={modalState !== 'HIDDEN'}
+                state={modalState}
+                title={modalConfig.title}
+                message={modalConfig.message}
+                isDanger={modalConfig.isDanger}
+                onConfirm={executeStatusUpdate}
+                onClose={() => setModalState('HIDDEN')}
+            />
+        </>
     );
 };
 

@@ -20,7 +20,7 @@ export interface SiteSettings {
 
 export const DEFAULT_SETTINGS: SiteSettings = {
     id: '00000000-0000-0000-0000-000000000001',
-    address: 'No. 23, Iwo Road, Opposite Arisekola Mosque, Ibadan, Oyo State, Nigeria.',
+    address: 'No. 23, Iwo Road, Opposite Arisekola Mosque, Lagos, Lagos State, Nigeria.',
     phonePrimary: '+44 7466 677026',
     phoneSecondary: '+44 7440 448657',
     emailInfo: 'info@alihsanrelief.ng',

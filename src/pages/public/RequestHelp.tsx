@@ -482,7 +482,7 @@ const RequestHelp: React.FC = () => {
                       value={formData.city}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-gold-500 outline-none"
-                      placeholder="Ibadan"
+                      placeholder="Lagos"
                     />
                   </div>
                   <div>

@@ -1,65 +1,112 @@
 import React, { useState, useEffect } from 'react';
 import { useCloudinary } from '../../hooks/useCloudinary';
-import { 
-    Upload, Plus, LogOut, LayoutDashboard, Image as ImageIcon, 
-    Users, HandHeart, Settings, TrendingUp, ShieldCheck, Camera, ChevronRight 
+import { useRoleAccess } from '../../hooks/useRoleAccess';
+import {
+    Upload, Plus, LogOut, LayoutDashboard, Image as ImageIcon,
+    Users, HandHeart, Settings, ShieldCheck, Camera,
+    ChevronRight, Sun, Moon, Menu, X, Activity, ArrowUpRight,
+    Banknote, UserCircle, Target, Wallet, FileText, Bell,
+    BarChart3, Shield, ScrollText, TrendingUp
 } from 'lucide-react';
 import VolunteerApplicationsList from './VolunteerApplicationsList';
 import AidApplicationsList from './AidApplicationsList';
 import SiteSettingsTab from './SiteSettingsTab';
+import CasesTab from './CasesTab';
+import DonationsTab from './DonationsTab';
+import DonorsTab from './DonorsTab';
+import CampaignsTab from './CampaignsTab';
+import FinanceTab from './FinanceTab';
+import TeamTab from './TeamTab';
+import ContentTab from './ContentTab';
+import AnalyticsTab from './AnalyticsTab';
+import NotificationsTab from './NotificationsTab';
+import StatCard from '../../components/admin/StatCard';
+import { formatNaira } from '../../components/admin/CurrencyDisplay';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
+import { getOverviewStats } from '../../lib/analyticsService';
+import { getUnreadCount } from '../../lib/notificationService';
+import { getAuditLog, type AuditEntry } from '../../lib/auditService';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+
+type TabKey = 'OVERVIEW' | 'CASES' | 'AID_REQUESTS' | 'DONATIONS' | 'DONORS' | 'CAMPAIGNS' | 'FINANCE' | 'GALLERY' | 'VOLUNTEERS' | 'TEAM' | 'CONTENT' | 'NOTIFICATIONS' | 'ANALYTICS' | 'SITE_SETTINGS' | 'AUDIT_LOG';
+
+interface TabMeta { label: string; title: string; icon: React.ElementType; group: string }
+
+const TAB_META: Record<TabKey, TabMeta> = {
+    OVERVIEW:      { label: 'Dashboard',       title: 'Platform Overview',          icon: LayoutDashboard, group: 'Overview' },
+    CASES:         { label: 'Cases',            title: 'Case Management',           icon: HandHeart,       group: 'Operations' },
+    AID_REQUESTS:  { label: 'Aid Requests',     title: 'Request for Help',          icon: ScrollText,      group: 'Operations' },
+    DONATIONS:     { label: 'Donations',        title: 'Donation Records',          icon: Banknote,        group: 'Finance' },
+    DONORS:        { label: 'Donors',           title: 'Donor Management',          icon: UserCircle,      group: 'Finance' },
+    CAMPAIGNS:     { label: 'Campaigns',        title: 'Campaigns & Projects',      icon: Target,          group: 'Finance' },
+    FINANCE:       { label: 'Finance',          title: 'Financial Management',      icon: Wallet,          group: 'Finance' },
+    GALLERY:       { label: 'Media Hub',        title: 'Media Hub',                 icon: ImageIcon,       group: 'Content' },
+    VOLUNTEERS:    { label: 'Volunteers',       title: 'Volunteer Register',        icon: Users,           group: 'People' },
+    TEAM:          { label: 'Team',             title: 'Team & Roles',              icon: Shield,          group: 'People' },
+    CONTENT:       { label: 'Content',          title: 'Content Management',        icon: FileText,        group: 'Content' },
+    NOTIFICATIONS: { label: 'Notifications',    title: 'Notifications',             icon: Bell,            group: 'System' },
+    ANALYTICS:     { label: 'Analytics',        title: 'Analytics & Reports',       icon: BarChart3,       group: 'System' },
+    SITE_SETTINGS: { label: 'Site Settings',    title: 'System Configuration',      icon: Settings,        group: 'System' },
+    AUDIT_LOG:     { label: 'Audit Log',        title: 'Audit Trail',               icon: ScrollText,      group: 'System' },
+};
+
+const GROUPS = ['Overview', 'Operations', 'Finance', 'Content', 'People', 'System'];
 
 const Dashboard: React.FC = () => {
     const { uploadImage, uploading } = useCloudinary();
-    const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'GALLERY' | 'VOLUNTEERS' | 'AID_REQUESTS' | 'SITE_SETTINGS'>('OVERVIEW');
+    const { theme, toggleTheme } = useTheme();
+    const { allowedTabs, canAccess } = useRoleAccess();
+    const [activeTab, setActiveTab] = useState<TabKey>('OVERVIEW');
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('Food Relief');
     const [file, setFile] = useState<File | null>(null);
     const [success, setSuccess] = useState(false);
-    const [stats, setStats] = useState({ volunteers: 0, aid: 0, gallery: 0, admins: 0 });
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [unreadNotifs, setUnreadNotifs] = useState(0);
     const navigate = useNavigate();
 
+    // Overview state
+    const [stats, setStats] = useState({ totalDonations: 0, totalBeneficiaries: 0, activeCases: 0, completedCases: 0, pendingRequests: 0, volunteers: 0, gallery: 0, admins: 0, totalAidRequests: 0 });
+    const [recentActivity, setRecentActivity] = useState<AuditEntry[]>([]);
+    const [donationChart, setDonationChart] = useState<{ date: string; amount: number }[]>([]);
+
     useEffect(() => {
-        const fetchStats = async () => {
-            const [vols, aid, gallery, users] = await Promise.all([
-                supabase.from('volunteer_applications').select('*', { count: 'exact', head: true }),
-                supabase.from('aid_applications').select('*', { count: 'exact', head: true }),
-                supabase.from('gallery').select('*', { count: 'exact', head: true }),
-                supabase.from('admin_users').select('*', { count: 'exact', head: true })
-            ]);
-            setStats({
-                volunteers: vols.count || 0,
-                aid: aid.count || 0,
-                gallery: gallery.count || 0,
-                admins: users.count || 0
-            });
+        getUnreadCount().then(setUnreadNotifs).catch(() => {});
+    }, [activeTab]);
+
+    useEffect(() => {
+        if (activeTab !== 'OVERVIEW') return;
+        const loadOverview = async () => {
+            try {
+                const [s, audit] = await Promise.all([getOverviewStats(), getAuditLog(10)]);
+                setStats(s);
+                setRecentActivity(audit);
+
+                // Build 7-day chart from donations
+                const { data } = await supabase.from('donations').select('amount, donated_at').gte('donated_at', new Date(Date.now() - 7 * 86400000).toISOString()).order('donated_at');
+                const grouped: Record<string, number> = {};
+                (data ?? []).forEach(r => {
+                    const d = new Date(r.donated_at).toLocaleDateString('en-GB', { weekday: 'short' });
+                    grouped[d] = (grouped[d] || 0) + Number(r.amount);
+                });
+                setDonationChart(Object.entries(grouped).map(([date, amount]) => ({ date, amount })));
+            } catch (e) { console.error(e); }
         };
-        fetchStats();
-    }, []);
+        loadOverview();
+    }, [activeTab]);
 
     const handleUpload = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!file) return;
-
         const result = await uploadImage(file);
         if (result) {
-            const { error } = await supabase.from('gallery').insert({
-                title,
-                category,
-                url: result.url,
-            });
-
-            if (error) {
-                console.error('Failed to save gallery image:', error);
-                return;
-            }
-
+            await supabase.from('gallery').insert({ title, category, url: result.url });
             setSuccess(true);
             setTitle('');
             setFile(null);
             setTimeout(() => setSuccess(false), 3000);
-            setStats(prev => ({ ...prev, gallery: prev.gallery + 1 }));
         }
     };
 
@@ -68,225 +115,338 @@ const Dashboard: React.FC = () => {
         navigate('/admin', { replace: true });
     };
 
-    const NavItem = ({ tab, icon: Icon, label }: { tab: typeof activeTab, icon: any, label: string }) => {
+    const switchTab = (tab: TabKey) => {
+        if (!canAccess(tab)) return;
+        setActiveTab(tab);
+        setMobileMenuOpen(false);
+    };
+
+    const NavItem = ({ tab }: { tab: TabKey }) => {
+        const { label, icon: Icon } = TAB_META[tab];
         const isActive = activeTab === tab;
+        const isNotifTab = tab === 'NOTIFICATIONS';
         return (
-            <button
-                onClick={() => setActiveTab(tab)}
-                className={`group flex items-center justify-between w-full p-3 rounded-xl font-medium transition-all duration-300 ${
-                    isActive 
-                    ? 'bg-gradient-to-r from-gold-600 to-gold-400 text-primary-900 shadow-[0_4px_20px_rgba(212,175,55,0.3)] shadow-gold-500/20 translate-x-1' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/5 hover:translate-x-1'
-                }`}
-            >
+            <button onClick={() => switchTab(tab)}
+                className={`group flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                    isActive
+                    ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-400 shadow-sm'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                }`}>
                 <div className="flex items-center gap-3">
-                    <Icon size={20} className={isActive ? 'text-primary-900' : 'group-hover:text-gold-400 transition-colors duration-300'} /> 
+                    <Icon size={16} className={isActive ? 'text-primary-600 dark:text-primary-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'} />
                     {label}
                 </div>
-                {isActive && <ChevronRight size={16} className="text-primary-900 opacity-70" />}
+                <div className="flex items-center gap-1.5">
+                    {isNotifTab && unreadNotifs > 0 && (
+                        <span className="bg-red-500 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{unreadNotifs > 9 ? '9+' : unreadNotifs}</span>
+                    )}
+                    {isActive && <ChevronRight size={14} className="opacity-50" />}
+                </div>
             </button>
         );
     };
 
+    const currentMeta = TAB_META[activeTab];
+
+    // Group tabs by their group, filtered by role access
+    const groupedTabs = GROUPS.map(group => ({
+        group,
+        tabs: (Object.keys(TAB_META) as TabKey[]).filter(t => TAB_META[t].group === group && canAccess(t)),
+    })).filter(g => g.tabs.length > 0);
+
+    // Mobile bottom bar: show first 5 accessible tabs
+    const mobileBarTabs = allowedTabs.slice(0, 5) as TabKey[];
+
     return (
-        <div className="flex h-screen bg-gray-50 bg-[#F4F4F7] overflow-hidden selection:bg-gold-500/30">
-            {/* Ambient Background Gradient for the whole app */}
-            <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-purple-200/40 mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
-                <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-gold-200/30 mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
-            </div>
+        <div className="admin-dashboard flex flex-col md:flex-row h-screen bg-slate-50 dark:bg-[#0B0F19] text-slate-900 dark:text-slate-50 font-sans selection:bg-primary-500/30 overflow-hidden">
 
-            {/* Glassmorphic Sidebar */}
-            <aside className="relative z-10 w-72 m-4 bg-primary-900 text-white p-6 hidden md:flex flex-col rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
-                {/* Background glow in sidebar */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-gold-500/20 blur-[60px] rounded-full pointer-events-none"></div>
+            {/* ── Desktop Sidebar ─────────────────────────────────────── */}
+            <aside className="hidden md:flex w-60 bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-white/10 flex-col justify-between shrink-0 h-screen">
+                <div className="flex-1 flex flex-col overflow-y-auto">
+                    <div className="p-5 flex items-center gap-3 border-b border-slate-100 dark:border-white/5">
+                        <img src="/logo.jpeg" className="w-8 h-8 rounded-md object-cover ring-1 ring-slate-200 dark:ring-white/10" alt="Logo" />
+                        <div>
+                            <span className="block font-bold text-sm tracking-tight">Al-Ihsan</span>
+                            <span className="block text-[9px] text-slate-500 dark:text-slate-400 font-medium tracking-wider uppercase">Command Center</span>
+                        </div>
+                    </div>
 
-                <div className="mb-12 flex items-center gap-4 relative z-10 p-2">
-                    <div className="p-1.5 bg-white/10 rounded-xl backdrop-blur-md border border-white/20 shadow-inner">
-                        <img src="/logo.jpeg" className="w-10 h-10 rounded-lg object-cover" alt="Logo" />
-                    </div>
-                    <div>
-                        <span className="block font-bold font-heading text-lg tracking-wide text-white">Al-Ihsan Platform</span>
-                        <span className="block text-xs text-gold-400 tracking-wider uppercase font-semibold mt-0.5">Admin Interface</span>
-                    </div>
+                    <nav className="flex-1 px-3 py-4 space-y-5 overflow-y-auto">
+                        {groupedTabs.map(({ group, tabs }) => (
+                            <div key={group}>
+                                <div className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1.5 px-2">{group}</div>
+                                <div className="space-y-0.5">
+                                    {tabs.map(tab => <NavItem key={tab} tab={tab} />)}
+                                </div>
+                            </div>
+                        ))}
+                    </nav>
                 </div>
 
-                <nav className="space-y-2 flex-1 relative z-10">
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4 mt-6 ml-3">Overview</div>
-                    <NavItem tab="OVERVIEW" icon={LayoutDashboard} label="Dashboard" />
-                    
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4 mt-8 ml-3">Content</div>
-                    <NavItem tab="GALLERY" icon={ImageIcon} label="Media Hub" />
-                    
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4 mt-8 ml-3">Management</div>
-                    <NavItem tab="AID_REQUESTS" icon={HandHeart} label="Aid Requests" />
-                    <NavItem tab="VOLUNTEERS" icon={Users} label="Volunteering" />
-                    
-                    <div className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4 mt-8 ml-3">System</div>
-                    <NavItem tab="SITE_SETTINGS" icon={Settings} label="Site Settings" />
-                </nav>
-
-                <div className="mt-auto pt-6 border-t border-white/10 relative z-10">
-                    <button onClick={handleSignOut} className="group flex items-center gap-3 p-3 text-gray-400 hover:text-rose-400 w-full hover:bg-rose-500/10 rounded-xl transition-all duration-300">
-                        <LogOut size={20} className="group-hover:-translate-x-1 transition-transform duration-300" /> 
-                        <span className="font-medium">Secure Sign Out</span>
+                <div className="p-3 border-t border-slate-200 dark:border-white/10 space-y-1">
+                    <button onClick={toggleTheme} className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                        {theme === 'dark' ? <><Sun size={16} /> Light</> : <><Moon size={16} /> Dark</>}
+                    </button>
+                    <button onClick={handleSignOut} className="flex items-center gap-3 w-full px-3 py-2 text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-400/10 rounded-lg transition-colors">
+                        <LogOut size={16} /> Sign Out
                     </button>
                 </div>
             </aside>
 
-            {/* Main Content Area */}
-            <main className="relative z-10 flex-1 p-4 md:p-8 overflow-y-auto">
-                <div className="max-w-7xl mx-auto h-full flex flex-col pt-4">
-                    
-                    <header className="flex justify-between items-end mb-10">
-                        <div>
-                            <p className="text-primary-600 font-semibold tracking-wider text-sm uppercase mb-1 flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></span>
-                                Live Command Center
-                            </p>
-                            <h1 className="text-4xl font-heading font-extrabold text-gray-900 tracking-tight">
-                                {activeTab === 'OVERVIEW' && 'Platform Overview'}
-                                {activeTab === 'GALLERY' && 'Media Hub'}
-                                {activeTab === 'VOLUNTEERS' && 'Volunteer Force'}
-                                {activeTab === 'AID_REQUESTS' && 'Relief Operations'}
-                                {activeTab === 'SITE_SETTINGS' && 'Global Configurations'}
-                            </h1>
+            {/* ── Mobile Header ───────────────────────────────────────── */}
+            <header className="md:hidden fixed top-0 left-0 right-0 z-30 bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-white/10 h-14 flex items-center justify-between px-4">
+                <div className="flex items-center gap-3">
+                    <img src="/logo.jpeg" className="w-7 h-7 rounded-md object-cover" alt="" />
+                    <span className="font-bold text-sm tracking-tight">Al-Ihsan</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                    <button onClick={() => switchTab('NOTIFICATIONS')} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors">
+                        <Bell size={18} />
+                        {unreadNotifs > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />}
+                    </button>
+                    <button onClick={toggleTheme} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors">
+                        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                    </button>
+                    <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors">
+                        {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                    </button>
+                </div>
+            </header>
+
+            {/* ── Mobile Slide-out Menu ────────────────────────────────── */}
+            {mobileMenuOpen && (
+                <div className="md:hidden fixed inset-0 z-20 bg-black/40 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
+                    <div className="absolute top-14 right-0 w-64 bg-white dark:bg-[#111827] border-l border-slate-200 dark:border-white/10 h-[calc(100vh-3.5rem)] shadow-2xl p-4 space-y-4 overflow-y-auto" onClick={e => e.stopPropagation()}>
+                        {groupedTabs.map(({ group, tabs }) => (
+                            <div key={group}>
+                                <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 px-2">{group}</div>
+                                <div className="space-y-0.5">{tabs.map(tab => <NavItem key={tab} tab={tab} />)}</div>
+                            </div>
+                        ))}
+                        <div className="border-t border-slate-200 dark:border-white/10 pt-3">
+                            <button onClick={handleSignOut} className="flex items-center gap-3 w-full px-3 py-2.5 text-sm font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-400/10 rounded-lg transition-colors">
+                                <LogOut size={16} /> Sign Out
+                            </button>
                         </div>
-                        
-                        <div className="hidden md:flex items-center gap-4 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-100">
-                            <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm">A</div>
-                            <span className="text-sm font-medium text-gray-700">System Admin</span>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Main Content Area ───────────────────────────────────── */}
+            <main className="flex-1 overflow-y-auto mt-14 md:mt-0 pb-20 md:pb-0 relative">
+                <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+
+                    {/* Top Header Bar */}
+                    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div>
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{currentMeta.title}</h1>
+                        </div>
+                        <div className="hidden md:flex items-center gap-3">
+                            {unreadNotifs > 0 && (
+                                <button onClick={() => switchTab('NOTIFICATIONS')} className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors">
+                                    <Bell size={18} />
+                                    <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                                </button>
+                            )}
+                            <span className="flex items-center gap-2 text-xs font-medium px-2.5 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full border border-emerald-200 dark:border-emerald-800/50">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+                            </span>
                         </div>
                     </header>
 
-                    <div className="flex-1 w-full pb-12">
+                    {/* Tab Content */}
+                    <div className="w-full">
+
+                        {/* ═══════════════ OVERVIEW TAB ═══════════════ */}
                         {activeTab === 'OVERVIEW' && (
-                            <div className="animate-fade-in-up">
-                                {/* Metrics Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                                    {[
-                                        { label: "Total Aid Requests", value: stats.aid, icon: HandHeart, color: "from-rose-500 to-orange-400" },
-                                        { label: "Active Volunteers", value: stats.volunteers, icon: Users, color: "from-blue-500 to-cyan-400" },
-                                        { label: "Media Assets", value: stats.gallery, icon: Camera, color: "from-purple-500 to-indigo-500" },
-                                        { label: "Admin Operators", value: stats.admins, icon: ShieldCheck, color: "from-emerald-500 to-teal-400" }
-                                    ].map((stat, i) => (
-                                        <div key={i} className="bg-white p-6 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
-                                            <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${stat.color} opacity-10 rounded-bl-full transform translate-x-1/2 -translate-y-1/2 group-hover:scale-150 transition-transform duration-500`}></div>
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.color} text-white shadow-md`}>
-                                                    <stat.icon size={22} />
-                                                </div>
-                                                <h3 className="text-gray-500 font-medium text-sm lg:text-base">{stat.label}</h3>
-                                            </div>
-                                            <p className="text-4xl font-extrabold text-gray-900 mt-2 font-heading tracking-tight">{stat.value}</p>
-                                        </div>
-                                    ))}
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                                    <StatCard label="Total Donations" value={formatNaira(stats.totalDonations)} icon={Banknote} accent="text-emerald-600 dark:text-emerald-400" bg="bg-emerald-50 dark:bg-emerald-900/20" onClick={() => switchTab('DONATIONS')} />
+                                    <StatCard label="Beneficiaries" value={stats.totalBeneficiaries} icon={HandHeart} accent="text-primary-600 dark:text-primary-400" bg="bg-primary-50 dark:bg-primary-900/20" onClick={() => switchTab('CASES')} />
+                                    <StatCard label="Active Cases" value={stats.activeCases} icon={Activity} accent="text-blue-600 dark:text-blue-400" bg="bg-blue-50 dark:bg-blue-900/20" onClick={() => switchTab('CASES')} />
+                                    <StatCard label="Completed" value={stats.completedCases} icon={ShieldCheck} accent="text-emerald-600 dark:text-emerald-400" bg="bg-emerald-50 dark:bg-emerald-900/20" />
+                                    <StatCard label="Pending Requests" value={stats.pendingRequests} icon={ScrollText} accent="text-amber-600 dark:text-amber-400" bg="bg-amber-50 dark:bg-amber-900/20" onClick={() => switchTab('AID_REQUESTS')} />
                                 </div>
-                                
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    {/* Large Activity Graph Placeholder - makes dashboard feel full! */}
-                                    <div className="lg:col-span-2 bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-8">
-                                        <div className="flex items-center justify-between mb-8">
-                                            <h2 className="text-xl font-bold font-heading text-gray-900">Application Velocity</h2>
-                                            <button className="text-gold-600 bg-gold-50 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gold-100 transition-colors">This Month</button>
-                                        </div>
-                                        <div className="h-64 flex items-end justify-between gap-2">
-                                            {/* Dummy beautiful bar chart to make dashboard look premium */}
-                                            {[40, 70, 45, 90, 65, 80, 100].map((h, i) => (
-                                                <div key={i} className="w-full relative group flex flex-col items-center">
-                                                    <div className="w-full bg-primary-100 rounded-t-xl group-hover:bg-primary-200 transition-colors" style={{ height: `${h}%` }}>
-                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">{h} Apps</div>
+
+                                <div className="grid lg:grid-cols-3 gap-6">
+                                    {/* Donation Chart */}
+                                    <div className="lg:col-span-2 bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
+                                        <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                            <TrendingUp size={16} className="text-slate-400" /> Weekly Donations
+                                        </h2>
+                                        {donationChart.length > 0 ? (
+                                            <ResponsiveContainer width="100%" height={200}>
+                                                <BarChart data={donationChart}>
+                                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,116,139,0.1)" />
+                                                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+                                                    <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={v => `₦${(v / 1000).toFixed(0)}k`} />
+                                                    <Tooltip formatter={(v: number) => [formatNaira(v), 'Amount']} contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '12px' }} />
+                                                    <Bar dataKey="amount" fill="#7a5299" radius={[4, 4, 0, 0]} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <div className="h-48 flex items-center justify-center text-sm text-slate-400">No donation data this week</div>
+                                        )}
+                                    </div>
+
+                                    {/* Recent Activity */}
+                                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm p-6 flex flex-col">
+                                        <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                            <Activity size={16} className="text-slate-400" /> Recent Activity
+                                        </h2>
+                                        <div className="space-y-3 flex-1 overflow-y-auto">
+                                            {recentActivity.length === 0 ? (
+                                                <p className="text-sm text-slate-400 text-center py-8">No recent activity.</p>
+                                            ) : recentActivity.map(a => (
+                                                <div key={a.id} className="flex items-start gap-3">
+                                                    <div className="w-2 h-2 rounded-full bg-primary-500 mt-1.5 shrink-0" />
+                                                    <div>
+                                                        <p className="text-sm text-slate-700 dark:text-slate-300"><span className="font-medium">{a.userEmail.split('@')[0]}</span> {a.action.toLowerCase()}</p>
+                                                        <p className="text-[10px] text-slate-400">{new Date(a.createdAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
                                                     </div>
-                                                    <span className="text-xs text-gray-400 font-medium mt-3">Day {i + 1}</span>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className="bg-gradient-to-br from-primary-900 to-primary-800 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 text-white relative overflow-hidden">
-                                        <div className="absolute top-0 right-0 w-64 h-64 bg-gold-500 blur-[80px] opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
-                                        <h2 className="text-xl font-bold font-heading mb-2 relative z-10 flex items-center gap-2"><TrendingUp size={20} className="text-gold-400" /> System Status</h2>
-                                        <p className="text-primary-200 text-sm mb-8 relative z-10 leading-relaxed">All core platform services are operating flawlessly. Email subroutines and edge functions are active.</p>
-                                        
-                                        <div className="space-y-4 relative z-10">
-                                            <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center justify-between">
-                                                <span className="font-medium">Database Node</span>
-                                                <span className="text-emerald-400 text-sm font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Online</span>
+                                {/* Quick Actions */}
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    {([
+                                        { label: 'View Cases', tab: 'CASES' as TabKey, icon: HandHeart, count: stats.activeCases },
+                                        { label: 'Donations', tab: 'DONATIONS' as TabKey, icon: Banknote, count: undefined },
+                                        { label: 'Volunteers', tab: 'VOLUNTEERS' as TabKey, icon: Users, count: stats.volunteers },
+                                        { label: 'Analytics', tab: 'ANALYTICS' as TabKey, icon: BarChart3, count: undefined },
+                                    ].filter(a => canAccess(a.tab))).map((action, i) => (
+                                        <button key={i} onClick={() => switchTab(action.tab)}
+                                            className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/10 rounded-xl p-4 text-left hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-md transition-all group">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <action.icon size={18} className="text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" />
+                                                <ArrowUpRight size={14} className="text-slate-300 dark:text-slate-600 group-hover:text-primary-500 transition-colors" />
                                             </div>
-                                            <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center justify-between">
-                                                <span className="font-medium">Brevo Dispatcher</span>
-                                                <span className="text-emerald-400 text-sm font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Online</span>
-                                            </div>
-                                            <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center justify-between">
-                                                <span className="font-medium">PDF Generator</span>
-                                                <span className="text-emerald-400 text-sm font-bold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ready</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                            <p className="font-semibold text-sm text-slate-900 dark:text-white">{action.label}</p>
+                                            {action.count !== undefined && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{action.count} records</p>}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         )}
 
+                        {/* ═══════════════ GALLERY TAB ═══════════════ */}
                         {activeTab === 'GALLERY' && (
-                            <div className="max-w-2xl animate-fade-in-up">
-                                <div className="bg-white p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <div className="p-3 bg-gradient-to-br from-gold-100 to-amber-50 rounded-2xl text-gold-600 border border-gold-200/50 shadow-inner">
-                                            <ImageIcon size={28} />
-                                        </div>
-                                        <div>
-                                            <h2 className="text-2xl font-bold text-gray-900 font-heading">Upload Media Profile</h2>
-                                            <p className="text-gray-500 text-sm mt-1">Publish high-quality content straight to the world-facing gallery.</p>
-                                        </div>
+                            <div className="max-w-xl">
+                                <div className="bg-white dark:bg-[#111827] p-8 rounded-xl shadow-sm border border-slate-200 dark:border-white/10">
+                                    <div className="mb-6">
+                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Upload Media</h2>
+                                        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Add new images to the public gallery.</p>
                                     </div>
-
                                     {success && (
-                                        <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 p-4 rounded-xl mb-8 text-sm flex items-center gap-3 animate-fade-in-down">
-                                            <ShieldCheck size={20} className="text-emerald-500" /> Image injected into the global delivery network successfully!
+                                        <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 p-3 rounded-lg mb-6 text-sm flex items-center gap-2">
+                                            <ShieldCheck size={16} /> Image published successfully.
                                         </div>
                                     )}
-
-                                    <form onSubmit={handleUpload} className="space-y-6">
+                                    <form onSubmit={handleUpload} className="space-y-5">
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Image Title</label>
-                                            <input required value={title} onChange={e => setTitle(e.target.value)} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-gold-500/20 focus:border-gold-500 focus:bg-white transition-all outline-none font-medium placeholder:text-gray-400" placeholder="e.g. Ramadan Food Drive 2024" />
+                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Image Title</label>
+                                            <input required value={title} onChange={e => setTitle(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-slate-900 dark:text-white" placeholder="e.g. Ramadan Food Drive" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Categorization Tag</label>
-                                            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-gold-500/20 focus:border-gold-500 focus:bg-white transition-all outline-none font-medium appearance-none">
+                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Category</label>
+                                            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-slate-900 dark:text-white">
                                                 {["Food Relief", "Medical", "Education", "Orphans", "Events"].map(c => <option key={c} value={c}>{c}</option>)}
                                             </select>
                                         </div>
-                                        <div className="pt-2">
-                                            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">Media Payload</label>
-                                            <div className="border-2 border-dashed border-gray-300 rounded-3xl p-10 text-center hover:bg-gold-50 hover:border-gold-400 transition-colors cursor-pointer relative group">
-                                                <input required type="file" onChange={e => setFile(e.target.files ? e.target.files[0] : null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" />
-                                                <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 transition-colors ${file ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500 group-hover:bg-gold-200 group-hover:text-gold-700'}`}>
-                                                    <Upload size={28} />
-                                                </div>
-                                                <p className="text-lg font-bold text-gray-900">{file ? file.name : "Select or drag media here"}</p>
-                                                <p className="text-sm text-gray-500 font-medium mt-1">{file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "JPG, PNG standard formats up to 5MB"}</p>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">File</label>
+                                            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer relative group">
+                                                <input required type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" />
+                                                <Upload size={24} className={`mx-auto mb-3 transition-colors ${file ? 'text-emerald-500' : 'text-slate-400 group-hover:text-primary-500'}`} />
+                                                <p className="text-sm font-bold text-slate-900 dark:text-slate-300">{file ? file.name : "Click or drag file here"}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "JPG, PNG · Up to 5MB"}</p>
                                             </div>
                                         </div>
-                                        <button disabled={uploading || !file} type="submit" className="w-full bg-gradient-to-r from-primary-900 to-primary-800 text-white py-4 rounded-2xl font-bold hover:shadow-[0_8px_30px_rgba(46,31,84,0.3)] hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:shadow-none disabled:hover:translate-y-0 transition-all flex items-center justify-center gap-3 text-lg mt-4">
-                                            {uploading ? (
-                                                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Transmitting...</>
-                                            ) : (
-                                                <><Plus size={22} /> Publish to Gallery</>
-                                            )}
+                                        <button disabled={uploading || !file} type="submit" className="w-full bg-primary-600 dark:bg-primary-500 text-white py-2.5 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
+                                            {uploading ? (<><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading...</>) : (<><Plus size={16} /> Publish Image</>)}
                                         </button>
                                     </form>
                                 </div>
                             </div>
                         )}
 
-                        {activeTab === 'VOLUNTEERS' && <div className="animate-fade-in-up"><VolunteerApplicationsList /></div>}
-                        {activeTab === 'AID_REQUESTS' && <div className="animate-fade-in-up"><AidApplicationsList /></div>}
-                        {activeTab === 'SITE_SETTINGS' && <div className="animate-fade-in-up"><SiteSettingsTab /></div>}
-                        
+                        {/* ═══════════════ AUDIT LOG TAB ═══════════════ */}
+                        {activeTab === 'AUDIT_LOG' && <AuditLogView />}
+
+                        {/* ═══════════════ DATA TABS ═══════════════ */}
+                        {activeTab === 'CASES' && <CasesTab />}
+                        {activeTab === 'AID_REQUESTS' && <AidApplicationsList />}
+                        {activeTab === 'DONATIONS' && <DonationsTab />}
+                        {activeTab === 'DONORS' && <DonorsTab />}
+                        {activeTab === 'CAMPAIGNS' && <CampaignsTab />}
+                        {activeTab === 'FINANCE' && <FinanceTab />}
+                        {activeTab === 'VOLUNTEERS' && <VolunteerApplicationsList />}
+                        {activeTab === 'TEAM' && <TeamTab />}
+                        {activeTab === 'CONTENT' && <ContentTab />}
+                        {activeTab === 'NOTIFICATIONS' && <NotificationsTab />}
+                        {activeTab === 'ANALYTICS' && <AnalyticsTab />}
+                        {activeTab === 'SITE_SETTINGS' && <SiteSettingsTab />}
                     </div>
                 </div>
             </main>
+
+            {/* ── Mobile Bottom Tab Bar ────────────────────────────────── */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-[#111827] border-t border-slate-200 dark:border-white/10 flex items-center justify-around px-1 py-1.5">
+                {mobileBarTabs.map(tab => {
+                    const { icon: Icon, label } = TAB_META[tab];
+                    const isActive = activeTab === tab;
+                    return (
+                        <button key={tab} onClick={() => switchTab(tab)}
+                            className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg transition-colors min-w-0 flex-1 relative ${
+                                isActive ? 'text-primary-600 dark:text-primary-400' : 'text-slate-400 dark:text-slate-500'
+                            }`}>
+                            <Icon size={18} />
+                            {tab === 'NOTIFICATIONS' && unreadNotifs > 0 && <span className="absolute top-0.5 right-1/4 w-2 h-2 bg-red-500 rounded-full" />}
+                            <span className="text-[9px] font-medium truncate w-full text-center leading-tight">{label.length > 8 ? label.slice(0, 7) + '…' : label}</span>
+                        </button>
+                    );
+                })}
+            </nav>
+        </div>
+    );
+};
+
+// ── Inline Audit Log View ──────────────────────────────────────────────────
+const AuditLogView: React.FC = () => {
+    const [entries, setEntries] = useState<AuditEntry[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        getAuditLog(100).then(setEntries).catch(console.error).finally(() => setLoading(false));
+    }, []);
+
+    if (loading) return <div className="p-8 text-center text-slate-500 dark:text-slate-400">Loading audit log...</div>;
+
+    return (
+        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="p-6 border-b border-slate-100 dark:border-white/10">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Audit Trail</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Complete history of admin actions.</p>
+            </div>
+            <div className="divide-y divide-slate-100 dark:divide-white/5">
+                {entries.length === 0 ? (
+                    <div className="p-12 text-center text-slate-400">No audit entries.</div>
+                ) : entries.map(e => (
+                    <div key={e.id} className="p-4 flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 text-[10px] font-bold shrink-0">
+                            {e.userEmail?.charAt(0).toUpperCase() || '?'}
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm text-slate-700 dark:text-slate-300"><span className="font-semibold">{e.userEmail}</span> <span className="text-slate-500">{e.action}</span></p>
+                            {e.entityType && <p className="text-xs text-slate-400 mt-0.5">{e.entityType} · {e.entityId?.slice(0, 8)}</p>}
+                            <p className="text-[10px] text-slate-400 mt-0.5">{new Date(e.createdAt).toLocaleString('en-GB')}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };

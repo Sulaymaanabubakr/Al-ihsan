@@ -235,7 +235,7 @@ const Home: React.FC = () => {
                         <motion.p variants={fadeInUp} className="text-lg text-gray-600 mb-8 leading-relaxed">
                             Al-Ihsan Relief & Empowerment was founded with a singular purpose: to serve humanity solely for the sake of Allah.
                             We believe that true worship is reflected in how we treat the most vulnerable among us - the orphans, the widows, and the destitute.
-                            Based in Ibadan, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment.
+                            Based in Lagos, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment.
                         </motion.p>
                         <motion.div variants={fadeInUp} className="flex justify-center">
                             <Link to="/about" className="group flex items-center gap-2 text-primary-900 font-bold hover:text-gold-600 transition-colors">

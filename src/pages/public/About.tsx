@@ -59,7 +59,7 @@ const About: React.FC = () => {
                                 Al-Ihsan Relief & Empowerment was founded with a singular purpose: to serve humanity solely for the sake of Allah. We believe that true worship is reflected in how we treat the most vulnerable among us - the orphans, the widows, and the destitute.
                             </motion.p>
                             <motion.p variants={fadeInUp} className="text-lg text-gray-600 leading-relaxed">
-                                Based in Ibadan, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment. We don't just provide aid; we strive to restore dignity.
+                                Based in Lagos, Nigeria, our operations span across food relief, medical assistance, educational support, and economic empowerment. We don't just provide aid; we strive to restore dignity.
                             </motion.p>
                         </motion.div>
                     </div>

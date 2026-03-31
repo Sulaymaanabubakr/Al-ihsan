@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import ScrollToTop from './components/common/ScrollToTop';
 import Layout from './components/layout/Layout';
 import Home from './pages/public/Home';
 import About from './pages/public/About';
@@ -15,6 +16,7 @@ import Dashboard from './pages/admin/Dashboard';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { SiteSettingsProvider } from './context/SiteSettingsContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 import Contact from './pages/public/Contact';
 import Focus from './pages/public/Focus';
@@ -24,12 +26,14 @@ import ZakatPage from './pages/public/ZakatPage';
 const App: React.FC = () => {
   return (
     <HelmetProvider>
-      <SiteSettingsProvider>
-        <AuthProvider>
-          <Router>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Layout><Home /></Layout>} />
+      <ThemeProvider>
+        <SiteSettingsProvider>
+          <AuthProvider>
+            <Router>
+              <ScrollToTop />
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Layout><Home /></Layout>} />
               <Route path="/about" element={<Layout><About /></Layout>} />
               <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/donate" element={<Layout><Donate /></Layout>} />
@@ -53,6 +57,7 @@ const App: React.FC = () => {
           </Router>
         </AuthProvider>
       </SiteSettingsProvider>
+      </ThemeProvider>
     </HelmetProvider>
   );
 };

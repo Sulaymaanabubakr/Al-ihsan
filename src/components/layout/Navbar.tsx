@@ -42,17 +42,26 @@ const Navbar: React.FC = () => {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-primary-950 border-b border-white/10 shadow-xl h-20 transition-all duration-300">
             <div className="container mx-auto px-6 h-full flex justify-between items-center relative">
                 {/* Logo (Left) */}
-                <Link to="/" className="flex items-center gap-3 group z-20">
-                    <div className="relative">
+                <div className="flex items-center gap-3 z-20">
+                    <Link to="/" className="relative group shrink-0">
                         <div className="absolute inset-0 bg-gold-400 rounded-full blur-md opacity-20 group-hover:opacity-50 transition-opacity duration-500"></div>
                         <img
                             src="/logo.jpeg"
                             alt="Al-Ihsan Logo"
                             className="h-10 w-10 relative z-10 rounded-full object-cover border-2 border-gold-500 shadow-lg"
                         />
-                    </div>
-                    <span className="text-xl font-heading font-bold text-white tracking-wide">
-                        Al-Ihsan<span className="text-gold-400">.</span>
+                    </Link>
+                    <Link to="/" className="hidden lg:block">
+                        <span className="text-lg xl:text-xl font-heading font-bold text-white tracking-wide whitespace-nowrap">
+                            Al-Ihsan Relief And Empowerment<span className="text-gold-400">.</span>
+                        </span>
+                    </Link>
+                </div>
+
+                {/* Mobile Title (Center) */}
+                <Link to="/" className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] xs:w-[60%] sm:w-[65%] text-center z-10">
+                    <span className="text-[13px] sm:text-[15px] md:text-lg font-heading font-bold text-white leading-tight block">
+                        Al-Ihsan Relief And Empowerment<span className="text-gold-400">.</span>
                     </span>
                 </Link>
 
