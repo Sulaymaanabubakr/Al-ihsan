@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, Users, ShieldCheck, Building2, Users2 } from 'lucide-react';
+import { ArrowRight, Heart, Users, ShieldCheck, Building2, Users2, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import SEO from '../../components/common/SEO';
@@ -428,16 +428,21 @@ const Home: React.FC = () => {
                             <motion.div variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                 {homeImages.map((img) => (
                                     <motion.div key={img.id} variants={fadeInUp}>
-                                        <Link to="/gallery" className="group">
-                                            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 relative shadow-sm group-hover:shadow-xl transition-shadow duration-300">
+                                        <div className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 p-3">
+                                            <div className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative mb-4">
                                                 <img src={img.url} alt={img.title || 'Gallery Image'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                                 <div className="absolute inset-0 bg-primary-900/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </div>
-                                            <div className="mt-4 px-1">
+                                            <div className="flex-1 flex flex-col items-center text-center px-2">
                                                 <h3 className="font-heading font-bold text-primary-900 text-lg md:text-xl line-clamp-1 group-hover:text-gold-600 transition-colors">{img.title || 'Untitled'}</h3>
-                                                {img.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">{img.description}</p>}
+                                                {img.description && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{img.description}</p>}
+                                                <div className="mt-auto pt-4">
+                                                    <Link to={`/gallery?view=${img.id}`} className="inline-flex items-center justify-center gap-2 px-5 py-2 bg-primary-50 text-primary-900 rounded-full font-bold text-sm hover:bg-gold-500 hover:text-white transition-colors w-full">
+                                                        <Eye size={16} /> View Post
+                                                    </Link>
+                                                </div>
                                             </div>
-                                        </Link>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </motion.div>
@@ -471,8 +476,8 @@ const Home: React.FC = () => {
                             <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                 {homeVideos.map((video) => (
                                     <motion.div key={video.id} variants={fadeInUp}>
-                                        <Link to="/gallery" className="group block">
-                                            <div className="aspect-video rounded-2xl overflow-hidden bg-gray-900 relative shadow-sm group-hover:shadow-xl transition-shadow duration-300">
+                                        <div className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 p-3">
+                                            <div className="aspect-video rounded-xl overflow-hidden bg-gray-900 relative mb-4">
                                                 {getVideoEmbedUrl(video.url) ? (
                                                     <iframe
                                                         src={getVideoEmbedUrl(video.url) || undefined}
@@ -493,11 +498,16 @@ const Home: React.FC = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="mt-4 px-1">
+                                            <div className="flex-1 flex flex-col items-center text-center px-2">
                                                 <h3 className="font-heading font-bold text-primary-900 text-lg md:text-xl line-clamp-1 group-hover:text-gold-600 transition-colors">{video.title || 'Untitled Video'}</h3>
-                                                {video.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">{video.description}</p>}
+                                                {video.description && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{video.description}</p>}
+                                                <div className="mt-auto pt-4">
+                                                    <Link to={`/gallery?view=${video.id}`} className="inline-flex items-center justify-center gap-2 px-5 py-2 bg-primary-50 text-primary-900 rounded-full font-bold text-sm hover:bg-gold-500 hover:text-white transition-colors w-full">
+                                                        <Eye size={16} /> View Video
+                                                    </Link>
+                                                </div>
                                             </div>
-                                        </Link>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </motion.div>

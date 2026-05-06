@@ -5,7 +5,7 @@ import EmptyState from '../../components/admin/EmptyState';
 import ActionModal, { type ActionModalState } from '../../components/admin/ActionModal';
 import {
     Upload, Plus, Search, Trash2, Image as ImageIcon, Video,
-    Film, Link2, X, ShieldCheck, ExternalLink, Filter, Edit2, AlertCircle
+    Film, Link2, X, ShieldCheck, Filter, Edit2, AlertCircle
 } from 'lucide-react';
 
 type MediaType = 'image' | 'video' | 'video_link';
@@ -554,21 +554,26 @@ const MediaHubTab: React.FC = () => {
                                     </div>
 
                                     {/* Info */}
-                                    <div className="space-y-1.5">
+                                    <div className="flex-1 flex flex-col items-center text-center px-1">
                                         <h3 className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1">{item.title}</h3>
                                         {item.description && (
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{item.description}</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{item.description}</p>
                                         )}
-                                        <div className="flex items-center justify-between pt-1">
-                                            <div className="flex items-center gap-2">
-                                                {item.category !== 'General' && (
-                                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded">
-                                                        {item.category}
-                                                    </span>
-                                                )}
-                                                <span className="text-[10px] text-slate-400">{formatDate(item.createdAt)}</span>
+                                        
+                                        <div className="mt-3 flex items-center gap-2">
+                                            {item.category !== 'General' && (
+                                                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded">
+                                                    {item.category}
+                                                </span>
+                                            )}
+                                            <span className="text-[10px] text-slate-400">{formatDate(item.createdAt)}</span>
+                                        </div>
+
+                                        <div className="w-full mt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3">
+                                            <div className="text-xs font-bold text-primary-600 dark:text-primary-400 flex items-center gap-1.5 hover:text-primary-700 transition-colors cursor-pointer">
+                                                <Search size={14} /> View Details
                                             </div>
-                                            <div className="flex items-center gap-1 mt-2 sm:mt-0" onClick={e => e.stopPropagation()}>
+                                            <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
                                                 <button onClick={() => startEdit(item)}
                                                     className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition rounded" title="Edit">
                                                     <Edit2 size={14} />
@@ -706,7 +711,7 @@ const MediaHubTab: React.FC = () => {
                     <div className="w-full max-w-7xl h-[85vh] flex flex-col md:flex-row rounded-2xl overflow-hidden shadow-2xl bg-black/60 border border-white/10 backdrop-blur-xl" onClick={e => e.stopPropagation()}>
                         
                         {/* Left: Media Area */}
-                        <div className="flex-1 bg-black relative flex flex-col overflow-hidden group">
+                        <div className="flex-none h-[50vh] md:h-auto md:flex-1 bg-black relative flex flex-col overflow-hidden group">
                             <div className="absolute top-4 left-4 z-10 flex gap-2">
                                 <button onClick={() => setViewingItem(null)} className="text-white/60 hover:text-white bg-black/50 p-2 rounded-full transition-colors backdrop-blur-md">
                                     <X size={20} />
@@ -734,7 +739,7 @@ const MediaHubTab: React.FC = () => {
                                         
                                         {/* Floating Album Thumbnails */}
                                         {allMedia.length > 1 && (
-                                            <div className="absolute bottom-0 inset-x-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex gap-3 overflow-x-auto custom-scrollbar md:translate-y-4 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                            <div className="absolute bottom-0 inset-x-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex gap-3 overflow-x-auto custom-scrollbar transition-all duration-300">
                                                 {allMedia.map((url, idx) => (
                                                     <button key={idx} onClick={() => setViewingIndex(idx)}
                                                         className={`relative flex-shrink-0 h-16 w-24 rounded-lg overflow-hidden border-2 transition-all duration-300 ${viewingIndex === idx ? 'border-primary-500 scale-105 shadow-lg shadow-primary-500/20' : 'border-white/20 opacity-60 hover:opacity-100 hover:border-white/50'}`}>

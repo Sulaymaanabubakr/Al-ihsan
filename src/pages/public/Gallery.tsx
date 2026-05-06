@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { X, ZoomIn, Loader, Play, Film, ChevronLeft, Calendar, Tag } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
@@ -62,6 +63,13 @@ const Gallery: React.FC = () => {
     const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
     const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
 
+    const handleClose = () => {
+        setSelectedItem(null);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('view');
+        window.history.replaceState({}, '', url.toString());
+    };
+
     useEffect(() => {
         if (selectedItem) setSelectedMediaIndex(0);
     }, [selectedItem]);
@@ -98,7 +106,18 @@ const Gallery: React.FC = () => {
                     createdAt: row.created_at ?? new Date().toISOString(),
                 }));
 
-                setItems([...galleryItems, ...videoItems]);
+                const allItems = [...galleryItems, ...videoItems];
+                setItems(allItems);
+
+                // Auto-open modal if ?view=id is in the URL
+                const searchParams = new URLSearchParams(window.location.search);
+                const viewId = searchParams.get('view');
+                if (viewId) {
+                    const itemToView = allItems.find(i => i.id === viewId || i.id === `vid-${viewId}`);
+                    if (itemToView) {
+                        setSelectedItem(itemToView);
+                    }
+                }
             } catch (e) {
                 console.error('Failed to load media:', e);
             }
@@ -270,20 +289,20 @@ const Gallery: React.FC = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm overflow-y-auto"
-                        onClick={() => setSelectedItem(null)}
+                        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm overflow-y-auto"
+                        onClick={handleClose}
                     >
                         <div className="min-h-screen flex flex-col">
                             {/* Top Bar */}
                             <div className="flex items-center justify-between p-4 md:p-6 sticky top-0 z-10 bg-gradient-to-b from-black/80 to-transparent">
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); setSelectedItem(null); }}
+                                    onClick={(e) => { e.stopPropagation(); handleClose(); }}
                                     className="flex items-center gap-2 text-white/80 hover:text-white transition-colors font-medium text-sm"
                                 >
                                     <ChevronLeft size={20} /> Back to Gallery
                                 </button>
                                 <button
-                                    onClick={(e) => { e.stopPropagation(); setSelectedItem(null); }}
+                                    onClick={(e) => { e.stopPropagation(); handleClose(); }}
                                     className="text-white/60 hover:text-white transition-colors"
                                 >
                                     <X size={24} />
@@ -300,7 +319,7 @@ const Gallery: React.FC = () => {
                                     className="w-full max-w-7xl h-[85vh] flex flex-col md:flex-row rounded-2xl overflow-hidden shadow-2xl bg-black/60 border border-white/10 backdrop-blur-xl"
                                 >
                                     {/* Left: Media Area */}
-                                    <div className="flex-1 bg-black relative flex flex-col overflow-hidden group">
+                                    <div className="flex-none h-[50vh] md:h-auto md:flex-1 bg-black relative flex flex-col overflow-hidden group">
                                         {(() => {
                                             const allMedia = selectedItem ? [selectedItem.url, ...(selectedItem.additionalUrls || [])] : [];
                                             const currentUrl = allMedia[selectedMediaIndex] || '';
@@ -341,7 +360,7 @@ const Gallery: React.FC = () => {
                                                     
                                                     {/* Floating Album Thumbnails */}
                                                     {allMedia.length > 1 && (
-                                                        <div className="absolute bottom-0 inset-x-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex gap-3 overflow-x-auto custom-scrollbar md:translate-y-4 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                                        <div className="absolute bottom-0 inset-x-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex gap-3 overflow-x-auto custom-scrollbar transition-all duration-300">
                                                             {allMedia.map((url, idx) => (
                                                                 <button
                                                                     key={idx}
