@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
 import { X, ZoomIn, Loader, Play, Film, ChevronLeft, Calendar, Tag } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
