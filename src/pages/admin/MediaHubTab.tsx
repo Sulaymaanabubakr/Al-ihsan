@@ -28,7 +28,7 @@ const formatDate = (v: string) =>
     new Date(v).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 const isVideoUrl = (url: string) => /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
-const isEmbedUrl = (url: string) => /youtube\.com|youtu\.be|vimeo\.com/i.test(url);
+
 
 const getEmbedUrl = (url: string): string | null => {
     try {
@@ -65,7 +65,7 @@ const MediaHubTab: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<FilterType>('ALL');
-    const [deleting, setDeleting] = useState<string | null>(null);
+    const [deleting] = useState<string | null>(null);
 
     // Confirmation modal
     const [modalState, setModalState] = useState<ActionModalState>('HIDDEN');

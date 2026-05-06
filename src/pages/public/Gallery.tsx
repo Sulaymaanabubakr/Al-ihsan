@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ZoomIn, Loader, Play, Film, Image as ImageIcon, ChevronLeft, Calendar, Tag } from 'lucide-react';
+import { X, ZoomIn, Loader, Play, Film, ChevronLeft, Calendar, Tag } from 'lucide-react';
 import SEO from '../../components/common/SEO';
 import { useAnimations } from '../../hooks/useAnimations';
 import { supabase } from '../../lib/supabase';
