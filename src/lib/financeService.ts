@@ -82,3 +82,17 @@ export const getFinancialSummary = async () => {
 
     return { totalInflow, totalOutflow, balance: totalInflow - totalOutflow, expenseByCategory };
 };
+
+export const updateExpense = async (id: string, input: Partial<ExpenseInput>): Promise<void> => {
+    const updateData: any = {};
+    if (input.description !== undefined) updateData.description = input.description;
+    if (input.amount !== undefined) updateData.amount = input.amount;
+    if (input.category !== undefined) updateData.category = input.category;
+    const { error } = await supabase.from('expenses').update(updateData).eq('id', id);
+    if (error) throw error;
+};
+
+export const deleteExpense = async (id: string): Promise<void> => {
+    const { error } = await supabase.from('expenses').delete().eq('id', id);
+    if (error) throw error;
+};

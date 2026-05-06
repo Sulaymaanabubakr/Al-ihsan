@@ -167,7 +167,6 @@ export const updateVolunteerApplicationStatus = async (
 
   if (error) throw error;
 
-  // Fire-and-forget notification
   callEdgeFunction('notify-status-update', {
     type: 'volunteer',
     id,
@@ -175,4 +174,9 @@ export const updateVolunteerApplicationStatus = async (
     applicantEmail: record.email,
     newStatus: status,
   });
+};
+
+export const deleteVolunteerApplication = async (id: string): Promise<void> => {
+  const { error } = await supabase.from('volunteer_applications').delete().eq('id', id);
+  if (error) throw error;
 };

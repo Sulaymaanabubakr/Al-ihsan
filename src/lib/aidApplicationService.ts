@@ -135,3 +135,8 @@ export const updateAidApplicationStatus = async (
     category: record.aid_category,
   });
 };
+
+export const deleteAidApplication = async (id: string): Promise<void> => {
+  const { error } = await supabase.from('aid_applications').delete().eq('id', id);
+  if (error) throw error;
+};

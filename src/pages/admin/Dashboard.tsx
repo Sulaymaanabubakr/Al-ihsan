@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { useCloudinary } from '../../hooks/useCloudinary';
 import { useRoleAccess } from '../../hooks/useRoleAccess';
 import {
-    Upload, Plus, LogOut, LayoutDashboard, Image as ImageIcon,
+    LogOut, LayoutDashboard, Image as ImageIcon,
     Users, HandHeart, Settings, ShieldCheck,
     ChevronRight, Sun, Moon, Menu, X, Activity, ArrowUpRight,
-    Banknote, UserCircle, Target, Wallet, FileText, Bell,
-    BarChart3, Shield, ScrollText, TrendingUp
+    Banknote, Target, Wallet, Bell,
+    Shield, ScrollText, TrendingUp
 } from 'lucide-react';
 import VolunteerApplicationsList from './VolunteerApplicationsList';
 import AidApplicationsList from './AidApplicationsList';
 import SiteSettingsTab from './SiteSettingsTab';
 import CasesTab from './CasesTab';
 import DonationsTab from './DonationsTab';
-import DonorsTab from './DonorsTab';
 import CampaignsTab from './CampaignsTab';
 import FinanceTab from './FinanceTab';
 import TeamTab from './TeamTab';
-import ContentTab from './ContentTab';
-import AnalyticsTab from './AnalyticsTab';
+import MediaHubTab from './MediaHubTab';
 import NotificationsTab from './NotificationsTab';
 import StatCard from '../../components/admin/StatCard';
 import { formatNaira } from '../../components/admin/CurrencyDisplay';
@@ -30,7 +27,7 @@ import { getUnreadCount } from '../../lib/notificationService';
 import { getAuditLog, type AuditEntry } from '../../lib/auditService';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-type TabKey = 'OVERVIEW' | 'CASES' | 'AID_REQUESTS' | 'DONATIONS' | 'DONORS' | 'CAMPAIGNS' | 'FINANCE' | 'GALLERY' | 'VOLUNTEERS' | 'TEAM' | 'CONTENT' | 'NOTIFICATIONS' | 'ANALYTICS' | 'SITE_SETTINGS' | 'AUDIT_LOG';
+type TabKey = 'OVERVIEW' | 'CASES' | 'AID_REQUESTS' | 'DONATIONS' | 'CAMPAIGNS' | 'FINANCE' | 'GALLERY' | 'VOLUNTEERS' | 'TEAM' | 'NOTIFICATIONS' | 'SITE_SETTINGS' | 'AUDIT_LOG';
 
 interface TabMeta { label: string; title: string; icon: React.ElementType; group: string }
 
@@ -39,15 +36,12 @@ const TAB_META: Record<TabKey, TabMeta> = {
     CASES:         { label: 'Cases',            title: 'Case Management',           icon: HandHeart,       group: 'Operations' },
     AID_REQUESTS:  { label: 'Aid Requests',     title: 'Request for Help',          icon: ScrollText,      group: 'Operations' },
     DONATIONS:     { label: 'Donations',        title: 'Donation Records',          icon: Banknote,        group: 'Finance' },
-    DONORS:        { label: 'Donors',           title: 'Donor Management',          icon: UserCircle,      group: 'Finance' },
     CAMPAIGNS:     { label: 'Campaigns',        title: 'Campaigns & Projects',      icon: Target,          group: 'Finance' },
     FINANCE:       { label: 'Finance',          title: 'Financial Management',      icon: Wallet,          group: 'Finance' },
     GALLERY:       { label: 'Media Hub',        title: 'Media Hub',                 icon: ImageIcon,       group: 'Content' },
     VOLUNTEERS:    { label: 'Volunteers',       title: 'Volunteer Register',        icon: Users,           group: 'People' },
     TEAM:          { label: 'Team',             title: 'Team & Roles',              icon: Shield,          group: 'People' },
-    CONTENT:       { label: 'Content',          title: 'Content Management',        icon: FileText,        group: 'Content' },
     NOTIFICATIONS: { label: 'Notifications',    title: 'Notifications',             icon: Bell,            group: 'System' },
-    ANALYTICS:     { label: 'Analytics',        title: 'Analytics & Reports',       icon: BarChart3,       group: 'System' },
     SITE_SETTINGS: { label: 'Site Settings',    title: 'System Configuration',      icon: Settings,        group: 'System' },
     AUDIT_LOG:     { label: 'Audit Log',        title: 'Audit Trail',               icon: ScrollText,      group: 'System' },
 };
@@ -55,14 +49,9 @@ const TAB_META: Record<TabKey, TabMeta> = {
 const GROUPS = ['Overview', 'Operations', 'Finance', 'Content', 'People', 'System'];
 
 const Dashboard: React.FC = () => {
-    const { uploadImage, uploading } = useCloudinary();
     const { theme, toggleTheme } = useTheme();
     const { allowedTabs, canAccess } = useRoleAccess();
     const [activeTab, setActiveTab] = useState<TabKey>('OVERVIEW');
-    const [title, setTitle] = useState('');
-    const [category, setCategory] = useState('Food Relief');
-    const [file, setFile] = useState<File | null>(null);
-    const [success, setSuccess] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [unreadNotifs, setUnreadNotifs] = useState(0);
     const navigate = useNavigate();
@@ -97,18 +86,7 @@ const Dashboard: React.FC = () => {
         loadOverview();
     }, [activeTab]);
 
-    const handleUpload = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!file) return;
-        const result = await uploadImage(file);
-        if (result) {
-            await supabase.from('gallery').insert({ title, category, url: result.url });
-            setSuccess(true);
-            setTitle('');
-            setFile(null);
-            setTimeout(() => setSuccess(false), 3000);
-        }
-    };
+
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
@@ -316,7 +294,7 @@ const Dashboard: React.FC = () => {
                                         { label: 'View Cases', tab: 'CASES' as TabKey, icon: HandHeart, count: stats.activeCases },
                                         { label: 'Donations', tab: 'DONATIONS' as TabKey, icon: Banknote, count: undefined },
                                         { label: 'Volunteers', tab: 'VOLUNTEERS' as TabKey, icon: Users, count: stats.volunteers },
-                                        { label: 'Analytics', tab: 'ANALYTICS' as TabKey, icon: BarChart3, count: undefined },
+                                        { label: 'Finance', tab: 'FINANCE' as TabKey, icon: Wallet, count: undefined },
                                     ].filter(a => canAccess(a.tab))).map((action, i) => (
                                         <button key={i} onClick={() => switchTab(action.tab)}
                                             className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/10 rounded-xl p-4 text-left hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-md transition-all group">
@@ -332,46 +310,8 @@ const Dashboard: React.FC = () => {
                             </div>
                         )}
 
-                        {/* ═══════════════ GALLERY TAB ═══════════════ */}
-                        {activeTab === 'GALLERY' && (
-                            <div className="max-w-xl">
-                                <div className="bg-white dark:bg-[#111827] p-8 rounded-xl shadow-sm border border-slate-200 dark:border-white/10">
-                                    <div className="mb-6">
-                                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Upload Media</h2>
-                                        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Add new images to the public gallery.</p>
-                                    </div>
-                                    {success && (
-                                        <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 p-3 rounded-lg mb-6 text-sm flex items-center gap-2">
-                                            <ShieldCheck size={16} /> Image published successfully.
-                                        </div>
-                                    )}
-                                    <form onSubmit={handleUpload} className="space-y-5">
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Image Title</label>
-                                            <input required value={title} onChange={e => setTitle(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-slate-900 dark:text-white" placeholder="e.g. Ramadan Food Drive" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Category</label>
-                                            <select value={category} onChange={e => setCategory(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-sm text-slate-900 dark:text-white">
-                                                {["Food Relief", "Medical", "Education", "Orphans", "Events"].map(c => <option key={c} value={c}>{c}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">File</label>
-                                            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer relative group">
-                                                <input required type="file" onChange={e => setFile(e.target.files?.[0] || null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*" />
-                                                <Upload size={24} className={`mx-auto mb-3 transition-colors ${file ? 'text-emerald-500' : 'text-slate-400 group-hover:text-primary-500'}`} />
-                                                <p className="text-sm font-bold text-slate-900 dark:text-slate-300">{file ? file.name : "Click or drag file here"}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">{file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : "JPG, PNG · Up to 5MB"}</p>
-                                            </div>
-                                        </div>
-                                        <button disabled={uploading || !file} type="submit" className="w-full bg-primary-600 dark:bg-primary-500 text-white py-2.5 rounded-lg font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 text-sm shadow-sm">
-                                            {uploading ? (<><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading...</>) : (<><Plus size={16} /> Publish Image</>)}
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        )}
+                        {/* ═══════════════ MEDIA HUB TAB ═══════════════ */}
+                        {activeTab === 'GALLERY' && <MediaHubTab />}
 
                         {/* ═══════════════ AUDIT LOG TAB ═══════════════ */}
                         {activeTab === 'AUDIT_LOG' && <AuditLogView />}
@@ -380,14 +320,11 @@ const Dashboard: React.FC = () => {
                         {activeTab === 'CASES' && <CasesTab />}
                         {activeTab === 'AID_REQUESTS' && <AidApplicationsList />}
                         {activeTab === 'DONATIONS' && <DonationsTab />}
-                        {activeTab === 'DONORS' && <DonorsTab />}
                         {activeTab === 'CAMPAIGNS' && <CampaignsTab />}
                         {activeTab === 'FINANCE' && <FinanceTab />}
                         {activeTab === 'VOLUNTEERS' && <VolunteerApplicationsList />}
                         {activeTab === 'TEAM' && <TeamTab />}
-                        {activeTab === 'CONTENT' && <ContentTab />}
                         {activeTab === 'NOTIFICATIONS' && <NotificationsTab />}
-                        {activeTab === 'ANALYTICS' && <AnalyticsTab />}
                         {activeTab === 'SITE_SETTINGS' && <SiteSettingsTab />}
                     </div>
                 </div>

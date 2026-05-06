@@ -29,8 +29,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     let mounted = true;
+    let initialLoadDone = false;
 
-    const syncAuthState = async (user: User | null) => {
+    const syncAuthState = async (user: User | null, isInitial: boolean) => {
       if (!mounted) return;
 
       if (!user) {
@@ -38,10 +39,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsAdmin(false);
         setUserRole('FIELD_AGENT');
         setLoading(false);
+        initialLoadDone = true;
         return;
       }
 
-      setLoading(true);
+      // Only show loading spinner on initial mount, not on token refreshes
+      if (isInitial) {
+        setLoading(true);
+      }
       setCurrentUser(user);
 
       try {
@@ -57,20 +62,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           setUserRole('FIELD_AGENT');
         }
       } finally {
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          initialLoadDone = true;
+        }
       }
     };
 
     // Check current session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
-      syncAuthState(session?.user ?? null);
+      syncAuthState(session?.user ?? null, true);
     });
 
-    // Listen for auth changes
+    // Listen for auth changes (token refresh, sign-in, sign-out)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      syncAuthState(session?.user ?? null);
+      // After initial load, don't re-trigger loading state for token refreshes
+      syncAuthState(session?.user ?? null, !initialLoadDone);
     });
 
     return () => {

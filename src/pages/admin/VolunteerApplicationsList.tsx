@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     getVolunteerApplications,
     updateVolunteerApplicationStatus,
+    deleteVolunteerApplication,
     type VolunteerApplicationRecord,
     type VolunteerApplicationStatus
 } from '../../lib/volunteerApplicationService';
@@ -12,7 +13,8 @@ import {
     Search,
     ShieldCheck,
     UserCheck,
-    ChevronLeft
+    ChevronLeft,
+    Trash2
 } from 'lucide-react';
 import ActionModal, { type ActionModalState } from '../../components/admin/ActionModal';
 
@@ -47,7 +49,7 @@ const VolunteerApplicationsList: React.FC = () => {
         message: '',
         isDanger: false,
     });
-    const [pendingAction, setPendingAction] = useState<{ id: string; status: VolunteerApplicationStatus } | null>(null);
+    const [pendingAction, setPendingAction] = useState<{ id: string; status?: VolunteerApplicationStatus; type: 'status' | 'delete' } | null>(null);
 
     useEffect(() => {
         void fetchApplications();
@@ -66,7 +68,7 @@ const VolunteerApplicationsList: React.FC = () => {
     };
 
     const confirmStatusUpdate = (id: string, status: VolunteerApplicationStatus) => {
-        setPendingAction({ id, status });
+        setPendingAction({ id, status, type: 'status' });
         
         const isDanger = status === 'DECLINED';
         const actionName = status === 'SHORTLISTED' ? 'Shortlist' : status === 'REVIEWED' ? 'Mark as Reviewed' : 'Decline';
@@ -79,24 +81,40 @@ const VolunteerApplicationsList: React.FC = () => {
         setModalState('CONFIRMATION');
     };
 
+    const confirmDelete = (app: VolunteerApplicationRecord) => {
+        setPendingAction({ id: app.id, type: 'delete' });
+        setModalConfig({
+            title: 'Delete Application',
+            message: `Permanently delete the volunteer application from "${app.fullName}"? This action cannot be undone.`,
+            isDanger: true,
+        });
+        setModalState('CONFIRMATION');
+    };
+
     const executeStatusUpdate = async () => {
         if (!pendingAction) return;
-        const { id, status } = pendingAction;
+        const { id, status, type } = pendingAction;
         
         setModalState('LOADING');
         try {
-            await updateVolunteerApplicationStatus(id, status);
-            setApplications((prev) =>
-                prev.map((app) =>
-                    app.id === id ? { ...app, status } : app
-                )
-            );
-            if (selectedApplication && selectedApplication.id === id) {
-                setSelectedApplication(prev => prev ? { ...prev, status } : null);
+            if (type === 'delete') {
+                await deleteVolunteerApplication(id);
+                setApplications((prev) => prev.filter((app) => app.id !== id));
+                if (selectedApplication?.id === id) setSelectedApplication(null);
+            } else if (status) {
+                await updateVolunteerApplicationStatus(id, status);
+                setApplications((prev) =>
+                    prev.map((app) =>
+                        app.id === id ? { ...app, status } : app
+                    )
+                );
+                if (selectedApplication && selectedApplication.id === id) {
+                    setSelectedApplication(prev => prev ? { ...prev, status } : null);
+                }
             }
             setModalState('SUCCESS');
         } catch (error) {
-            console.error('Failed to update volunteer application status:', error);
+            console.error('Failed:', error);
             setModalState('ERROR');
         }
     };
@@ -360,24 +378,44 @@ const VolunteerApplicationsList: React.FC = () => {
 
                             <div className="xl:w-64 space-y-3 bg-slate-50 dark:bg-[#1F2937] p-4 rounded-xl border border-slate-100 dark:border-white/5">
                                 <h4 className="font-bold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-white/10">Admin Actions</h4>
-                                <button
-                                    onClick={() => confirmStatusUpdate(selectedApplication.id, 'REVIEWED')}
-                                    className="w-full px-4 py-2.5 rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 font-bold hover:bg-blue-200 dark:hover:bg-blue-900/60 transition"
-                                >
-                                    Mark as Reviewed
-                                </button>
-                                <button
-                                    onClick={() => confirmStatusUpdate(selectedApplication.id, 'SHORTLISTED')}
-                                    className="w-full px-4 py-2.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition"
-                                >
-                                    Shortlist Applicant
-                                </button>
-                                <button
-                                    onClick={() => confirmStatusUpdate(selectedApplication.id, 'DECLINED')}
-                                    className="w-full px-4 py-2.5 rounded-lg bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 font-bold hover:bg-red-200 dark:hover:bg-red-900/60 transition"
-                                >
-                                    Decline Application
-                                </button>
+                                {selectedApplication.status === 'SHORTLISTED' || selectedApplication.status === 'DECLINED' ? (
+                                    <div className={`p-4 rounded-lg text-center ${selectedApplication.status === 'SHORTLISTED' ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/30' : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30'}`}>
+                                        <p className={`text-sm font-bold ${selectedApplication.status === 'SHORTLISTED' ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-700 dark:text-red-400'}`}>
+                                            Decision Finalized
+                                        </p>
+                                        <p className={`text-xs mt-1 ${selectedApplication.status === 'SHORTLISTED' ? 'text-emerald-600/70 dark:text-emerald-400/70' : 'text-red-600/70 dark:text-red-400/70'}`}>
+                                            This applicant has been {selectedApplication.status === 'SHORTLISTED' ? 'shortlisted' : 'declined'}. No further action needed.
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button
+                                            onClick={() => confirmStatusUpdate(selectedApplication.id, 'REVIEWED')}
+                                            className="w-full px-4 py-2.5 rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 font-bold hover:bg-blue-200 dark:hover:bg-blue-900/60 transition"
+                                        >
+                                            Mark as Reviewed
+                                        </button>
+                                        <button
+                                            onClick={() => confirmStatusUpdate(selectedApplication.id, 'SHORTLISTED')}
+                                            className="w-full px-4 py-2.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300 font-bold hover:bg-emerald-200 dark:hover:bg-emerald-900/60 transition"
+                                        >
+                                            Shortlist Applicant
+                                        </button>
+                                        <button
+                                            onClick={() => confirmStatusUpdate(selectedApplication.id, 'DECLINED')}
+                                            className="w-full px-4 py-2.5 rounded-lg bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300 font-bold hover:bg-red-200 dark:hover:bg-red-900/60 transition"
+                                        >
+                                            Decline Application
+                                        </button>
+                                    </>
+                                )}
+                                {/* Delete Button - always visible */}
+                                <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/10">
+                                    <button onClick={() => confirmDelete(selectedApplication)}
+                                        className="w-full px-4 py-2.5 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition flex items-center justify-center gap-2">
+                                        <Trash2 size={14} /> Delete Application
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

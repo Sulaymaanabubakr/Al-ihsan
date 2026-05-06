@@ -114,3 +114,20 @@ export const getTotalDonations = async (): Promise<number> => {
     if (error) return 0;
     return (data ?? []).reduce((sum, row) => sum + Number(row.amount), 0);
 };
+
+export const updateDonation = async (id: string, input: Partial<DonationInput>): Promise<void> => {
+    const updateData: any = {};
+    if (input.donorName !== undefined) updateData.donor_name = input.donorName;
+    if (input.amount !== undefined) updateData.amount = input.amount;
+    if (input.paymentMethod !== undefined) updateData.payment_method = input.paymentMethod;
+    if (input.reference !== undefined) updateData.reference = input.reference;
+    if (input.notes !== undefined) updateData.notes = input.notes;
+    if (input.campaignId !== undefined) updateData.campaign_id = input.campaignId || null;
+    const { error } = await supabase.from('donations').update(updateData).eq('id', id);
+    if (error) throw error;
+};
+
+export const deleteDonation = async (id: string): Promise<void> => {
+    const { error } = await supabase.from('donations').delete().eq('id', id);
+    if (error) throw error;
+};

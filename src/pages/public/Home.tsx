@@ -17,12 +17,14 @@ import { supabase } from '../../lib/supabase';
 interface HomeImage {
     id: string;
     title: string | null;
+    description: string;
     url: string;
 }
 
 interface HomeVideo {
     id: string;
     title: string | null;
+    description: string;
     url: string;
 }
 
@@ -77,12 +79,12 @@ const Home: React.FC = () => {
                 ]);
                 setHomeImages(
                     (imagesResult.data ?? []).map(
-                        (row) => ({ id: row.id, title: row.title, url: row.url } as HomeImage)
+                        (row) => ({ id: row.id, title: row.title, description: row.description ?? '', url: row.url } as HomeImage)
                     )
                 );
                 setHomeVideos(
                     (videosResult.data ?? []).map(
-                        (row) => ({ id: row.id, title: row.title, url: row.url } as HomeVideo)
+                        (row) => ({ id: row.id, title: row.title, description: row.description ?? '', url: row.url } as HomeVideo)
                     )
                 );
             } catch (error) {
@@ -430,7 +432,12 @@ const Home: React.FC = () => {
                                     <motion.div key={img.id} variants={fadeInUp} className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative group">
                                         <img src={img.url} alt={img.title || "Gallery Image"} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                         <div className="absolute inset-0 bg-primary-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <p className="text-white font-bold px-4 text-center">{img.title}</p>
+                                            <div className="text-center px-4">
+                                                <p className="text-white font-bold">{img.title}</p>
+                                                {img.description && (
+                                                    <p className="text-white/70 text-sm mt-1 line-clamp-2">{img.description}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </motion.div>
                                 ))}

@@ -44,3 +44,26 @@ export const updateTeamMemberProfile = async (id: string, fields: { fullName?: s
     const { error } = await supabase.from('admin_users').update(updateData).eq('id', id);
     if (error) throw error;
 };
+
+export const deleteTeamMember = async (id: string): Promise<void> => {
+    const { error } = await supabase.from('admin_users').delete().eq('id', id);
+    if (error) throw error;
+};
+
+export interface TeamMemberInput {
+    email: string;
+    fullName: string;
+    phone?: string;
+    role: TeamRole;
+}
+
+export const createTeamMember = async (input: TeamMemberInput): Promise<void> => {
+    const { error } = await supabase.from('admin_users').insert({
+        id: crypto.randomUUID(),
+        email: input.email,
+        full_name: input.fullName,
+        phone: input.phone || '',
+        role: input.role,
+    });
+    if (error) throw error;
+};
