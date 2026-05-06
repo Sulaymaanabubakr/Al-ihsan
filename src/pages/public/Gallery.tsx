@@ -10,6 +10,7 @@ const categories = ["All", "Food Relief", "Medical", "Education", "Orphans", "Ev
 interface GalleryItem {
     id: string;
     url: string;
+    additionalUrls?: string[];
     category: string;
     title: string;
     description: string;
@@ -59,6 +60,11 @@ const Gallery: React.FC = () => {
     const [items, setItems] = useState<GalleryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+    const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+
+    useEffect(() => {
+        if (selectedItem) setSelectedMediaIndex(0);
+    }, [selectedItem]);
 
     useEffect(() => {
         const loadMedia = async () => {
@@ -71,6 +77,7 @@ const Gallery: React.FC = () => {
                 const galleryItems: GalleryItem[] = (galleryRes.data ?? []).map((row: any) => ({
                     id: row.id,
                     url: row.url,
+                    additionalUrls: row.additional_urls || [],
                     category: row.category ?? 'General',
                     title: row.title ?? '',
                     description: row.description ?? '',
@@ -82,6 +89,7 @@ const Gallery: React.FC = () => {
                 const videoItems: GalleryItem[] = (videosRes.data ?? []).map((row: any) => ({
                     id: `vid-${row.id}`,
                     url: row.url,
+                    additionalUrls: row.additional_urls || [],
                     category: row.category ?? 'Videos',
                     title: row.title ?? '',
                     description: row.description ?? '',
@@ -219,12 +227,19 @@ const Gallery: React.FC = () => {
                                         </div>
                                     )}
 
-                                    {/* Video Play Badge */}
-                                    {isVideo(item) && (
-                                        <div className="absolute top-3 left-3 bg-primary-900/80 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
-                                            <Play size={10} fill="currentColor" /> Video
-                                        </div>
-                                    )}
+                                    {/* Video Play Badge / Multiple Media Badge */}
+                                    <div className="absolute top-3 left-3 flex gap-2">
+                                        {isVideo(item) && (
+                                            <div className="bg-primary-900/80 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                                <Play size={10} fill="currentColor" /> Video
+                                            </div>
+                                        )}
+                                        {(item.additionalUrls?.length ?? 0) > 0 && (
+                                            <div className="bg-black/80 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                                + {item.additionalUrls?.length}
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {/* Hover Overlay */}
                                     <div className="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -276,109 +291,142 @@ const Gallery: React.FC = () => {
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 flex items-center justify-center px-4 pb-8" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex-1 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
                                 <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    exit={{ scale: 0.9, opacity: 0 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="w-full max-w-5xl"
+                                    initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                                    transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                                    className="w-full max-w-7xl h-[85vh] flex flex-col md:flex-row rounded-2xl overflow-hidden shadow-2xl bg-black/60 border border-white/10 backdrop-blur-xl"
                                 >
-                                    {/* Media */}
-                                    <div className="rounded-2xl overflow-hidden shadow-2xl bg-black">
-                                        {selectedItem.mediaType === 'image' && (
-                                            <img
-                                                src={selectedItem.url}
-                                                alt={selectedItem.title}
-                                                className="w-full max-h-[70vh] object-contain mx-auto"
-                                                onContextMenu={(e) => e.preventDefault()}
-                                            />
-                                        )}
+                                    {/* Left: Media Area */}
+                                    <div className="flex-1 bg-black relative flex flex-col overflow-hidden group">
+                                        {(() => {
+                                            const allMedia = selectedItem ? [selectedItem.url, ...(selectedItem.additionalUrls || [])] : [];
+                                            const currentUrl = allMedia[selectedMediaIndex] || '';
+                                            return (
+                                                <>
+                                                    <div className="flex-1 flex items-center justify-center relative">
+                                                        {selectedItem.mediaType === 'image' && (
+                                                            <img
+                                                                src={currentUrl}
+                                                                alt={selectedItem.title}
+                                                                className="w-full h-full object-contain transition-opacity duration-300"
+                                                                onContextMenu={(e) => e.preventDefault()}
+                                                            />
+                                                        )}
 
-                                        {selectedItem.mediaType === 'video' && (
-                                            <video
-                                                src={selectedItem.url}
-                                                className="w-full max-h-[70vh]"
-                                                controls
-                                                autoPlay
-                                                controlsList="nodownload"
-                                                onContextMenu={(e) => e.preventDefault()}
-                                            />
-                                        )}
+                                                        {selectedItem.mediaType === 'video' && (
+                                                            <video
+                                                                src={currentUrl}
+                                                                className="w-full h-full object-contain"
+                                                                controls
+                                                                autoPlay
+                                                                controlsList="nodownload"
+                                                                onContextMenu={(e) => e.preventDefault()}
+                                                            />
+                                                        )}
 
-                                        {selectedItem.mediaType === 'video_link' && getEmbedUrl(selectedItem.url) && (
-                                            <div className="aspect-video">
-                                                <iframe
-                                                    src={`${getEmbedUrl(selectedItem.url)!}?autoplay=1`}
-                                                    className="w-full h-full"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowFullScreen
-                                                />
-                                            </div>
-                                        )}
+                                                        {selectedItem.mediaType === 'video_link' && getEmbedUrl(currentUrl) && (
+                                                            <div className="w-full h-full">
+                                                                <iframe
+                                                                    src={`${getEmbedUrl(currentUrl)!}?autoplay=1`}
+                                                                    className="w-full h-full border-0"
+                                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                    allowFullScreen
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    
+                                                    {/* Floating Album Thumbnails */}
+                                                    {allMedia.length > 1 && (
+                                                        <div className="absolute bottom-0 inset-x-0 p-4 md:p-6 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex gap-3 overflow-x-auto custom-scrollbar md:translate-y-4 md:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                                            {allMedia.map((url, idx) => (
+                                                                <button
+                                                                    key={idx}
+                                                                    onClick={(e) => { e.stopPropagation(); setSelectedMediaIndex(idx); }}
+                                                                    className={`relative flex-shrink-0 h-16 w-24 rounded-lg overflow-hidden border-2 transition-all duration-300 ${selectedMediaIndex === idx ? 'border-gold-500 scale-105 shadow-lg shadow-gold-500/20' : 'border-white/20 opacity-60 hover:opacity-100 hover:border-white/50'}`}
+                                                                >
+                                                                    {selectedItem.mediaType === 'video_link' && getYouTubeThumbnail(url) ? (
+                                                                         <img src={getYouTubeThumbnail(url)!} className="w-full h-full object-cover" />
+                                                                    ) : selectedItem.mediaType === 'video' && isVideoFile(url) ? (
+                                                                         <video src={url} className="w-full h-full object-cover pointer-events-none" />
+                                                                    ) : (
+                                                                        <img src={url} className="w-full h-full object-cover" />
+                                                                    )}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
 
-                                    {/* Details Section */}
-                                    <div className="mt-6 bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10">
-                                        <div className="flex flex-wrap items-center gap-3 mb-4">
-                                            <span className="bg-gold-500/20 text-gold-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                                                <Tag size={12} /> {selectedItem.category}
-                                            </span>
-                                            {isVideo(selectedItem) && (
-                                                <span className="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                                                    <Film size={12} /> Video
+                                    {/* Right: Details Panel */}
+                                    <div className="w-full md:w-96 flex flex-col bg-white/5 border-l border-white/10 overflow-y-auto custom-scrollbar relative">
+                                        <div className="p-6 md:p-8 space-y-6 flex-1">
+                                            {/* Metadata Badges */}
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="bg-gold-500/20 text-gold-400 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border border-gold-500/20">
+                                                    <Tag size={12} /> {selectedItem.category}
                                                 </span>
-                                            )}
-                                            <span className="text-white/40 text-xs flex items-center gap-1.5 ml-auto">
-                                                <Calendar size={12} /> {formatDate(selectedItem.createdAt)}
-                                            </span>
+                                                {isVideo(selectedItem) && (
+                                                    <span className="bg-primary-500/20 text-primary-300 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 border border-primary-500/20">
+                                                        <Film size={12} /> Video
+                                                    </span>
+                                                )}
+                                                <span className="text-white/40 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5 ml-auto">
+                                                    <Calendar size={12} /> {formatDate(selectedItem.createdAt)}
+                                                </span>
+                                            </div>
+
+                                            {/* Title & Description */}
+                                            <div>
+                                                <h2 className="text-2xl font-heading font-bold text-white mb-3 leading-tight">
+                                                    {selectedItem.title || 'Untitled'}
+                                                </h2>
+                                                
+                                                {selectedItem.description && (
+                                                    <p className="text-white/70 leading-relaxed text-sm whitespace-pre-line">
+                                                        {selectedItem.description}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <h2 className="text-2xl md:text-3xl font-heading font-bold text-white mb-4">
-                                            {selectedItem.title || 'Untitled'}
-                                        </h2>
-
-                                        {selectedItem.description && (
-                                            <p className="text-white/70 leading-relaxed text-base md:text-lg whitespace-pre-line">
-                                                {selectedItem.description}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Related Media */}
-                                    {relatedItems.length > 0 && (
-                                        <div className="mt-8">
-                                            <h3 className="text-lg font-bold text-white/80 mb-4 font-heading">More from {selectedItem.category}</h3>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                                {relatedItems.map(item => (
-                                                    <div
-                                                        key={item.id}
-                                                        className="cursor-pointer group/related"
-                                                        onClick={() => setSelectedItem(item)}
-                                                    >
-                                                        <div className="relative rounded-xl overflow-hidden aspect-[4/3] bg-gray-800">
+                                        {/* Related Media (Bottom pinned) */}
+                                        {relatedItems.length > 0 && (
+                                            <div className="p-6 border-t border-white/10 bg-black/40 mt-auto">
+                                                <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-4">More from {selectedItem.category}</h3>
+                                                <div className="grid grid-cols-3 gap-2">
+                                                    {relatedItems.map(item => (
+                                                        <div
+                                                            key={item.id}
+                                                            className="cursor-pointer group/related rounded-lg overflow-hidden aspect-square bg-gray-800 relative ring-1 ring-white/10 hover:ring-gold-500/50 transition-all"
+                                                            onClick={() => setSelectedItem(item)}
+                                                        >
                                                             {item.mediaType === 'image' ? (
-                                                                <img src={item.url} alt={item.title} className="w-full h-full object-cover transition-transform duration-300 group-hover/related:scale-110" />
+                                                                <img src={item.url} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover/related:scale-110" />
                                                             ) : item.mediaType === 'video_link' && getYouTubeThumbnail(item.url) ? (
-                                                                <img src={getYouTubeThumbnail(item.url)!} alt={item.title} className="w-full h-full object-cover transition-transform duration-300 group-hover/related:scale-110" />
+                                                                <img src={getYouTubeThumbnail(item.url)!} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover/related:scale-110" />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center bg-primary-900">
-                                                                    <Film size={24} className="text-gold-400/50" />
+                                                                    <Film size={16} className="text-gold-400/50" />
                                                                 </div>
                                                             )}
                                                             {isVideo(item) && (
-                                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                                    <Play size={24} className="text-white drop-shadow-lg" fill="currentColor" />
+                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/related:bg-transparent transition-colors">
+                                                                    <Play size={16} className="text-white drop-shadow-md" fill="currentColor" />
                                                                 </div>
                                                             )}
-                                                            <div className="absolute inset-0 bg-black/0 group-hover/related:bg-black/30 transition-colors" />
                                                         </div>
-                                                        <p className="text-white/60 text-xs mt-2 line-clamp-1 font-medium">{item.title}</p>
-                                                    </div>
-                                                ))}
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        )}
+                                    </div>
                                 </motion.div>
                             </div>
                         </div>

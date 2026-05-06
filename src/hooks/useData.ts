@@ -14,6 +14,8 @@ interface PostRow {
     title: string | null;
     body: string | null;
     created_at: string | null;
+    image_url: string | null;
+    link: string | null;
 }
 
 export const useAppeals = () => {
@@ -81,6 +83,8 @@ export const usePosts = () => {
                     excerpt: post.body?.trim()
                         ? `${post.body.trim().slice(0, 110)}${post.body.trim().length > 110 ? '...' : ''}`
                         : 'New update from Al-Ihsan Relief.',
+                    imageUrl: post.image_url ?? undefined,
+                    link: post.link ?? undefined,
                 }));
 
                 setPosts(mappedPosts);

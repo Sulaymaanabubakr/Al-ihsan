@@ -10,9 +10,7 @@ export const useCloudinary = () => {
 
         try {
             if (!cloudName || !uploadPreset) {
-                throw new Error(
-                    'Cloudinary configuration is missing. Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET.'
-                );
+                throw new Error('Cloudinary configuration is missing. Set VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET.');
             }
 
             const formData = new FormData();
@@ -28,14 +26,12 @@ export const useCloudinary = () => {
                 }
             );
 
-            if (!response.ok) {
-                throw new Error('Cloudinary upload failed.');
-            }
+            const data = await response.json();
 
-            const data = (await response.json()) as {
-                secure_url?: string;
-                resource_type?: string;
-            };
+            if (!response.ok) {
+                const errorMessage = data?.error?.message || 'Cloudinary upload failed.';
+                throw new Error(errorMessage);
+            }
 
             if (!data.secure_url) {
                 throw new Error('Cloudinary upload did not return a media URL.');
@@ -45,11 +41,16 @@ export const useCloudinary = () => {
             return {
                 url: data.secure_url,
                 type: data.resource_type || file.type,
+                error: null
             };
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload failed:', error);
             setUploading(false);
-            return null;
+            return {
+                url: null,
+                type: null,
+                error: error.message || 'An unknown error occurred during upload.'
+            };
         }
     };
 

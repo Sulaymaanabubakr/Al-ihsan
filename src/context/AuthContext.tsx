@@ -69,17 +69,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
-    // Check current session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      syncAuthState(session?.user ?? null, true);
-    });
-
     // Listen for auth changes (token refresh, sign-in, sign-out)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      // After initial load, don't re-trigger loading state for token refreshes
-      syncAuthState(session?.user ?? null, !initialLoadDone);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Only show loading spinner on initial mount or when signing in
+      const isInitialOrSignIn = !initialLoadDone || event === 'SIGNED_IN';
+      syncAuthState(session?.user ?? null, isInitialOrSignIn);
     });
 
     return () => {

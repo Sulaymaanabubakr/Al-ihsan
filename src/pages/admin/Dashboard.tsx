@@ -20,7 +20,7 @@ import NotificationsTab from './NotificationsTab';
 import StatCard from '../../components/admin/StatCard';
 import { formatNaira } from '../../components/admin/CurrencyDisplay';
 import { supabase } from '../../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { getOverviewStats } from '../../lib/analyticsService';
 import { getUnreadCount } from '../../lib/notificationService';
@@ -51,7 +51,9 @@ const GROUPS = ['Overview', 'Operations', 'Finance', 'Content', 'People', 'Syste
 const Dashboard: React.FC = () => {
     const { theme, toggleTheme } = useTheme();
     const { allowedTabs, canAccess } = useRoleAccess();
-    const [activeTab, setActiveTab] = useState<TabKey>('OVERVIEW');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const urlTab = searchParams.get('tab') as TabKey | null;
+    const activeTab: TabKey = urlTab && TAB_META[urlTab] && allowedTabs.includes(urlTab) ? urlTab : 'OVERVIEW';
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [unreadNotifs, setUnreadNotifs] = useState(0);
     const navigate = useNavigate();
@@ -95,7 +97,7 @@ const Dashboard: React.FC = () => {
 
     const switchTab = (tab: TabKey) => {
         if (!canAccess(tab)) return;
-        setActiveTab(tab);
+        setSearchParams({ tab });
         setMobileMenuOpen(false);
     };
 

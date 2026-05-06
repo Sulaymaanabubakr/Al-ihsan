@@ -18,17 +18,7 @@ export const useGoldPrice = () => {
     useEffect(() => {
         const fetchPrices = async () => {
             try {
-                // Free Public API intent: DailyNisab
-                // URL: https://api.dailynisab.org/v1/latest?currency=NGN
-                const response = await fetch('https://api.dailynisab.org/v1/latest?currency=NGN');
-
-                if (!response.ok) throw new Error('Network response was not ok');
-
-                // Note: The following lines are commented out to avoid unused variable errors until
-                // the variable 'json' is actually used in logic.
-                // const json: any = await response.json(); 
-
-                // Simulate success for now as 99% of public APIs block direct browser requests (CORS).
+                // Simulate an API call delay
                 await new Promise(resolve => setTimeout(resolve, 800));
 
                 // Use updated January 2026 realistic figures

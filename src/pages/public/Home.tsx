@@ -10,7 +10,7 @@ import UrgentAppealCard from '../../components/home/UrgentAppealCard';
 import ZakatCalculator from '../../components/home/ZakatCalculator';
 import FloatingWhatsApp from '../../components/common/FloatingWhatsApp';
 import TypewriterText from '../../components/common/TypewriterText';
-import { useAppeals, usePosts } from '../../hooks/useData';
+import { useAppeals } from '../../hooks/useData';
 import { useAnimations } from '../../hooks/useAnimations';
 import { supabase } from '../../lib/supabase';
 
@@ -57,7 +57,6 @@ const getVideoEmbedUrl = (url: string) => {
 
 const Home: React.FC = () => {
     const { appeals, loading: loadingAppeals } = useAppeals();
-    const { posts, loading: loadingPosts } = usePosts();
     const [homeImages, setHomeImages] = React.useState<HomeImage[]>([]);
     const [homeVideos, setHomeVideos] = React.useState<HomeVideo[]>([]);
     const [loadingMedia, setLoadingMedia] = React.useState(true);
@@ -102,7 +101,6 @@ const Home: React.FC = () => {
 
     const {
         slideInLeft: fadeInLeft,
-        slideInRight: fadeInRight,
         fadeInUp,
         dropIn,
         staggerContainer
@@ -300,7 +298,7 @@ const Home: React.FC = () => {
                                 <span className="text-red-500 font-bold tracking-widest uppercase text-sm mb-2 block animate-pulse">Emergency Response</span>
                                 <h2 className="text-3xl md:text-4xl font-heading font-bold text-primary-900">Urgent Appeals</h2>
                             </motion.div>
-                            <motion.div variants={fadeInRight} className="hidden md:flex gap-2">
+                            <motion.div variants={fadeInUp} className="hidden md:flex gap-2">
                                 <button className="w-10 h-10 border border-primary-200 rounded-full flex items-center justify-center hover:bg-primary-900 hover:text-white transition-colors">
                                     <ArrowRight className="rotate-180" size={20} />
                                 </button>
@@ -380,7 +378,7 @@ const Home: React.FC = () => {
                             initial="hidden"
                             whileInView="visible"
                             viewport={{ once: true }}
-                            variants={fadeInRight}
+                            variants={fadeInUp}
                         >
                             <ZakatCalculator />
                         </motion.div>
@@ -427,18 +425,19 @@ const Home: React.FC = () => {
                         {loadingMedia ? (
                             <div className="text-center py-10 text-gray-400">Loading images...</div>
                         ) : homeImages.length > 0 ? (
-                            <motion.div variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <motion.div variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                 {homeImages.map((img) => (
-                                    <motion.div key={img.id} variants={fadeInUp} className="aspect-square rounded-xl overflow-hidden bg-gray-100 relative group">
-                                        <img src={img.url} alt={img.title || "Gallery Image"} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                        <div className="absolute inset-0 bg-primary-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <div className="text-center px-4">
-                                                <p className="text-white font-bold">{img.title}</p>
-                                                {img.description && (
-                                                    <p className="text-white/70 text-sm mt-1 line-clamp-2">{img.description}</p>
-                                                )}
+                                    <motion.div key={img.id} variants={fadeInUp}>
+                                        <Link to="/gallery" className="group">
+                                            <div className="aspect-square rounded-2xl overflow-hidden bg-gray-100 relative shadow-sm group-hover:shadow-xl transition-shadow duration-300">
+                                                <img src={img.url} alt={img.title || 'Gallery Image'} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                                <div className="absolute inset-0 bg-primary-900/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </div>
-                                        </div>
+                                            <div className="mt-4 px-1">
+                                                <h3 className="font-heading font-bold text-primary-900 text-lg md:text-xl line-clamp-1 group-hover:text-gold-600 transition-colors">{img.title || 'Untitled'}</h3>
+                                                {img.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">{img.description}</p>}
+                                            </div>
+                                        </Link>
                                     </motion.div>
                                 ))}
                             </motion.div>
@@ -448,7 +447,7 @@ const Home: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="text-center mt-10">
+                        <div className="text-center mt-12">
                             <Link to="/gallery" className="inline-flex items-center gap-2 px-8 py-3 border-2 border-primary-900 text-primary-900 font-bold rounded-full hover:bg-primary-900 hover:text-white transition-all">
                                 View Full Gallery <ArrowRight size={18} />
                             </Link>
@@ -469,47 +468,36 @@ const Home: React.FC = () => {
                         {loadingMedia ? (
                             <div className="text-center py-10 text-gray-400">Loading videos...</div>
                         ) : homeVideos.length > 0 ? (
-                            <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                 {homeVideos.map((video) => (
-                                    <motion.div key={video.id} variants={fadeInUp} className="aspect-video rounded-xl overflow-hidden bg-gray-900 relative group">
-                                        {getVideoEmbedUrl(video.url) ? (
-                                            <iframe
-                                                src={getVideoEmbedUrl(video.url) || undefined}
-                                                title={video.title || 'Video'}
-                                                className="w-full h-full"
-                                                loading="lazy"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen
-                                            />
-                                        ) : video.url.match(/\.(mp4|webm|ogg)(\?.*)?$/i) ? (
-                                            <video
-                                                src={video.url}
-                                                title={video.title || 'Video'}
-                                                className="w-full h-full object-cover"
-                                                controls
-                                                preload="metadata"
-                                            />
-                                        ) : (
-                                            <a
-                                                href={video.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="w-full h-full flex flex-col items-center justify-center text-white/80 p-6 text-center bg-primary-950"
-                                            >
-                                                <div className="text-sm uppercase tracking-widest text-gold-400 mb-2">Video</div>
-                                                <div className="font-bold">{video.title || 'Watch Video'}</div>
-                                            </a>
-                                        )}
-                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-primary-900 transition-all text-white">
-                                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-current border-b-[8px] border-b-transparent ml-1"></div>
+                                    <motion.div key={video.id} variants={fadeInUp}>
+                                        <Link to="/gallery" className="group block">
+                                            <div className="aspect-video rounded-2xl overflow-hidden bg-gray-900 relative shadow-sm group-hover:shadow-xl transition-shadow duration-300">
+                                                {getVideoEmbedUrl(video.url) ? (
+                                                    <iframe
+                                                        src={getVideoEmbedUrl(video.url) || undefined}
+                                                        title={video.title || 'Video'}
+                                                        className="w-full h-full pointer-events-none"
+                                                        loading="lazy"
+                                                    />
+                                                ) : video.url.match(/\.(mp4|webm|ogg)(\?.*)?$/i) ? (
+                                                    <video src={video.url} className="w-full h-full object-cover" preload="metadata" muted />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center bg-primary-950">
+                                                        <div className="text-sm uppercase tracking-widest text-gold-400">Video</div>
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                    <div className="w-14 h-14 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-white group-hover:scale-110 transition-all text-primary-900 shadow-lg">
+                                                        <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-current border-b-[8px] border-b-transparent ml-1"></div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        {video.title && (
-                                            <div className="absolute left-0 right-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white text-sm font-medium pointer-events-none">
-                                                {video.title}
+                                            <div className="mt-4 px-1">
+                                                <h3 className="font-heading font-bold text-primary-900 text-lg md:text-xl line-clamp-1 group-hover:text-gold-600 transition-colors">{video.title || 'Untitled Video'}</h3>
+                                                {video.description && <p className="text-sm text-gray-500 mt-1 line-clamp-2">{video.description}</p>}
                                             </div>
-                                        )}
+                                        </Link>
                                     </motion.div>
                                 ))}
                             </motion.div>
@@ -519,7 +507,7 @@ const Home: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="text-center mt-10">
+                        <div className="text-center mt-12">
                             <Link to="/gallery" className="inline-flex items-center gap-2 px-8 py-3 bg-primary-900 text-white font-bold rounded-full hover:bg-primary-800 transition-all shadow-lg hover:shadow-xl">
                                 Watch More Videos <ArrowRight size={18} />
                             </Link>
@@ -528,77 +516,29 @@ const Home: React.FC = () => {
                 </div>
             </section>
 
-            {/* 5. SUCCESS STORIES (The "Heart") & EDUCATION */}
+            {/* SUCCESS STORIES */}
             <section className="py-20 bg-gray-50">
                 <div className="container mx-auto px-4">
-                    <div className="grid lg:grid-cols-2 gap-16">
-                        {/* Success Story */}
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={fadeInLeft}
-                            className="text-center md:text-left"
-                        >
-                            <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Success Stories</span>
-                            <div className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-                                <div className="flex gap-4 mb-6 justify-center md:justify-start">
-                                    <div className="w-1/2 aspect-square bg-gray-200 rounded-xl flex items-center justify-center text-xs text-gray-500">Before</div>
-                                    <div className="w-1/2 aspect-square bg-primary-100 rounded-xl flex items-center justify-center text-xs text-primary-800">After</div>
-                                </div>
-                                <blockquote className="text-xl text-primary-900 font-heading italic mb-6 text-center md:text-left">
-                                    "Thanks to your Sadaqah, Amina’s family in Borno now has access to clean water daily. Before, they walked 5km every morning."
-                                </blockquote>
-                                <Link to="/stories" className="text-gold-600 font-bold hover:text-primary-900 flex items-center justify-center md:justify-start gap-2">
-                                    Read Full Story <ArrowRight size={16} />
-                                </Link>
-                            </div>
-                        </motion.div>
-
-                        {/* Latest Education/News - Only show if data exists */}
-                        <motion.div
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={staggerContainer}
-                            className="text-center md:text-left"
-                        >
-                            <motion.span variants={dropIn} className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Education & News</motion.span>
-                            <div className="space-y-6">
-                                {loadingPosts ? (
-                                    <div className="text-center py-4 text-gray-400">Loading new updates...</div>
-                                ) : posts.length > 0 ? (
-                                    posts.map((news) => (
-                                        <motion.div key={news.id} variants={fadeInRight}>
-                                            <div className="flex gap-4 group cursor-pointer">
-                                                <div className="w-24 h-24 bg-gray-200 rounded-lg flex-shrink-0 relative overflow-hidden">
-                                                    {news.imageUrl ? (
-                                                        <img src={news.imageUrl} alt={news.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 bg-gray-100">No Img</div>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <div className="text-xs text-gold-600 font-bold mb-1">{news.date}</div>
-                                                    <h4 className="text-lg font-bold text-primary-900 group-hover:text-gold-500 transition-colors">{news.title}</h4>
-                                                    <p className="text-sm text-gray-500 mt-2">{news.excerpt}</p>
-                                                    {news.link && (
-                                                        <a href={news.link} className="text-sm text-primary-900 mt-2 inline-block font-medium">
-                                                            Read article
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ))
-                                ) : (
-                                    <div className="p-6 bg-gray-50 rounded-lg text-center text-gray-400 text-sm">
-                                        No recent news updates.
-                                    </div>
-                                )}
-                            </div>
-                        </motion.div>
-                    </div>
+                    <motion.div
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                        variants={fadeInLeft}
+                        className="max-w-3xl mx-auto text-center"
+                    >
+                        <span className="text-gold-500 font-bold tracking-widest uppercase text-sm mb-4 block">Success Stories</span>
+                        <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+                            <blockquote className="text-xl md:text-2xl text-primary-900 font-heading italic mb-6">
+                                "Al-Ihsan Relief has been making a difference in the lives of the vulnerable — providing food, medical aid, education support, and more to communities across Nigeria."
+                            </blockquote>
+                            <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                                From Ramadan food distributions reaching hundreds of families, to educational scholarships that keep children in school, every donation creates a ripple effect of positive change. Our volunteers work tirelessly to ensure your Sadaqah reaches those who need it most.
+                            </p>
+                            <Link to="/gallery" className="inline-flex items-center gap-2 text-gold-600 font-bold hover:text-primary-900 transition">
+                                See Our Impact <ArrowRight size={16} />
+                            </Link>
+                        </div>
+                    </motion.div>
                 </div>
             </section>
 
